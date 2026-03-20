@@ -15,7 +15,12 @@ import {
   Platform,
 } from 'react-native';
 import { Mic, Camera, PenLine, Plus, Square, X, Sparkles, Check } from 'lucide-react-native';
-import { Audio } from 'expo-av';
+import {
+  useAudioRecorder,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+  RecordingPresets,
+} from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
 import { COLORS } from '@kivo/shared';
 import type { ParsedEntry, GroupMember } from '@kivo/shared';
@@ -45,25 +50,23 @@ export function MultimodalComposer({
   const [parsedPreview, setParsedPreview] = useState<Partial<ParsedEntry> | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const recording = useRef<Audio.Recording | null>(null);
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const durationInterval = useRef<ReturnType<typeof setInterval> | null>(null);
   const scaleAnim = useRef(new Animated.Value(1)).current;
 
   // ─── Voice Recording ───────────────────────────────────────────────────────
 
   const startVoiceRecording = useCallback(async () => {
-    const { granted } = await Audio.requestPermissionsAsync();
+    const { granted } = await requestRecordingPermissionsAsync();
     if (!granted) return;
 
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: true,
-      playsInSilentModeIOS: true,
+    await setAudioModeAsync({
+      allowsRecording: true,
+      playsInSilentMode: true,
     });
 
-    const { recording: rec } = await Audio.Recording.createAsync(
-      Audio.RecordingOptionsPresets.HIGH_QUALITY
-    );
-    recording.current = rec;
+    await recorder.prepareToRecordAsync();
+    recorder.record();
     setMode('voice_recording');
     setRecordingDuration(0);
 
@@ -78,10 +81,10 @@ export function MultimodalComposer({
         Animated.timing(scaleAnim, { toValue: 1.0, duration: 600, useNativeDriver: true }),
       ])
     ).start();
-  }, [scaleAnim]);
+  }, [recorder, scaleAnim]);
 
   const stopVoiceRecording = useCallback(async () => {
-    if (!recording.current) return;
+    if (!recorder.isRecording) return;
     clearInterval(durationInterval.current!);
     scaleAnim.stopAnimation();
     scaleAnim.setValue(1);
@@ -90,9 +93,7 @@ export function MultimodalComposer({
     setMode('voice_preview');
 
     try {
-      await recording.current.stopAndUnloadAsync();
-      const uri = recording.current.getURI();
-      recording.current = null;
+      await recorder.stop();
 
       // For now, use a placeholder transcription
       // In production: upload to Supabase, call Whisper via Edge Function
@@ -109,7 +110,7 @@ export function MultimodalComposer({
     } finally {
       setIsProcessing(false);
     }
-  }, [defaultCurrency, members, transcription, scaleAnim]);
+  }, [recorder, defaultCurrency, members, transcription, scaleAnim]);
 
   // ─── Photo ─────────────────────────────────────────────────────────────────
 
@@ -155,9 +156,8 @@ export function MultimodalComposer({
   }, [mode, onEntryConfirmed, parsedPreview, text, transcription]);
 
   const cancel = useCallback(() => {
-    if (recording.current) {
-      recording.current.stopAndUnloadAsync();
-      recording.current = null;
+    if (recorder.isRecording) {
+      recorder.stop().catch(() => {});
     }
     clearInterval(durationInterval.current!);
     scaleAnim.setValue(1);
@@ -165,7 +165,7 @@ export function MultimodalComposer({
     setTranscription('');
     setParsedPreview(null);
     setMode('idle');
-  }, [scaleAnim]);
+  }, [recorder, scaleAnim]);
 
   const formatDuration = (seconds: number) => {
     const m = Math.floor(seconds / 60);

@@ -1,5 +1,11 @@
-import { useState, useCallback, useRef } from 'react';
-import { Audio } from 'expo-av';
+import { useState, useCallback } from 'react';
+import {
+  useAudioRecorder,
+  useAudioRecorderState,
+  requestRecordingPermissionsAsync,
+  setAudioModeAsync,
+  RecordingPresets,
+} from 'expo-audio';
 import * as FileSystem from 'expo-file-system';
 
 type RecordingState = 'idle' | 'recording' | 'processing';
@@ -15,61 +21,41 @@ interface UseVoiceRecordingResult {
 
 export function useVoiceRecording(): UseVoiceRecordingResult {
   const [state, setState] = useState<RecordingState>('idle');
-  const [durationMs, setDurationMs] = useState(0);
-  const [metering, setMetering] = useState(-160);
-  const recordingRef = useRef<Audio.Recording | null>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const startTimeRef = useRef<number>(0);
+
+  const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
+  // Poll every 100 ms for live metering + duration
+  const recorderState = useAudioRecorderState(recorder, 100);
+
+  const metering = recorderState.metering ?? -160;
+  const durationMs = recorderState.durationMillis;
 
   const startRecording = useCallback(async () => {
     try {
-      await Audio.requestPermissionsAsync();
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
+      const { granted } = await requestRecordingPermissionsAsync();
+      if (!granted) return;
+
+      await setAudioModeAsync({
+        allowsRecording: true,
+        playsInSilentMode: true,
       });
 
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY,
-        (status) => {
-          if (status.metering !== undefined) {
-            setMetering(status.metering);
-          }
-        },
-        100 // metering interval ms
-      );
-
-      recordingRef.current = recording;
-      startTimeRef.current = Date.now();
+      await recorder.prepareToRecordAsync();
+      recorder.record();
       setState('recording');
-
-      timerRef.current = setInterval(() => {
-        setDurationMs(Date.now() - startTimeRef.current);
-      }, 100);
     } catch (err) {
       console.error('Failed to start recording:', err);
     }
-  }, []);
+  }, [recorder]);
 
   const stopAndTranscribe = useCallback(async (): Promise<string | null> => {
-    if (!recordingRef.current) return null;
-
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-
     setState('processing');
-    setMetering(-160);
 
     try {
-      await recordingRef.current.stopAndUnloadAsync();
-      const uri = recordingRef.current.getURI();
-      recordingRef.current = null;
-
+      await recorder.stop();
+      const uri = recorder.uri;
       if (!uri) return null;
 
-      // Read the audio file and send to transcription
+      // Read audio file as base64 and send to Whisper via Edge Function
       const audioBase64 = await FileSystem.readAsStringAsync(uri, {
         encoding: 'base64',
       });
@@ -77,7 +63,6 @@ export function useVoiceRecording(): UseVoiceRecordingResult {
       // Clean up temp file
       await FileSystem.deleteAsync(uri, { idempotent: true });
 
-      // Send to Supabase Edge Function for Whisper transcription
       const { supabase } = await import('../lib/supabase');
       const { data, error } = await supabase.functions.invoke('parse-entry', {
         body: {
@@ -94,29 +79,21 @@ export function useVoiceRecording(): UseVoiceRecordingResult {
       return null;
     } finally {
       setState('idle');
-      setDurationMs(0);
     }
-  }, []);
+  }, [recorder]);
 
   const cancelRecording = useCallback(async () => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-      timerRef.current = null;
-    }
-    if (recordingRef.current) {
-      try {
-        await recordingRef.current.stopAndUnloadAsync();
-        const uri = recordingRef.current.getURI();
+    try {
+      if (recorder.isRecording) {
+        await recorder.stop();
+        const uri = recorder.uri;
         if (uri) await FileSystem.deleteAsync(uri, { idempotent: true });
-      } catch {
-        // ignore cleanup errors
       }
-      recordingRef.current = null;
+    } catch {
+      // ignore cleanup errors
     }
     setState('idle');
-    setDurationMs(0);
-    setMetering(-160);
-  }, []);
+  }, [recorder]);
 
   return { state, durationMs, startRecording, stopAndTranscribe, cancelRecording, metering };
 }
