@@ -25,8 +25,9 @@ const CURRENCIES = [
 export default function CreateGroupScreen() {
   const router   = useRouter();
   const insets   = useSafeAreaInsets();
-  const user     = useAuthStore(s => s.user);
-  const fetchGroups = useGroupStore(s => s.fetchGroups);
+  const user          = useAuthStore(s => s.user);
+  const sessionUserId = useAuthStore(s => s.sessionUserId);
+  const fetchGroups   = useGroupStore(s => s.fetchGroups);
 
   const [name, setName]         = useState('');
   const [type, setType]         = useState<GroupType>('travel');
@@ -43,7 +44,8 @@ export default function CreateGroupScreen() {
   };
 
   const handleCreate = async () => {
-    if (!name.trim() || !user) return;
+    const ownerId = user?.id ?? sessionUserId;
+    if (!name.trim() || !ownerId) return;
     setLoading(true);
     try {
       // Create group
@@ -54,7 +56,7 @@ export default function CreateGroupScreen() {
           type,
           cover_emoji: emoji,
           base_currency: currency,
-          owner_id: user.id,
+          owner_id: ownerId,
         })
         .select()
         .single();
@@ -64,7 +66,7 @@ export default function CreateGroupScreen() {
       // Add owner as member
       await supabase.from('group_members').insert({
         group_id: group.id,
-        user_id: user.id,
+        user_id: ownerId,
         role: 'owner',
         status: 'active',
       });

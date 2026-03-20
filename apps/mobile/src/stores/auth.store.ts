@@ -4,18 +4,19 @@ import { supabase } from '../lib/supabase';
 
 interface AuthState {
   user: User | null;
+  sessionUserId: string | null;   // Always set from Supabase auth session
   session: unknown | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  // Actions
   setUser: (user: User | null) => void;
   setSession: (session: unknown | null) => void;
   signOut: () => Promise<void>;
   initialize: () => Promise<void>;
 }
 
-export const useAuthStore = create<AuthState>((set, get) => ({
+export const useAuthStore = create<AuthState>((set) => ({
   user: null,
+  sessionUserId: null,
   session: null,
   isLoading: true,
   isAuthenticated: false,
@@ -25,7 +26,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   signOut: async () => {
     await supabase.auth.signOut();
-    set({ user: null, session: null, isAuthenticated: false });
+    set({ user: null, sessionUserId: null, session: null, isAuthenticated: false });
   },
 
   initialize: async () => {
@@ -33,15 +34,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
+        const sessionUserId = session.user.id;
+        // Try to get profile, but don't block auth if table doesn't exist yet
         const { data: userProfile } = await supabase
           .from('users')
           .select('*')
-          .eq('id', session.user.id)
+          .eq('id', sessionUserId)
           .single();
 
         set({
           session,
-          user: userProfile,
+          sessionUserId,
+          user: userProfile ?? null,
           isAuthenticated: true,
           isLoading: false,
         });
@@ -52,18 +56,18 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       set({ isLoading: false });
     }
 
-    // Listen for auth changes
     supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
+        const sessionUserId = session.user.id;
         const { data: userProfile } = await supabase
           .from('users')
           .select('*')
-          .eq('id', session.user.id)
+          .eq('id', sessionUserId)
           .single();
 
-        set({ session, user: userProfile, isAuthenticated: true });
+        set({ session, sessionUserId, user: userProfile ?? null, isAuthenticated: true });
       } else if (event === 'SIGNED_OUT') {
-        set({ session: null, user: null, isAuthenticated: false });
+        set({ session: null, sessionUserId: null, user: null, isAuthenticated: false });
       }
     });
   },
