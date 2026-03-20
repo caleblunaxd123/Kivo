@@ -6,6 +6,8 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
+import * as WebBrowser from 'expo-web-browser';
+import * as Linking from 'expo-linking';
 import { COLORS } from '@kivo/shared';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../../components/common/Button';
@@ -33,8 +35,23 @@ export default function LoginScreen() {
   };
 
   const handleGoogle = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
-    if (error) Alert.alert('Error', error.message);
+    const redirectTo = Linking.createURL('/');
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo, skipBrowserRedirect: true },
+    });
+    if (error) { Alert.alert('Error', error.message); return; }
+    if (data?.url) {
+      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+      if (result.type === 'success') {
+        const parsed = Linking.parse(result.url);
+        const accessToken  = parsed.queryParams?.access_token as string | undefined;
+        const refreshToken = parsed.queryParams?.refresh_token as string | undefined;
+        if (accessToken && refreshToken) {
+          await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        }
+      }
+    }
   };
 
   return (
