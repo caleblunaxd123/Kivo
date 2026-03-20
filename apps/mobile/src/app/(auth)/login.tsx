@@ -35,6 +35,7 @@ export default function LoginScreen() {
   };
 
   const handleGoogle = async () => {
+    // In Expo Go, Linking.createURL('/') returns exp://[ip]:8081/
     const redirectTo = Linking.createURL('/');
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
@@ -44,9 +45,14 @@ export default function LoginScreen() {
     if (data?.url) {
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
       if (result.type === 'success') {
-        const parsed = Linking.parse(result.url);
-        const accessToken  = parsed.queryParams?.access_token as string | undefined;
-        const refreshToken = parsed.queryParams?.refresh_token as string | undefined;
+        // Supabase returns tokens in the URL hash: #access_token=...&refresh_token=...
+        const url = result.url;
+        const hashPart = url.includes('#') ? url.split('#')[1] : url.split('?')[1] ?? '';
+        const params = Object.fromEntries(
+          hashPart.split('&').map(p => p.split('=').map(decodeURIComponent))
+        );
+        const accessToken  = params['access_token'];
+        const refreshToken = params['refresh_token'];
         if (accessToken && refreshToken) {
           await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
         }
