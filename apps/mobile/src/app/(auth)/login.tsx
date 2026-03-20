@@ -24,26 +24,40 @@ export default function LoginScreen() {
 
   const handleSubmit = async () => {
     if (!email.trim() || !password) return;
-    setLoading(true);
-    if (mode === 'login') {
-      const { error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(),
-        password,
-      });
-      if (error) Alert.alert('Error', error.message);
-    } else {
-      const { error } = await supabase.auth.signUp({
-        email: email.trim().toLowerCase(),
-        password,
-      });
-      if (error) {
-        Alert.alert('Error', error.message);
-      } else {
-        Alert.alert('¡Listo!', 'Cuenta creada. Ya puedes iniciar sesión.');
-        setMode('login');
-      }
+    if (password.length < 6) {
+      Alert.alert('Error', 'La contraseña debe tener al menos 6 caracteres.');
+      return;
     }
-    setLoading(false);
+    setLoading(true);
+    try {
+      if (mode === 'login') {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: email.trim().toLowerCase(),
+          password,
+        });
+        if (error) Alert.alert('Error', error.message);
+      } else {
+        // Sign up — if email confirmation is OFF, session is returned immediately
+        const { data, error } = await supabase.auth.signUp({
+          email: email.trim().toLowerCase(),
+          password,
+        });
+        if (error) {
+          Alert.alert('Error', error.message);
+        } else if (data.session) {
+          // Email confirmation OFF → already logged in, do nothing (onAuthStateChange handles it)
+        } else {
+          // Email confirmation ON → ask user to confirm
+          Alert.alert(
+            'Confirma tu correo',
+            `Te enviamos un email a ${email.trim()}. Confírmalo y luego inicia sesión aquí.`,
+            [{ text: 'OK', onPress: () => setMode('login') }]
+          );
+        }
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogle = async () => {
