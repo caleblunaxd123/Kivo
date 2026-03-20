@@ -42,6 +42,8 @@ export default function LoginScreen() {
       options: { redirectTo, skipBrowserRedirect: true },
     });
     if (error) { Alert.alert('Error', error.message); return; }
+    // DEBUG: remove after fixing
+    Alert.alert('Debug', `redirectTo:\n${redirectTo}\n\ndata.url:\n${data?.url?.substring(0, 120) ?? 'null'}`);
     if (data?.url) {
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
       if (result.type === 'success') {
