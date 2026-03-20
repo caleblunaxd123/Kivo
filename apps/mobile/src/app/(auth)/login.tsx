@@ -35,30 +35,36 @@ export default function LoginScreen() {
   };
 
   const handleGoogle = async () => {
-    // In Expo Go, Linking.createURL('/') returns exp://[ip]:8081/
     const redirectTo = Linking.createURL('/');
+
+    // Listen for the deep link BEFORE opening the browser
+    const subscription = Linking.addEventListener('url', async ({ url }) => {
+      subscription.remove();
+      await WebBrowser.dismissBrowser();
+      const hashPart = url.includes('#') ? url.split('#')[1] : (url.split('?')[1] ?? '');
+      const params = Object.fromEntries(
+        hashPart.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
+      );
+      const accessToken  = params['access_token'];
+      const refreshToken = params['refresh_token'];
+      if (accessToken && refreshToken) {
+        await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+      }
+    });
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo, skipBrowserRedirect: true },
     });
-    if (error) { Alert.alert('Error', error.message); return; }
-    // DEBUG: remove after fixing
-    Alert.alert('Debug', `redirectTo:\n${redirectTo}\n\ndata.url:\n${data?.url?.substring(0, 120) ?? 'null'}`);
+
+    if (error) {
+      subscription.remove();
+      Alert.alert('Error', error.message);
+      return;
+    }
+
     if (data?.url) {
-      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-      if (result.type === 'success') {
-        // Supabase returns tokens in the URL hash: #access_token=...&refresh_token=...
-        const url = result.url;
-        const hashPart = url.includes('#') ? url.split('#')[1] : url.split('?')[1] ?? '';
-        const params = Object.fromEntries(
-          hashPart.split('&').map(p => p.split('=').map(decodeURIComponent))
-        );
-        const accessToken  = params['access_token'];
-        const refreshToken = params['refresh_token'];
-        if (accessToken && refreshToken) {
-          await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-        }
-      }
+      await WebBrowser.openBrowserAsync(data.url);
     }
   };
 
