@@ -12,32 +12,42 @@ import { COLORS } from '@kivo/shared';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../../components/common/Button';
 
+type Mode = 'login' | 'signup';
+
 export default function LoginScreen() {
   const router  = useRouter();
   const insets  = useSafeAreaInsets();
-  const [email, setEmail]       = useState('');
-  const [loading, setLoading]   = useState(false);
-  const [sent, setSent]         = useState(false);
+  const [mode, setMode]           = useState<Mode>('login');
+  const [email, setEmail]         = useState('');
+  const [password, setPassword]   = useState('');
+  const [loading, setLoading]     = useState(false);
 
-  const handleMagicLink = async () => {
-    if (!email.trim()) return;
+  const handleSubmit = async () => {
+    if (!email.trim() || !password) return;
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email: email.trim().toLowerCase(),
-      options: { emailRedirectTo: 'kivo://' },
-    });
-    setLoading(false);
-    if (error) {
-      Alert.alert('Error', error.message);
+    if (mode === 'login') {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      if (error) Alert.alert('Error', error.message);
     } else {
-      setSent(true);
+      const { error } = await supabase.auth.signUp({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      if (error) {
+        Alert.alert('Error', error.message);
+      } else {
+        Alert.alert('¡Listo!', 'Cuenta creada. Ya puedes iniciar sesión.');
+        setMode('login');
+      }
     }
+    setLoading(false);
   };
 
   const handleGoogle = async () => {
     const redirectTo = Linking.createURL('/');
-
-    // Listen for the deep link BEFORE opening the browser
     const subscription = Linking.addEventListener('url', async ({ url }) => {
       subscription.remove();
       await WebBrowser.dismissBrowser();
@@ -51,21 +61,12 @@ export default function LoginScreen() {
         await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
       }
     });
-
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo, skipBrowserRedirect: true },
     });
-
-    if (error) {
-      subscription.remove();
-      Alert.alert('Error', error.message);
-      return;
-    }
-
-    if (data?.url) {
-      await WebBrowser.openBrowserAsync(data.url);
-    }
+    if (error) { subscription.remove(); Alert.alert('Error', error.message); return; }
+    if (data?.url) await WebBrowser.openBrowserAsync(data.url);
   };
 
   return (
@@ -83,71 +84,68 @@ export default function LoginScreen() {
       </View>
 
       <View style={styles.content}>
-        {sent ? (
-          <View style={styles.sentContainer}>
-            <Text style={styles.sentEmoji}>✉️</Text>
-            <Text style={styles.sentTitle}>Revisa tu correo</Text>
-            <Text style={styles.sentSub}>
-              Enviamos un enlace mágico a{'\n'}
-              <Text style={{ color: COLORS.kivo400 }}>{email}</Text>
-            </Text>
-            <Button
-              label="Reenviar enlace"
-              onPress={handleMagicLink}
-              variant="secondary"
-              style={{ marginTop: 16 }}
-            />
-          </View>
-        ) : (
-          <>
-            <Text style={styles.title}>Bienvenido a Kivo</Text>
-            <Text style={styles.subtitle}>Tu workspace colaborativo</Text>
+        <Text style={styles.title}>
+          {mode === 'login' ? 'Bienvenido a Kivo' : 'Crear cuenta'}
+        </Text>
+        <Text style={styles.subtitle}>Tu workspace colaborativo</Text>
 
-            {/* OAuth */}
-            <TouchableOpacity style={styles.oauthBtn} onPress={handleGoogle} activeOpacity={0.8}>
-              <Text style={styles.oauthIcon}>G</Text>
-              <Text style={styles.oauthText}>Continuar con Google</Text>
-            </TouchableOpacity>
+        {/* Google OAuth */}
+        <TouchableOpacity style={styles.oauthBtn} onPress={handleGoogle} activeOpacity={0.8}>
+          <Text style={styles.oauthIcon}>G</Text>
+          <Text style={styles.oauthText}>Continuar con Google</Text>
+        </TouchableOpacity>
 
-            <View style={styles.divider}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>o con correo</Text>
-              <View style={styles.dividerLine} />
-            </View>
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>o con correo</Text>
+          <View style={styles.dividerLine} />
+        </View>
 
-            {/* Email */}
-            <View style={styles.inputGroup}>
-              <TextInput
-                style={styles.input}
-                placeholder="tu@correo.com"
-                placeholderTextColor={COLORS.textTertiary}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                autoComplete="email"
-                returnKeyType="send"
-                onSubmitEditing={handleMagicLink}
-              />
-            </View>
+        {/* Email + Password */}
+        <TextInput
+          style={styles.input}
+          placeholder="tu@correo.com"
+          placeholderTextColor={COLORS.textTertiary}
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          autoComplete="email"
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Contraseña"
+          placeholderTextColor={COLORS.textTertiary}
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          autoCapitalize="none"
+          returnKeyType="send"
+          onSubmitEditing={handleSubmit}
+        />
 
-            <Button
-              label="Continuar →"
-              onPress={handleMagicLink}
-              loading={loading}
-              disabled={!email.trim()}
-              fullWidth
-              size="lg"
-              style={{ marginTop: 4 }}
-            />
+        <Button
+          label={mode === 'login' ? 'Iniciar sesión →' : 'Crear cuenta →'}
+          onPress={handleSubmit}
+          loading={loading}
+          disabled={!email.trim() || !password}
+          fullWidth
+          size="lg"
+        />
 
-            <Text style={styles.legal}>
-              Al continuar aceptas los{' '}
-              <Text style={styles.legalLink}>Términos</Text> y{' '}
-              <Text style={styles.legalLink}>Privacidad</Text>
-            </Text>
-          </>
-        )}
+        <TouchableOpacity onPress={() => setMode(mode === 'login' ? 'signup' : 'login')}>
+          <Text style={styles.switchText}>
+            {mode === 'login'
+              ? '¿Sin cuenta? Regístrate gratis'
+              : '¿Ya tienes cuenta? Inicia sesión'}
+          </Text>
+        </TouchableOpacity>
+
+        <Text style={styles.legal}>
+          Al continuar aceptas los{' '}
+          <Text style={styles.legalLink}>Términos</Text> y{' '}
+          <Text style={styles.legalLink}>Privacidad</Text>
+        </Text>
       </View>
     </KeyboardAvoidingView>
   );
@@ -204,7 +202,6 @@ const styles = StyleSheet.create({
   },
   dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.borderSubtle },
   dividerText: { color: COLORS.textTertiary, fontSize: 13 },
-  inputGroup: { gap: 6 },
   input: {
     backgroundColor: COLORS.bgInput,
     borderRadius: 14,
@@ -215,11 +212,12 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary,
     fontSize: 16,
   },
-  legal: { color: COLORS.textTertiary, fontSize: 12, textAlign: 'center', marginTop: 8 },
+  switchText: {
+    color: COLORS.kivo400,
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: -4,
+  },
+  legal: { color: COLORS.textTertiary, fontSize: 12, textAlign: 'center', marginTop: 4 },
   legalLink: { color: COLORS.kivo400 },
-  // Sent state
-  sentContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
-  sentEmoji: { fontSize: 56 },
-  sentTitle: { fontSize: 24, fontWeight: '700', color: COLORS.textPrimary, letterSpacing: -0.5 },
-  sentSub: { fontSize: 15, color: COLORS.textSecondary, textAlign: 'center', lineHeight: 22 },
 });
