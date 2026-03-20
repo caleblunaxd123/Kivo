@@ -81,7 +81,7 @@ export default async function AppHomePage() {
                 <div className="text-2xl">
                   {group.type === 'travel' ? '✈️' :
                    group.type === 'home' ? '🏠' :
-                   group.type === 'food' ? '🍕' :
+                   group.type === 'shopping' ? '🛒' :
                    group.type === 'work' ? '💼' : '📋'}
                 </div>
               </div>
