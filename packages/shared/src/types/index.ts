@@ -84,6 +84,7 @@ export interface GroupMember {
   user?: User;
   displayName: string;
   colorHex: string;
+  avatarUrl?: string;
 }
 
 // ─── Entry ───────────────────────────────────────────────────────────────────
@@ -175,9 +176,11 @@ export interface MemberBalance {
   memberId: string;
   memberName: string;
   colorHex: string;
+  userId?: string;
   totalPaid: number;
   totalOwed: number;
   netBalance: number; // positivo = acreedor, negativo = deudor
+  currency: string;
 }
 
 export interface Settlement {

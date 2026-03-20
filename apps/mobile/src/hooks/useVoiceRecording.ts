@@ -71,7 +71,7 @@ export function useVoiceRecording(): UseVoiceRecordingResult {
 
       // Read the audio file and send to transcription
       const audioBase64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: FileSystem.EncodingType.Base64,
+        encoding: 'base64',
       });
 
       // Clean up temp file

@@ -48,31 +48,16 @@ export default function CreateGroupScreen() {
     if (!name.trim() || !ownerId) return;
     setLoading(true);
     try {
-      // Create group
-      const { data: group, error: groupError } = await supabase
-        .from('groups')
-        .insert({
-          name: name.trim(),
-          type,
-          cover_emoji: emoji,
-          base_currency: currency,
-          owner_id: ownerId,
-        })
-        .select()
-        .single();
-
-      if (groupError) throw groupError;
-
-      // Add owner as member
-      await supabase.from('group_members').insert({
-        group_id: group.id,
-        user_id: ownerId,
-        role: 'owner',
-        status: 'active',
+      const { data, error } = await supabase.rpc('create_group_with_owner', {
+        p_name:          name.trim(),
+        p_type:          type,
+        p_cover_emoji:   emoji,
+        p_base_currency: currency,
+        p_owner_id:      ownerId,
       });
-
+      if (error) throw error;
       await fetchGroups();
-      router.replace(`/(app)/group/${group.id}`);
+      router.replace(`/(app)/group/${(data as any).id}`);
     } catch (e: any) {
       Alert.alert('Error', e.message);
     } finally {

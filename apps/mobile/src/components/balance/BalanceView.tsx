@@ -23,7 +23,7 @@ export function BalanceView({ groupId, baseCurrency }: BalanceViewProps) {
 
     // Init all members
     for (const m of members) {
-      map[m.userId] = { paid: 0, share: 0 };
+      if (m.userId) map[m.userId] = { paid: 0, share: 0 };
     }
 
     const confirmed = entries.filter(e => e.status === 'confirmed');
@@ -47,7 +47,7 @@ export function BalanceView({ groupId, baseCurrency }: BalanceViewProps) {
         // Default: equal split
         const share = amount / members.length;
         for (const m of members) {
-          if (map[m.userId] !== undefined) {
+          if (m.userId && map[m.userId] !== undefined) {
             map[m.userId].share += share;
           }
         }
@@ -55,14 +55,15 @@ export function BalanceView({ groupId, baseCurrency }: BalanceViewProps) {
     }
 
     return members.map(m => {
-      const data = map[m.userId] ?? { paid: 0, share: 0 };
+      const data = (m.userId ? map[m.userId] : undefined) ?? { paid: 0, share: 0 };
       const net = data.paid - data.share;
       return {
         memberId: m.id,
         memberName: m.displayName,
+        colorHex: m.colorHex,
         userId: m.userId,
         totalPaid: data.paid,
-        totalShare: data.share,
+        totalOwed: data.share,
         netBalance: net,
         currency: baseCurrency,
       };
@@ -177,7 +178,7 @@ function BalanceCard({ balance }: { balance: MemberBalance }) {
         <Text style={styles.balanceName}>{balance.memberName}</Text>
         <Text style={styles.balanceStats}>
           Pagó {formatCurrency(balance.totalPaid, balance.currency)} ·
-          {' '}Debe {formatCurrency(balance.totalShare, balance.currency)}
+          {' '}Debe {formatCurrency(balance.totalOwed, balance.currency)}
         </Text>
       </View>
 

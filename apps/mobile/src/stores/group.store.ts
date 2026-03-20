@@ -2,6 +2,45 @@ import { create } from 'zustand';
 import type { Group, Entry, GroupMember, MemberBalance } from '@kivo/shared';
 import { supabase } from '../lib/supabase';
 
+function mapMember(m: any): GroupMember {
+  return {
+    id: m.id,
+    groupId: m.group_id ?? m.groupId,
+    userId: m.user_id ?? m.userId,
+    role: m.role,
+    status: m.status,
+    joinedAt: m.joined_at ?? m.joinedAt ?? new Date().toISOString(),
+    displayName: m.display_name ?? m.displayName ?? m.email ?? 'Unknown',
+    colorHex: m.color_hex ?? m.colorHex ?? '#6366F1',
+    avatarUrl: m.avatar_url ?? m.avatarUrl,
+  };
+}
+
+function mapGroup(raw: any, members?: any[]): Group {
+  return {
+    id: raw.id,
+    name: raw.name,
+    type: raw.type,
+    coverEmoji: raw.cover_emoji ?? raw.coverEmoji ?? '📋',
+    coverImageUrl: raw.cover_image_url ?? raw.coverImageUrl,
+    baseCurrency: raw.base_currency ?? raw.baseCurrency ?? 'USD',
+    status: raw.status ?? 'active',
+    ownerId: raw.owner_id ?? raw.ownerId,
+    timezone: raw.timezone ?? 'America/Lima',
+    countryCode: raw.country_code ?? raw.countryCode,
+    description: raw.description,
+    defaultSplitRule: raw.default_split_rule ?? raw.defaultSplitRule ?? 'equal',
+    allowPending: raw.allow_pending ?? raw.allowPending ?? true,
+    offlineMode: raw.offline_mode ?? raw.offlineMode ?? true,
+    createdAt: raw.created_at ?? raw.createdAt,
+    updatedAt: raw.updated_at ?? raw.updatedAt,
+    closedAt: raw.closed_at ?? raw.closedAt,
+    members: members?.map(mapMember),
+    totalAmount: raw.totalAmount ?? 0,
+    pendingCount: raw.pendingCount ?? 0,
+  };
+}
+
 interface GroupState {
   // Data
   groups: Group[];
@@ -46,6 +85,7 @@ export const useGroupStore = create<GroupState>((set, get) => ({
       get().fetchGroupData(groupId);
       get().subscribeToGroup(groupId);
     } else {
+      set({ activeGroup: null, entries: [], members: [], balances: [], pendingCount: 0 });
       get().unsubscribeFromGroup();
     }
   },
@@ -53,21 +93,10 @@ export const useGroupStore = create<GroupState>((set, get) => ({
   fetchGroups: async () => {
     set({ isLoadingGroups: true });
     try {
-      const { data, error } = await supabase
-        .from('groups')
-        .select(`
-          *,
-          group_members!inner(
-            id, role, status,
-            user:users(id, display_name, avatar_url, color_hex)
-          )
-        `)
-        .eq('group_members.status', 'active')
-        .neq('status', 'archived')
-        .order('updated_at', { ascending: false });
-
-      if (!error && data) {
-        set({ groups: data });
+      const { data, error } = await supabase.rpc('get_my_groups');
+      if (!error && Array.isArray(data)) {
+        const groups = data.map((row: any) => mapGroup(row.group, row.members ?? []));
+        set({ groups });
       }
     } finally {
       set({ isLoadingGroups: false });
@@ -77,31 +106,28 @@ export const useGroupStore = create<GroupState>((set, get) => ({
   fetchGroupData: async (groupId) => {
     set({ isLoadingEntries: true });
     try {
-      const [entriesRes, membersRes] = await Promise.all([
-        supabase
-          .from('entries')
-          .select('*, entry_items(*), entry_splits(*), attachments(*)')
-          .eq('group_id', groupId)
-          .neq('status', 'archived')
-          .order('entry_date', { ascending: false })
-          .order('created_at', { ascending: false }),
-        supabase
-          .from('group_members')
-          .select('*, user:users(id, display_name, avatar_url, color_hex, email)')
-          .eq('group_id', groupId)
-          .eq('status', 'active'),
-      ]);
+      const { data: groupData, error: groupErr } = await supabase.rpc('get_group_data', { p_group_id: groupId });
+
+      if (!groupErr && groupData) {
+        const raw = groupData as any;
+        const group = raw.group ? mapGroup(raw.group) : null;
+        const members = (raw.members ?? []).map(mapMember);
+        set({ activeGroup: group, members });
+      }
+
+      const entriesRes = await supabase
+        .from('entries')
+        .select('*, entry_items(*), entry_splits(*), attachments(*)')
+        .eq('group_id', groupId)
+        .neq('status', 'archived')
+        .order('entry_date', { ascending: false })
+        .order('created_at', { ascending: false });
 
       const pendingCount = entriesRes.data?.filter(
         e => e.status === 'pending_review'
       ).length ?? 0;
 
-      set({
-        entries: entriesRes.data ?? [],
-        members: membersRes.data ?? [],
-        pendingCount,
-        isLoadingEntries: false,
-      });
+      set({ entries: entriesRes.data ?? [], pendingCount, isLoadingEntries: false });
     } catch {
       set({ isLoadingEntries: false });
     }

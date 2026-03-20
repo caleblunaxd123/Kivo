@@ -22,7 +22,7 @@ port = 54322
 shadow_port = 54320
 # The database major version to use. This has to be the same as your remote database's. Run `SHOW
 # server_version;` on the remote database to check.
-major_version = 15
+major_version = 17
 
 [studio]
 enabled = true
@@ -57,8 +57,6 @@ additional_redirect_urls = ["https://127.0.0.1:3000", "kivo://"]
 jwt_expiry = 3600
 # If disabled, the refresh token will never expire.
 enable_refresh_token_rotation = true
-# Allows session invalidation on logout from all active sessions for a user.
-enable_sign_in_with_anon = false
 
 [auth.email]
 enable_signup = true
