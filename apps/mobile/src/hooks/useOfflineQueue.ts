@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
-import { useMMKVString } from 'react-native-mmkv';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const QUEUE_KEY = 'kivo:offline_queue';
 
@@ -13,35 +13,39 @@ interface QueuedOperation {
 }
 
 export function useOfflineQueue() {
-  const [queueRaw, setQueueRaw] = useMMKVString(QUEUE_KEY);
   const processingRef = useRef(false);
 
-  const getQueue = useCallback((): QueuedOperation[] => {
-    if (!queueRaw) return [];
+  const getQueue = useCallback(async (): Promise<QueuedOperation[]> => {
     try {
-      return JSON.parse(queueRaw);
+      const raw = await AsyncStorage.getItem(QUEUE_KEY);
+      return raw ? JSON.parse(raw) : [];
     } catch {
       return [];
     }
-  }, [queueRaw]);
+  }, []);
 
-  const enqueue = useCallback((op: Omit<QueuedOperation, 'id' | 'createdAt' | 'retries'>) => {
-    const queue = getQueue();
+  const setQueue = useCallback(async (queue: QueuedOperation[]) => {
+    await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+  }, []);
+
+  const enqueue = useCallback(async (op: Omit<QueuedOperation, 'id' | 'createdAt' | 'retries'>) => {
+    const queue = await getQueue();
     const newOp: QueuedOperation = {
       ...op,
       id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
       createdAt: Date.now(),
       retries: 0,
     };
-    setQueueRaw(JSON.stringify([...queue, newOp]));
-  }, [getQueue, setQueueRaw]);
+    await setQueue([...queue, newOp]);
+  }, [getQueue, setQueue]);
 
   const processQueue = useCallback(async () => {
     if (processingRef.current) return;
     processingRef.current = true;
 
     const { supabase } = await import('../lib/supabase');
-    const queue = getQueue();
+    const queue = await getQueue();
+
     if (queue.length === 0) {
       processingRef.current = false;
       return;
@@ -59,35 +63,26 @@ export function useOfflineQueue() {
         } else if (op.type === 'delete_entry') {
           await supabase.from('entries').delete().eq('id', op.payload.id);
         }
-        // Success — don't add back to queue
       } catch {
-        // Failed — re-queue with backoff if under max retries
         if (op.retries < 5) {
           remaining.push({ ...op, retries: op.retries + 1 });
         }
-        // After 5 retries, drop the operation
       }
     }
 
-    setQueueRaw(JSON.stringify(remaining));
+    await setQueue(remaining);
     processingRef.current = false;
-  }, [getQueue, setQueueRaw]);
+  }, [getQueue, setQueue]);
 
-  // Process queue when app comes to foreground
   useEffect(() => {
     const subscription = AppState.addEventListener('change', (state: AppStateStatus) => {
       if (state === 'active') {
         processQueue();
       }
     });
-
-    // Also process on mount
     processQueue();
-
     return () => subscription.remove();
   }, [processQueue]);
 
-  const queueLength = getQueue().length;
-
-  return { enqueue, processQueue, queueLength };
+  return { enqueue, processQueue };
 }
