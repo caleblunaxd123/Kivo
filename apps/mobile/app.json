@@ -33,7 +33,8 @@
       [
         "expo-router",
         {
-          "root": "src"
+          "root": "src",
+          "origin": "kivo://"
         }
       ],
       "expo-camera",
@@ -49,7 +50,8 @@
     "scheme": "kivo",
     "extra": {
       "router": {
-        "root": "src"
+        "root": "src",
+        "origin": "kivo://"
       },
       "eas": {
         "projectId": "b393ec31-4e71-4cd6-b84b-cff6316aebaf"
