@@ -59,6 +59,17 @@ export const useAuthStore = create<AuthState>((set) => ({
     supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         const sessionUserId = session.user.id;
+
+        // Auto-create profile if it doesn't exist (e.g. first login after signup)
+        await supabase.from('users').upsert({
+          id: sessionUserId,
+          email: session.user.email!,
+          display_name:
+            session.user.user_metadata?.full_name ??
+            session.user.email!.split('@')[0],
+          auth_provider: session.user.app_metadata?.provider ?? 'email',
+        }, { onConflict: 'id', ignoreDuplicates: true });
+
         const { data: userProfile } = await supabase
           .from('users')
           .select('*')
