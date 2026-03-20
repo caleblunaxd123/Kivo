@@ -26,9 +26,9 @@ export default function RootLayout() {
       <QueryClientProvider client={queryClient}>
         <StatusBar style="light" backgroundColor="#0A0A0F" />
         <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
           <Stack.Screen name="(auth)" />
           <Stack.Screen name="(app)" />
-          <Stack.Screen name="onboarding" />
         </Stack>
       </QueryClientProvider>
     </GestureHandlerRootView>
