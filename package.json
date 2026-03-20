@@ -2,10 +2,15 @@
   "name": "kivo",
   "version": "0.1.0",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "workspaces": {
+    "packages": ["apps/*", "packages/*"],
+    "nohoist": [
+      "**/react",
+      "**/react-dom",
+      "**/@types/react",
+      "**/@types/react-dom"
+    ]
+  },
   "scripts": {
     "dev:mobile": "yarn workspace @kivo/mobile start",
     "dev:web": "yarn workspace @kivo/web dev",
