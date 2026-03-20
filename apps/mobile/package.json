@@ -1,0 +1,50 @@
+{
+  "name": "@kivo/mobile",
+  "version": "0.1.0",
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "build:preview": "eas build --profile preview",
+    "build:prod": "eas build --profile production",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@kivo/shared": "*",
+    "@supabase/supabase-js": "^2.39.8",
+    "@tanstack/react-query": "^5.29.2",
+    "expo": "~50.0.17",
+    "expo-av": "~13.10.4",
+    "expo-camera": "~14.1.2",
+    "expo-file-system": "~16.0.8",
+    "expo-image-picker": "~14.7.1",
+    "expo-notifications": "~0.27.6",
+    "expo-router": "~3.4.8",
+    "expo-secure-store": "~12.8.1",
+    "expo-speech": "~11.7.0",
+    "expo-splash-screen": "~0.26.4",
+    "expo-status-bar": "~1.11.1",
+    "moti": "^0.28.1",
+    "react": "18.2.0",
+    "react-native": "0.73.6",
+    "react-native-mmkv": "^2.12.2",
+    "react-native-reanimated": "~3.6.2",
+    "react-native-safe-area-context": "4.8.2",
+    "react-native-screens": "~3.29.0",
+    "react-native-gesture-handler": "~2.15.0",
+    "react-hook-form": "^7.51.2",
+    "zustand": "^4.5.2",
+    "zod": "^3.23.4",
+    "nativewind": "^4.0.36",
+    "@shopify/flash-list": "1.6.3",
+    "lucide-react-native": "^0.368.0",
+    "react-native-svg": "15.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.3",
+    "@types/react": "~18.2.79",
+    "typescript": "^5.4.5",
+    "tailwindcss": "^3.4.3"
+  }
+}
