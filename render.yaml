@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: kivo-web
+    runtime: node
+    region: oregon
+    plan: free
+    rootDir: apps/web
+    buildCommand: cd ../.. && yarn install && yarn workspace @kivo/web build
+    startCommand: yarn workspace @kivo/web start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.14.0
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
