@@ -24,7 +24,9 @@
         "RECORD_AUDIO",
         "CAMERA",
         "READ_EXTERNAL_STORAGE",
-        "WRITE_EXTERNAL_STORAGE"
+        "WRITE_EXTERNAL_STORAGE",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
       ]
     },
     "plugins": [
@@ -46,9 +48,13 @@
     ],
     "scheme": "kivo",
     "extra": {
+      "router": {
+        "root": "src"
+      },
       "eas": {
-        "projectId": "YOUR_EAS_PROJECT_ID"
+        "projectId": "b393ec31-4e71-4cd6-b84b-cff6316aebaf"
       }
-    }
+    },
+    "owner": "calebluna41"
   }
 }
