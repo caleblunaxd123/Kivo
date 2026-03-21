@@ -106,29 +106,54 @@ export const useGroupStore = create<GroupState>((set, get) => ({
   fetchGroupData: async (groupId) => {
     set({ isLoadingEntries: true });
     try {
+      // ── 1. Fetch group + members via SECURITY DEFINER (bypasses RLS) ──
       const { data: groupData, error: groupErr } = await supabase.rpc('get_group_data', { p_group_id: groupId });
+
+      if (groupErr) {
+        console.error('[fetchGroupData] get_group_data error:', groupErr);
+      }
 
       if (!groupErr && groupData) {
         const raw = groupData as any;
         const group = raw.group ? mapGroup(raw.group) : null;
         const members = (raw.members ?? []).map(mapMember);
         set({ activeGroup: group, members });
+      } else if (groupErr) {
+        // Fallback: direct table query (may return empty if RLS blocks, but worth trying)
+        const { data: fallback, error: fbErr } = await supabase
+          .from('groups')
+          .select('*')
+          .eq('id', groupId)
+          .single();
+        if (!fbErr && fallback) {
+          set({ activeGroup: mapGroup(fallback), members: [] });
+        } else {
+          console.error('[fetchGroupData] fallback query error:', fbErr);
+        }
       }
 
-      const entriesRes = await supabase
-        .from('entries')
-        .select('*, entry_items(*), entry_splits(*), attachments(*)')
-        .eq('group_id', groupId)
-        .neq('status', 'archived')
-        .order('entry_date', { ascending: false })
-        .order('created_at', { ascending: false });
+      // ── 2. Fetch entries via SECURITY DEFINER ──
+      const { data: entriesData, error: entriesErr } = await supabase
+        .rpc('get_group_entries', { p_group_id: groupId });
 
-      const pendingCount = entriesRes.data?.filter(
-        e => e.status === 'pending_review'
-      ).length ?? 0;
-
-      set({ entries: entriesRes.data ?? [], pendingCount, isLoadingEntries: false });
-    } catch {
+      if (entriesErr) {
+        console.error('[fetchGroupData] get_group_entries error:', entriesErr);
+        // Fallback to direct query (RLS may block, but try anyway)
+        const { data: fallbackEntries } = await supabase
+          .from('entries')
+          .select('*, entry_items(*), entry_splits(*), attachments(*)')
+          .eq('group_id', groupId)
+          .neq('status', 'archived')
+          .order('entry_date', { ascending: false });
+        const pendingCount = fallbackEntries?.filter(e => e.status === 'pending_review').length ?? 0;
+        set({ entries: fallbackEntries ?? [], pendingCount, isLoadingEntries: false });
+      } else {
+        const entries = Array.isArray(entriesData) ? entriesData : [];
+        const pendingCount = entries.filter((e: any) => e.status === 'pending_review').length;
+        set({ entries, pendingCount, isLoadingEntries: false });
+      }
+    } catch (err) {
+      console.error('[fetchGroupData] unexpected error:', err);
       set({ isLoadingEntries: false });
     }
   },

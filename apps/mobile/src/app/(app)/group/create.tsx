@@ -56,8 +56,13 @@ export default function CreateGroupScreen() {
         p_owner_id:      ownerId,
       });
       if (error) throw error;
+
+      const groupId = (data as any)?.id as string | undefined;
+      console.log('[create] rpc data:', JSON.stringify(data), '→ groupId:', groupId);
+      if (!groupId) throw new Error('No se obtuvo el ID del grupo creado');
+
       await fetchGroups();
-      router.replace(`/(app)/group/${(data as any).id}`);
+      router.replace(`/(app)/group/${groupId}`);
     } catch (e: any) {
       Alert.alert('Error', e.message);
     } finally {

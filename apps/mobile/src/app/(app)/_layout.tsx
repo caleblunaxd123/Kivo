@@ -40,9 +40,15 @@ export default function AppLayout() {
           tabBarIcon: ({ color, size }) => <User size={size - 2} color={color} />,
         }}
       />
-      {/* Hidden screens — navigated to programmatically */}
-      <Tabs.Screen name="group/[id]" options={{ href: null }} />
-      <Tabs.Screen name="group/create" options={{ href: null }} />
+      {/* Hidden screens — navigated to programmatically, no tab bar */}
+      <Tabs.Screen
+        name="group/[id]"
+        options={{ href: null, tabBarStyle: { display: 'none' } }}
+      />
+      <Tabs.Screen
+        name="group/create"
+        options={{ href: null, tabBarStyle: { display: 'none' } }}
+      />
     </Tabs>
   );
 }
