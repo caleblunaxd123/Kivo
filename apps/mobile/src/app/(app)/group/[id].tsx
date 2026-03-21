@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import {
-  View, Text, StyleSheet, TouchableOpacity, Platform,
+  View, Text, StyleSheet, TouchableOpacity, Platform, Alert, Modal,
+  Pressable, ActivityIndicator,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, MoreHorizontal, Bell, AlertTriangle } from 'lucide-react-native';
+import { ChevronLeft, MoreHorizontal, AlertTriangle } from 'lucide-react-native';
 import { COLORS, formatCurrency } from '@kivo/shared';
 import type { ParsedEntry } from '@kivo/shared';
 import { useGroupStore } from '../../../stores/group.store';
@@ -28,16 +29,20 @@ export default function GroupScreen() {
   const {
     activeGroup, members, entries, pendingCount,
     setActiveGroup, addEntryOptimistic,
+    archiveGroup, leaveGroup,
   } = useGroupStore();
 
-  const [tab, setTab] = useState<ActiveTab>('sheet');
+  const [tab,          setTab]          = useState<ActiveTab>('sheet');
+  const [menuVisible,  setMenuVisible]  = useState(false);
+  const [isActioning,  setIsActioning]  = useState(false);
 
   useEffect(() => {
     if (id) setActiveGroup(id);
     return () => setActiveGroup(null);
   }, [id]);
 
-  const group = activeGroup;
+  const group     = activeGroup;
+  const isOwner   = group?.ownerId === user?.id;
   const totalAmount = entries
     .filter(e => e.status === 'confirmed')
     .reduce((sum, e) => sum + (e.amountInBase ?? e.amount), 0);
@@ -61,10 +66,8 @@ export default function GroupScreen() {
       entryDate: new Date().toISOString().split('T')[0],
     };
 
-    // Optimistic update
     addEntryOptimistic(entryData);
 
-    // Persist
     try {
       await saveEntry(entryData);
     } catch (e) {
@@ -85,6 +88,67 @@ export default function GroupScreen() {
       console.error('Photo upload failed:', e);
     }
   }, [id, user, group, members]);
+
+  const handlePendingPress = useCallback(() => {
+    setTab('sheet');
+    // The sheet view will show pending filter
+  }, []);
+
+  const handleArchiveGroup = useCallback(() => {
+    setMenuVisible(false);
+    Alert.alert(
+      'Archivar grupo',
+      `¿Archivar "${group?.name}"? El grupo dejará de aparecer en tu lista. Los datos se conservan.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Archivar',
+          style: 'destructive',
+          onPress: async () => {
+            setIsActioning(true);
+            try {
+              await archiveGroup(id);
+              router.replace('/(app)');
+            } catch (e: any) {
+              Alert.alert('Error', e?.message ?? 'No se pudo archivar');
+            } finally {
+              setIsActioning(false);
+            }
+          },
+        },
+      ]
+    );
+  }, [group, id, archiveGroup, router]);
+
+  const handleLeaveGroup = useCallback(() => {
+    setMenuVisible(false);
+    Alert.alert(
+      'Salir del grupo',
+      `¿Salir de "${group?.name}"? Ya no podrás ver ni agregar entradas.`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Salir',
+          style: 'destructive',
+          onPress: async () => {
+            setIsActioning(true);
+            try {
+              await leaveGroup(id);
+              router.replace('/(app)');
+            } catch (e: any) {
+              Alert.alert('Error', e?.message ?? 'No se pudo salir del grupo');
+            } finally {
+              setIsActioning(false);
+            }
+          },
+        },
+      ]
+    );
+  }, [group, id, leaveGroup, router]);
+
+  const handleEntryPress = useCallback((entryId: string) => {
+    router.push(`/(app)/group/entry/${entryId}`);
+  }, [router]);
 
   if (!group) {
     return (
@@ -114,13 +178,20 @@ export default function GroupScreen() {
 
         <View style={styles.headerRight}>
           {pendingCount > 0 && (
-            <TouchableOpacity style={styles.pendingBtn}>
+            <TouchableOpacity style={styles.pendingBtn} onPress={handlePendingPress}>
               <AlertTriangle size={16} color={COLORS.warning} />
               <Text style={styles.pendingCount}>{pendingCount}</Text>
             </TouchableOpacity>
           )}
-          <TouchableOpacity style={styles.iconBtn}>
-            <MoreHorizontal size={20} color={COLORS.textSecondary} />
+          <TouchableOpacity
+            style={styles.iconBtn}
+            onPress={() => setMenuVisible(true)}
+            disabled={isActioning}
+          >
+            {isActioning
+              ? <ActivityIndicator size="small" color={COLORS.textSecondary} />
+              : <MoreHorizontal size={20} color={COLORS.textSecondary} />
+            }
           </TouchableOpacity>
         </View>
       </View>
@@ -157,9 +228,25 @@ export default function GroupScreen() {
 
       {/* ─── Content ─── */}
       <View style={styles.content}>
-        {tab === 'timeline' && <TimelineView entries={entries} members={members} />}
-        {tab === 'sheet'    && <SheetView entries={entries} members={members} groupId={id} />}
-        {tab === 'balance'  && <BalanceView groupId={id} baseCurrency={group.baseCurrency} />}
+        {tab === 'timeline' && (
+          <TimelineView
+            entries={entries}
+            members={members}
+            onEntryPress={handleEntryPress}
+          />
+        )}
+        {tab === 'sheet' && (
+          <SheetView
+            entries={entries}
+            members={members}
+            groupId={id}
+            onEntryPress={handleEntryPress}
+            initialFilter={pendingCount > 0 && tab === 'sheet' ? undefined : undefined}
+          />
+        )}
+        {tab === 'balance' && (
+          <BalanceView groupId={id} baseCurrency={group.baseCurrency} />
+        )}
       </View>
 
       {/* ─── Composer ─── */}
@@ -170,6 +257,38 @@ export default function GroupScreen() {
         onEntryConfirmed={handleEntryConfirmed}
         onPhotoSelected={handlePhotoSelected}
       />
+
+      {/* ─── Group Menu Modal ─── */}
+      <Modal
+        visible={menuVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setMenuVisible(false)}
+      >
+        <Pressable style={styles.menuOverlay} onPress={() => setMenuVisible(false)}>
+          <View style={[styles.menuSheet, { paddingBottom: insets.bottom + 8 }]}>
+            <View style={styles.menuHandle} />
+            <Text style={styles.menuGroupName}>{group.coverEmoji} {group.name}</Text>
+
+            {isOwner ? (
+              <TouchableOpacity style={styles.menuItemDanger} onPress={handleArchiveGroup}>
+                <Text style={styles.menuItemDangerText}>Archivar grupo</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.menuItemDanger} onPress={handleLeaveGroup}>
+                <Text style={styles.menuItemDangerText}>Salir del grupo</Text>
+              </TouchableOpacity>
+            )}
+
+            <TouchableOpacity
+              style={styles.menuItemCancel}
+              onPress={() => setMenuVisible(false)}
+            >
+              <Text style={styles.menuItemCancelText}>Cancelar</Text>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -234,4 +353,45 @@ const styles = StyleSheet.create({
   tabTextActive: { color: COLORS.kivo400, fontWeight: '600' },
 
   content: { flex: 1 },
+
+  // Menu modal
+  menuOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  menuSheet: {
+    backgroundColor: COLORS.bgSurface,
+    borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    paddingTop: 12,
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  menuHandle: {
+    width: 36, height: 4, borderRadius: 2,
+    backgroundColor: COLORS.borderDefault,
+    alignSelf: 'center', marginBottom: 12,
+  },
+  menuGroupName: {
+    fontSize: 15, fontWeight: '600', color: COLORS.textSecondary,
+    textAlign: 'center', marginBottom: 8,
+  },
+  menuItemDanger: {
+    paddingVertical: 16,
+    borderRadius: 12,
+    backgroundColor: `${COLORS.error}12`,
+    borderWidth: 1, borderColor: `${COLORS.error}25`,
+    alignItems: 'center',
+    marginBottom: 4,
+  },
+  menuItemDangerText: { color: COLORS.error, fontSize: 16, fontWeight: '600' },
+  menuItemCancel: {
+    paddingVertical: 15,
+    borderRadius: 12,
+    backgroundColor: COLORS.bgElevated,
+    borderWidth: 1, borderColor: COLORS.borderDefault,
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  menuItemCancelText: { color: COLORS.textSecondary, fontSize: 16, fontWeight: '500' },
 });

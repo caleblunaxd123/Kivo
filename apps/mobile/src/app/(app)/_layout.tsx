@@ -49,6 +49,10 @@ export default function AppLayout() {
         name="group/create"
         options={{ href: null, tabBarStyle: { display: 'none' } }}
       />
+      <Tabs.Screen
+        name="group/entry/[entryId]"
+        options={{ href: null, tabBarStyle: { display: 'none' } }}
+      />
     </Tabs>
   );
 }

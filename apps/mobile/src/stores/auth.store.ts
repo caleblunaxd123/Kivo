@@ -46,6 +46,7 @@ interface AuthState {
   setSession: (session: unknown | null) => void;
   signOut: () => Promise<void>;
   initialize: () => Promise<void>;
+  updateProfile: (updates: Partial<Pick<User, 'displayName' | 'avatarUrl' | 'preferredCurrency' | 'timezone'>>) => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
@@ -61,6 +62,18 @@ export const useAuthStore = create<AuthState>((set) => ({
   signOut: async () => {
     await supabase.auth.signOut();
     set({ user: null, sessionUserId: null, session: null, isAuthenticated: false });
+  },
+
+  updateProfile: async (updates) => {
+    const payload: Record<string, any> = {};
+    if (updates.displayName       !== undefined) payload.display_name       = updates.displayName;
+    if (updates.avatarUrl         !== undefined) payload.avatar_url         = updates.avatarUrl;
+    if (updates.preferredCurrency !== undefined) payload.preferred_currency = updates.preferredCurrency;
+    if (updates.timezone          !== undefined) payload.timezone           = updates.timezone;
+
+    const { data, error } = await supabase.rpc('update_profile', { p_updates: payload });
+    if (error) throw new Error(error.message);
+    if (data) set({ user: mapUser(data) });
   },
 
   initialize: async () => {

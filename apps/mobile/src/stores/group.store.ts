@@ -63,6 +63,13 @@ interface GroupState {
   addEntryOptimistic: (entry: Partial<Entry>) => void;
   updateEntryOptimistic: (id: string, updates: Partial<Entry>) => void;
   removeEntry: (id: string) => void;
+  // Group management
+  archiveGroup: (groupId: string) => Promise<void>;
+  leaveGroup: (groupId: string) => Promise<void>;
+  // Entry mutations (via RPC)
+  updateEntry: (entryId: string, updates: Partial<Entry>) => Promise<void>;
+  deleteEntry: (entryId: string) => Promise<void>;
+  // Realtime
   subscribeToGroup: (groupId: string) => void;
   unsubscribeFromGroup: () => void;
 }
@@ -190,6 +197,67 @@ export const useGroupStore = create<GroupState>((set, get) => ({
       entries: state.entries.filter(e => e.id !== id),
       pendingCount: state.entries.filter(e => e.id !== id && e.status === 'pending_review').length,
     }));
+  },
+
+  archiveGroup: async (groupId) => {
+    const { error } = await supabase.rpc('archive_group', { p_group_id: groupId });
+    if (error) throw new Error(error.message);
+    // Remove from local groups list
+    set(state => ({
+      groups: state.groups.filter(g => g.id !== groupId),
+    }));
+  },
+
+  leaveGroup: async (groupId) => {
+    const { error } = await supabase.rpc('leave_group', { p_group_id: groupId });
+    if (error) throw new Error(error.message);
+    // Remove from local groups list
+    set(state => ({
+      groups: state.groups.filter(g => g.id !== groupId),
+    }));
+  },
+
+  updateEntry: async (entryId, updates) => {
+    // Optimistic update first
+    get().updateEntryOptimistic(entryId, updates);
+
+    // Build the jsonb payload for the RPC
+    const payload: Record<string, any> = {};
+    if (updates.description !== undefined) payload.description = updates.description;
+    if (updates.amount       !== undefined) payload.amount      = updates.amount;
+    if (updates.currency     !== undefined) payload.currency    = updates.currency;
+    if (updates.category     !== undefined) payload.category    = updates.category;
+    if (updates.paidBy       !== undefined) payload.paid_by     = updates.paidBy;
+    if (updates.splitRule    !== undefined) payload.split_rule  = updates.splitRule;
+    if (updates.notes        !== undefined) payload.notes       = updates.notes;
+    if (updates.status       !== undefined) payload.status      = updates.status;
+    if (updates.entryDate    !== undefined) payload.entry_date  = updates.entryDate;
+    if (updates.pendingReasons !== undefined) payload.pending_reasons = updates.pendingReasons;
+
+    const { error } = await supabase.rpc('update_entry', {
+      p_entry_id: entryId,
+      p_updates: payload,
+    });
+    if (error) {
+      // Revert optimistic update on failure
+      console.error('[updateEntry] error:', error);
+      throw new Error(error.message);
+    }
+    // Recalculate pendingCount
+    set(state => ({
+      pendingCount: state.entries.filter(e => e.status === 'pending_review').length,
+    }));
+  },
+
+  deleteEntry: async (entryId) => {
+    // Optimistic remove
+    get().removeEntry(entryId);
+
+    const { error } = await supabase.rpc('delete_entry', { p_entry_id: entryId });
+    if (error) {
+      console.error('[deleteEntry] error:', error);
+      throw new Error(error.message);
+    }
   },
 
   subscribeToGroup: (groupId) => {

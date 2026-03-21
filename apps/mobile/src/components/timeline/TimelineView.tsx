@@ -13,9 +13,10 @@ import { EmptyState } from '../common/EmptyState';
 interface TimelineViewProps {
   entries: Entry[];
   members: GroupMember[];
+  onEntryPress?: (entryId: string) => void;
 }
 
-export function TimelineView({ entries, members }: TimelineViewProps) {
+export function TimelineView({ entries, members, onEntryPress }: TimelineViewProps) {
   if (entries.length === 0) {
     return (
       <EmptyState
@@ -38,13 +39,19 @@ export function TimelineView({ entries, members }: TimelineViewProps) {
       contentContainerStyle={styles.list}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
       renderItem={({ item }) => (
-        <TimelineCard entry={item} members={members} />
+        <TimelineCard
+          entry={item}
+          members={members}
+          onPress={onEntryPress ? () => onEntryPress(item.id) : undefined}
+        />
       )}
     />
   );
 }
 
-function TimelineCard({ entry, members }: { entry: Entry; members: GroupMember[] }) {
+function TimelineCard({
+  entry, members, onPress,
+}: { entry: Entry; members: GroupMember[]; onPress?: () => void }) {
   const creator = members.find(m => m.userId === entry.createdBy);
   const cat = CATEGORY_CONFIG[entry.category as keyof typeof CATEGORY_CONFIG] ?? CATEGORY_CONFIG.other;
   const isPending = entry.status === 'pending_review';
@@ -58,7 +65,11 @@ function TimelineCard({ entry, members }: { entry: Entry; members: GroupMember[]
   }[entry.origin] ?? PenLine;
 
   return (
-    <TouchableOpacity style={[styles.card, isPending && styles.cardPending]} activeOpacity={0.75}>
+    <TouchableOpacity
+      style={[styles.card, isPending && styles.cardPending]}
+      activeOpacity={onPress ? 0.7 : 1}
+      onPress={onPress}
+    >
       {/* Left timeline dot */}
       <View style={styles.dotCol}>
         <View style={[styles.dot, isPending && styles.dotPending]} />

@@ -1,30 +1,28 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
-  View, Text, FlatList, TouchableOpacity, StyleSheet,
-  TextInput, ScrollView,
+  View, Text, FlatList, TouchableOpacity, StyleSheet, ScrollView,
 } from 'react-native';
-import { AlertCircle, CheckCircle2, Filter } from 'lucide-react-native';
+import { AlertCircle, CheckCircle2 } from 'lucide-react-native';
 import {
   COLORS, CATEGORY_CONFIG, formatCurrency, formatDate,
 } from '@kivo/shared';
 import type { Entry, GroupMember } from '@kivo/shared';
 import { EmptyState } from '../common/EmptyState';
-import { supabase } from '../../lib/supabase';
 
 interface SheetViewProps {
   entries: Entry[];
   members: GroupMember[];
   groupId: string;
+  onEntryPress?: (entryId: string) => void;
+  initialFilter?: 'all' | 'confirmed' | 'pending';
 }
 
-type SortKey = 'date' | 'amount' | 'description';
 type FilterKey = 'all' | 'confirmed' | 'pending';
 
-export function SheetView({ entries, members, groupId }: SheetViewProps) {
-  const [filter, setFilter]         = useState<FilterKey>('all');
-  const [editingId, setEditingId]   = useState<string | null>(null);
-  const [editValue, setEditValue]   = useState('');
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+export function SheetView({
+  entries, members, groupId, onEntryPress, initialFilter = 'all',
+}: SheetViewProps) {
+  const [filter, setFilter] = useState<FilterKey>(initialFilter);
 
   const filtered = entries.filter(e => {
     if (filter === 'confirmed') return e.status === 'confirmed';
@@ -39,12 +37,6 @@ export function SheetView({ entries, members, groupId }: SheetViewProps) {
   const confirmedTotal = filtered
     .filter(e => e.status === 'confirmed')
     .reduce((sum, e) => sum + (e.amountInBase ?? e.amount), 0);
-
-  const handleSaveDescription = useCallback(async (id: string) => {
-    if (!editValue.trim()) { setEditingId(null); return; }
-    await supabase.from('entries').update({ description: editValue.trim() }).eq('id', id);
-    setEditingId(null);
-  }, [editValue]);
 
   if (entries.length === 0) {
     return (
@@ -73,17 +65,14 @@ export function SheetView({ entries, members, groupId }: SheetViewProps) {
             </TouchableOpacity>
           ))}
         </ScrollView>
-        <TouchableOpacity style={styles.filterBtn}>
-          <Filter size={16} color={COLORS.textSecondary} />
-        </TouchableOpacity>
       </View>
 
       {/* Column headers */}
       <View style={styles.colHeaders}>
-        <Text style={[styles.colHeader, styles.colNum]}>#</Text>
-        <Text style={[styles.colHeader, styles.colDesc]}>Descripción</Text>
-        <Text style={[styles.colHeader, styles.colAmount]}>Monto</Text>
-        <Text style={[styles.colHeader, styles.colStatus]}>Est.</Text>
+        <Text style={[styles.colHeader, styles.colNumStyle]}>#</Text>
+        <Text style={[styles.colHeader, styles.colDescStyle]}>Descripción</Text>
+        <Text style={[styles.colHeader, styles.colAmountStyle]}>Monto</Text>
+        <Text style={[styles.colHeader, styles.colStatusStyle]}>Est.</Text>
       </View>
 
       {/* Rows */}
@@ -96,13 +85,7 @@ export function SheetView({ entries, members, groupId }: SheetViewProps) {
             entry={item}
             index={index + 1}
             members={members}
-            isExpanded={expandedId === item.id}
-            isEditing={editingId === item.id}
-            editValue={editValue}
-            onToggleExpand={() => setExpandedId(expandedId === item.id ? null : item.id)}
-            onStartEdit={() => { setEditingId(item.id); setEditValue(item.description); }}
-            onEditChange={setEditValue}
-            onSaveEdit={() => handleSaveDescription(item.id)}
+            onPress={onEntryPress ? () => onEntryPress(item.id) : undefined}
           />
         )}
         contentContainerStyle={{ paddingBottom: 80 }}
@@ -120,64 +103,44 @@ export function SheetView({ entries, members, groupId }: SheetViewProps) {
 }
 
 function SheetRow({
-  entry, index, members,
-  isExpanded, isEditing, editValue,
-  onToggleExpand, onStartEdit, onEditChange, onSaveEdit,
+  entry, index, members, onPress,
 }: {
   entry: Entry;
   index: number;
   members: GroupMember[];
-  isExpanded: boolean;
-  isEditing: boolean;
-  editValue: string;
-  onToggleExpand: () => void;
-  onStartEdit: () => void;
-  onEditChange: (v: string) => void;
-  onSaveEdit: () => void;
+  onPress?: () => void;
 }) {
-  const isPending = entry.status === 'pending_review';
-  const cat = CATEGORY_CONFIG[entry.category as keyof typeof CATEGORY_CONFIG] ?? CATEGORY_CONFIG.other;
+  const [expanded, setExpanded] = useState(false);
+  const isPending    = entry.status === 'pending_review';
+  const cat          = CATEGORY_CONFIG[entry.category as keyof typeof CATEGORY_CONFIG] ?? CATEGORY_CONFIG.other;
   const paidByMember = members.find(m => m.userId === entry.paidBy);
 
   return (
     <View>
       <TouchableOpacity
         style={[styles.row, isPending && styles.rowPending]}
-        onPress={onToggleExpand}
+        onPress={onPress ?? (() => setExpanded(e => !e))}
         activeOpacity={0.7}
-        onLongPress={onStartEdit}
+        onLongPress={onPress ? undefined : () => setExpanded(e => !e)}
       >
-        {/* Pending indicator */}
         {isPending && <View style={styles.pendingBar} />}
 
-        <Text style={styles.colNum}>{index}</Text>
+        <Text style={styles.colNumText}>{index}</Text>
 
-        <View style={styles.colDesc}>
-          {isEditing ? (
-            <TextInput
-              style={styles.inlineInput}
-              value={editValue}
-              onChangeText={onEditChange}
-              onBlur={onSaveEdit}
-              onSubmitEditing={onSaveEdit}
-              autoFocus
-              returnKeyType="done"
-            />
-          ) : (
-            <View style={styles.descRow}>
-              <Text style={styles.descEmoji}>{cat.emoji}</Text>
-              <Text style={styles.descText} numberOfLines={1}>
-                {entry.description || '—'}
-              </Text>
-            </View>
-          )}
+        <View style={styles.colDescStyle}>
+          <View style={styles.descRow}>
+            <Text style={styles.descEmoji}>{cat.emoji}</Text>
+            <Text style={styles.descText} numberOfLines={1}>
+              {entry.description || '—'}
+            </Text>
+          </View>
         </View>
 
         <Text style={styles.colAmountText}>
           {formatCurrency(entry.amount, entry.currency)}
         </Text>
 
-        <View style={styles.colStatus}>
+        <View style={styles.colStatusStyle}>
           {isPending
             ? <AlertCircle size={15} color={COLORS.warning} />
             : <CheckCircle2 size={15} color={COLORS.success} />
@@ -185,24 +148,18 @@ function SheetRow({
         </View>
       </TouchableOpacity>
 
-      {/* Expanded detail */}
-      {isExpanded && (
+      {/* Expanded preview when no navigation handler */}
+      {!onPress && expanded && (
         <View style={styles.expanded}>
           <View style={styles.expandedRow}>
             <Text style={styles.expandedLabel}>Pagó</Text>
-            <Text style={styles.expandedValue}>
-              {paidByMember?.displayName ?? '—'}
-            </Text>
+            <Text style={styles.expandedValue}>{paidByMember?.displayName ?? '—'}</Text>
           </View>
           <View style={styles.expandedRow}>
             <Text style={styles.expandedLabel}>Reparto</Text>
             <Text style={styles.expandedValue}>
               {entry.splitRule === 'equal' ? 'División igual' : entry.splitRule ?? '—'}
             </Text>
-          </View>
-          <View style={styles.expandedRow}>
-            <Text style={styles.expandedLabel}>Categoría</Text>
-            <Text style={styles.expandedValue}>{cat.emoji} {cat.label}</Text>
           </View>
           <View style={styles.expandedRow}>
             <Text style={styles.expandedLabel}>Fecha</Text>
@@ -227,8 +184,7 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bgBase },
 
   toolbar: {
-    flexDirection: 'row', alignItems: 'center',
-    paddingVertical: 8, paddingRight: 12,
+    paddingVertical: 8,
     borderBottomWidth: 1, borderBottomColor: COLORS.borderSubtle,
   },
   filters: { paddingHorizontal: 12, gap: 6 },
@@ -240,11 +196,6 @@ const styles = StyleSheet.create({
   filterChipActive: { borderColor: COLORS.kivo500, backgroundColor: `${COLORS.kivo500}15` },
   filterText: { color: COLORS.textSecondary, fontSize: 12, fontWeight: '500' },
   filterTextActive: { color: COLORS.kivo400 },
-  filterBtn: {
-    width: 32, height: 32, borderRadius: 8,
-    backgroundColor: COLORS.bgElevated, borderWidth: 1, borderColor: COLORS.borderDefault,
-    alignItems: 'center', justifyContent: 'center',
-  },
 
   colHeaders: {
     flexDirection: 'row', alignItems: 'center',
@@ -256,10 +207,10 @@ const styles = StyleSheet.create({
     fontSize: 10, fontWeight: '700', color: COLORS.textTertiary,
     textTransform: 'uppercase', letterSpacing: 0.5,
   },
-  colNum:    { width: COL_NUM, textAlign: 'center' },
-  colDesc:   { flex: 1 },
-  colAmount: { width: COL_AMOUNT, textAlign: 'right' },
-  colStatus: { width: COL_STATUS, alignItems: 'center' },
+  colNumStyle:    { width: COL_NUM, textAlign: 'center' },
+  colDescStyle:   { flex: 1 },
+  colAmountStyle: { width: COL_AMOUNT, textAlign: 'right' },
+  colStatusStyle: { width: COL_STATUS, alignItems: 'center' },
 
   row: {
     flexDirection: 'row', alignItems: 'center',
@@ -274,6 +225,10 @@ const styles = StyleSheet.create({
     width: 3, backgroundColor: COLORS.warning,
   },
 
+  colNumText: {
+    width: COL_NUM, textAlign: 'center',
+    color: COLORS.textTertiary, fontSize: 12,
+  },
   colAmountText: {
     width: COL_AMOUNT, textAlign: 'right',
     color: COLORS.textPrimary, fontSize: 14,
@@ -283,13 +238,7 @@ const styles = StyleSheet.create({
   descEmoji: { fontSize: 14 },
   descText: { color: COLORS.textPrimary, fontSize: 14, flex: 1 },
 
-  inlineInput: {
-    color: COLORS.textPrimary, fontSize: 14,
-    borderBottomWidth: 1, borderBottomColor: COLORS.kivo500,
-    paddingVertical: 2, flex: 1,
-  },
-
-  // Expanded
+  // Expanded (fallback when no navigation)
   expanded: {
     backgroundColor: COLORS.bgElevated,
     borderTopWidth: 1, borderTopColor: COLORS.borderSubtle,
