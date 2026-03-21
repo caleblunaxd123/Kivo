@@ -27,26 +27,26 @@ export default function OnboardingScreen() {
 
   const logoOpacity    = useRef(new Animated.Value(0)).current;
   const heroOpacity    = useRef(new Animated.Value(0)).current;
-  const heroTranslateY = useRef(new Animated.Value(24)).current;
+  const heroTranslateY = useRef(new Animated.Value(22)).current;
   const ctaOpacity     = useRef(new Animated.Value(0)).current;
-  const ctaTranslateY  = useRef(new Animated.Value(16)).current;
-  const card1Scale     = useRef(new Animated.Value(0.93)).current;
-  const card2Scale     = useRef(new Animated.Value(0.93)).current;
+  const ctaTranslateY  = useRef(new Animated.Value(14)).current;
+  const card1Scale     = useRef(new Animated.Value(0.94)).current;
+  const card2Scale     = useRef(new Animated.Value(0.94)).current;
 
   useEffect(() => {
     Animated.sequence([
-      Animated.timing(logoOpacity, { toValue: 1, duration: 450, useNativeDriver: true }),
-      Animated.delay(100),
+      Animated.timing(logoOpacity, { toValue: 1, duration: 420, useNativeDriver: true }),
+      Animated.delay(80),
       Animated.parallel([
-        Animated.timing(heroOpacity,    { toValue: 1, duration: 550, useNativeDriver: true }),
-        Animated.timing(heroTranslateY, { toValue: 0, duration: 550, useNativeDriver: true }),
-        Animated.timing(card1Scale,     { toValue: 1, duration: 650, useNativeDriver: true }),
-        Animated.timing(card2Scale,     { toValue: 1, duration: 750, useNativeDriver: true }),
+        Animated.timing(heroOpacity,    { toValue: 1, duration: 520, useNativeDriver: true }),
+        Animated.timing(heroTranslateY, { toValue: 0, duration: 520, useNativeDriver: true }),
+        Animated.timing(card1Scale,     { toValue: 1, duration: 620, useNativeDriver: true }),
+        Animated.timing(card2Scale,     { toValue: 1, duration: 720, useNativeDriver: true }),
       ]),
-      Animated.delay(150),
+      Animated.delay(120),
       Animated.parallel([
-        Animated.timing(ctaOpacity,    { toValue: 1, duration: 380, useNativeDriver: true }),
-        Animated.timing(ctaTranslateY, { toValue: 0, duration: 380, useNativeDriver: true }),
+        Animated.timing(ctaOpacity,    { toValue: 1, duration: 360, useNativeDriver: true }),
+        Animated.timing(ctaTranslateY, { toValue: 0, duration: 360, useNativeDriver: true }),
       ]),
     ]).start();
   }, []);
@@ -62,11 +62,9 @@ export default function OnboardingScreen() {
         const params = Object.fromEntries(
           hashPart.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
         );
-        const accessToken  = params['access_token'];
-        const refreshToken = params['refresh_token'];
-        if (accessToken && refreshToken) {
-          await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-        }
+        const at = params['access_token'];
+        const rt = params['refresh_token'];
+        if (at && rt) await supabase.auth.setSession({ access_token: at, refresh_token: rt });
       });
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -80,12 +78,13 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom + 12, paddingTop: insets.top + 4 }]}>
+    <View style={[styles.container, { paddingBottom: insets.bottom + 14, paddingTop: insets.top + 6 }]}>
 
-      {/* ── Background orbs ── */}
+      {/* ── Orbs de fondo ── */}
       <View style={styles.orb1} />
       <View style={styles.orb2} />
       <View style={styles.orb3} />
+      <View style={styles.orb4} />
 
       {/* ── Logo ── */}
       <Animated.View style={[styles.logoWrap, { opacity: logoOpacity }]}>
@@ -93,7 +92,6 @@ export default function OnboardingScreen() {
           <Text style={styles.logoText}>kivo</Text>
           <View style={styles.logoDot} />
         </View>
-        <Text style={styles.logoTagline}>registro de gastos en grupo</Text>
       </Animated.View>
 
       {/* ── Hero ── */}
@@ -106,15 +104,14 @@ export default function OnboardingScreen() {
         {/* Demo card */}
         <Animated.View style={[styles.demoCard, { transform: [{ scale: card1Scale }] }]}>
 
-          {/* Input row */}
+          {/* Voice input row */}
           <View style={styles.demoInputRow}>
             <View style={styles.demoMicBadge}>
-              <Mic size={13} color={COLORS.kivo400} />
+              <Mic size={13} color={COLORS.kivo500} />
             </View>
             <Text style={styles.demoInputText}>"Taxi 40 dólares, entre 4"</Text>
-            <View style={styles.demoAiBadge}>
+            <View style={styles.demoSparkle}>
               <Sparkles size={12} color={COLORS.ai} />
-              <Text style={styles.demoAiLabel}>IA</Text>
             </View>
           </View>
 
@@ -127,7 +124,6 @@ export default function OnboardingScreen() {
 
           {/* Parsed result */}
           <Animated.View style={[styles.parsedRow, { transform: [{ scale: card2Scale }] }]}>
-            <View style={styles.parsedAccentBar} />
             <View style={styles.parsedIcon}>
               <Text style={styles.parsedEmoji}>🚗</Text>
             </View>
@@ -137,23 +133,23 @@ export default function OnboardingScreen() {
             </View>
             <View style={styles.parsedRight}>
               <Text style={styles.parsedAmount}>$40.00</Text>
-              <View style={styles.parsedSplitBadge}>
-                <Text style={styles.parsedSplitText}>$10 c/u</Text>
+              <View style={styles.parsedPerPersonBadge}>
+                <Text style={styles.parsedPerPerson}>$10 c/u</Text>
               </View>
             </View>
           </Animated.View>
         </Animated.View>
 
-        {/* Input methods row */}
+        {/* Method chips */}
         <View style={styles.methodsRow}>
           {[
-            { icon: Mic,     label: 'Voz',   color: COLORS.kivo400 },
+            { icon: Mic,     label: 'Voz',   color: COLORS.kivo500 },
             { icon: Camera,  label: 'Foto',  color: COLORS.ai },
             { icon: PenLine, label: 'Texto', color: COLORS.success },
           ].map(({ icon: Icon, label, color }) => (
             <View key={label} style={styles.methodChip}>
               <View style={[styles.methodIconWrap, { backgroundColor: `${color}18` }]}>
-                <Icon size={15} color={color} />
+                <Icon size={14} color={color} />
               </View>
               <Text style={styles.methodLabel}>{label}</Text>
             </View>
@@ -162,14 +158,12 @@ export default function OnboardingScreen() {
 
         {/* Tagline */}
         <View style={styles.taglineWrap}>
-          <Text style={styles.tagline}>Anota ahora, ordena después.</Text>
-          <Text style={styles.taglineSub}>
-            Voz, foto o texto — tu grupo siempre al día.
-          </Text>
+          <Text style={styles.tagline}>Anota ahora,{'\n'}ordena después.</Text>
+          <Text style={styles.taglineSub}>Sin formularios, sin caos.{'\n'}Solo tú y tu grupo.</Text>
         </View>
       </Animated.View>
 
-      {/* ── Auth CTAs ── */}
+      {/* ── Auth ── */}
       <Animated.View
         style={[
           styles.ctaContainer,
@@ -180,52 +174,48 @@ export default function OnboardingScreen() {
         <TouchableOpacity
           style={styles.btnSocial}
           onPress={() => handleOAuth('google')}
-          activeOpacity={0.82}
+          activeOpacity={0.80}
           disabled={!!oauthLoading}
         >
           {oauthLoading === 'google' ? (
-            <ActivityIndicator size="small" color={COLORS.textPrimary} />
+            <ActivityIndicator size="small" color={COLORS.textSecondary} />
           ) : (
             <View style={styles.btnSocialInner}>
-              <GoogleIcon />
+              <GoogleColorIcon size={22} />
               <Text style={styles.btnSocialText}>Continuar con Google</Text>
             </View>
           )}
         </TouchableOpacity>
 
-        {/* Apple — iOS only */}
+        {/* Apple — solo iOS */}
         {Platform.OS === 'ios' && (
           <TouchableOpacity
             style={styles.btnSocial}
             onPress={() => handleOAuth('apple')}
-            activeOpacity={0.82}
+            activeOpacity={0.80}
             disabled={!!oauthLoading}
           >
             {oauthLoading === 'apple' ? (
-              <ActivityIndicator size="small" color={COLORS.textPrimary} />
+              <ActivityIndicator size="small" color={COLORS.textSecondary} />
             ) : (
               <View style={styles.btnSocialInner}>
-                <AppleIcon />
+                <AppleIcon size={22} />
                 <Text style={styles.btnSocialText}>Continuar con Apple</Text>
               </View>
             )}
           </TouchableOpacity>
         )}
 
-        {/* Divider */}
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>o con correo</Text>
-          <View style={styles.dividerLine} />
-        </View>
+        {/* Separador */}
+        <View style={styles.separator} />
 
-        {/* Email */}
+        {/* Correo — acción secundaria limpia, sin divider redundante */}
         <TouchableOpacity
           style={styles.btnEmail}
           onPress={() => router.push('/(auth)/login')}
-          activeOpacity={0.78}
+          activeOpacity={0.70}
         >
-          <Text style={styles.btnEmailText}>Continuar con correo</Text>
+          <Text style={styles.btnEmailText}>Acceder con correo electrónico</Text>
         </TouchableOpacity>
 
         {/* Legal */}
@@ -240,109 +230,122 @@ export default function OnboardingScreen() {
   );
 }
 
-// ── Mini SVG icons (no native dependency) ────────────────────────────────────
-
-function GoogleIcon() {
+// ─── Ícono Google en sus 4 colores reales ─────────────────────────────────────
+function GoogleColorIcon({ size = 22 }: { size?: number }) {
+  const h = size / 2;
+  const innerR = size * 0.27;
+  const innerOffset = size * 0.5 - innerR;
   return (
-    <View style={socialIconStyles.wrap}>
-      <Text style={socialIconStyles.g}>G</Text>
+    <View style={{ width: size, height: size, borderRadius: h, overflow: 'hidden' }}>
+      {/* Azul — arriba izquierda */}
+      <View style={{ position: 'absolute', left: 0, top: 0, width: h, height: h, backgroundColor: '#4285F4' }} />
+      {/* Rojo — arriba derecha */}
+      <View style={{ position: 'absolute', right: 0, top: 0, width: h, height: h, backgroundColor: '#EA4335' }} />
+      {/* Verde — abajo izquierda */}
+      <View style={{ position: 'absolute', left: 0, bottom: 0, width: h, height: h, backgroundColor: '#34A853' }} />
+      {/* Amarillo — abajo derecha */}
+      <View style={{ position: 'absolute', right: 0, bottom: 0, width: h, height: h, backgroundColor: '#FBBC04' }} />
+      {/* Centro blanco con G */}
+      <View style={{
+        position: 'absolute',
+        left: innerOffset, top: innerOffset,
+        width: innerR * 2, height: innerR * 2,
+        borderRadius: innerR,
+        backgroundColor: '#fff',
+        alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Text style={{ fontSize: innerR * 0.95, fontWeight: '700', color: '#4285F4', lineHeight: innerR * 1.1 }}>G</Text>
+      </View>
     </View>
   );
 }
 
-function AppleIcon() {
+// ─── Ícono Apple ──────────────────────────────────────────────────────────────
+function AppleIcon({ size = 22 }: { size?: number }) {
   return (
-    <View style={socialIconStyles.wrap}>
-      <Text style={socialIconStyles.apple}></Text>
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontSize: size * 0.82, color: '#000', lineHeight: size }}>
+
+      </Text>
     </View>
   );
 }
 
-const socialIconStyles = StyleSheet.create({
-  wrap: {
-    width: 22, height: 22,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  g: {
-    fontSize: 16, fontWeight: '700', color: '#4285F4',
-    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
-  },
-  apple: {
-    fontSize: 18, color: '#000', lineHeight: 20,
-  },
-});
-
-// ── Styles ────────────────────────────────────────────────────────────────────
-
+// ─── Estilos ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.bgBase,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
+    paddingHorizontal: 22,
     overflow: 'hidden',
   },
 
-  // ── Orbs ──────────────────────────────────────────────────────
+  // ── Orbs ────────────────────────────────────────────────────────
+  // Orb 1: arriba izquierda — enmarca el logo
   orb1: {
     position: 'absolute',
-    width: 340, height: 340, borderRadius: 170,
-    backgroundColor: `${COLORS.kivo500}16`,
-    top: -120, left: -80,
+    width: 320, height: 320, borderRadius: 160,
+    backgroundColor: `${COLORS.kivo500}14`,
+    top: -110, left: -90,
   },
+  // Orb 2: arriba derecha — contrapeso del logo
   orb2: {
     position: 'absolute',
-    width: 240, height: 240, borderRadius: 120,
-    backgroundColor: `${COLORS.ai}12`,
-    top: 80, right: -70,
+    width: 200, height: 200, borderRadius: 100,
+    backgroundColor: `${COLORS.ai}0E`,
+    top: 20, right: -60,
   },
+  // Orb 3: centro derecha — enmarca el demo card
   orb3: {
     position: 'absolute',
-    width: 200, height: 200, borderRadius: 100,
-    backgroundColor: `${COLORS.kivo400}10`,
-    bottom: 140, left: -50,
+    width: 260, height: 260, borderRadius: 130,
+    backgroundColor: `${COLORS.kivo400}0A`,
+    top: '28%', right: -100,
+  },
+  // Orb 4: abajo izquierda — enmarca el bloque auth
+  orb4: {
+    position: 'absolute',
+    width: 220, height: 220, borderRadius: 110,
+    backgroundColor: `${COLORS.success}08`,
+    bottom: 60, left: -70,
   },
 
-  // ── Logo ──────────────────────────────────────────────────────
-  logoWrap: { alignItems: 'center', gap: 6 },
+  // ── Logo ─────────────────────────────────────────────────────────
+  logoWrap: { alignItems: 'center' },
   logoPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 5,
     backgroundColor: COLORS.kivo500,
     borderRadius: 999,
-    paddingHorizontal: 18,
-    paddingVertical: 9,
+    paddingHorizontal: 22,
+    paddingVertical: 11,
     shadowColor: COLORS.kivo500,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.38,
+    shadowRadius: 16,
+    elevation: 10,
   },
   logoText: {
-    fontSize: 22, fontWeight: '800',
-    color: '#fff', letterSpacing: -1,
+    fontSize: 26, fontWeight: '800',
+    color: '#fff', letterSpacing: -1.2,
   },
   logoDot: {
-    width: 7, height: 7, borderRadius: 3.5,
-    backgroundColor: 'rgba(255,255,255,0.65)',
-    marginTop: -8,
-  },
-  logoTagline: {
-    fontSize: 11, color: COLORS.textTertiary,
-    fontWeight: '500', letterSpacing: 0.5,
-    textTransform: 'uppercase',
+    width: 8, height: 8, borderRadius: 4,
+    backgroundColor: 'rgba(255,255,255,0.60)',
+    marginTop: -10,
   },
 
-  // ── Hero ──────────────────────────────────────────────────────
+  // ── Hero ─────────────────────────────────────────────────────────
   heroContainer: {
     flex: 1,
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 16,
-    paddingVertical: 12,
+    gap: 14,
+    paddingVertical: 10,
   },
 
   // Demo card
@@ -353,29 +356,30 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: COLORS.borderDefault,
-    gap: 12,
+    gap: 11,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.09,
-    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.07,
+    shadowRadius: 22,
     elevation: 8,
   },
 
   demoInputRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 9,
+    gap: 10,
     backgroundColor: COLORS.bgElevated,
     borderRadius: 13,
-    padding: 12,
+    paddingHorizontal: 13,
+    paddingVertical: 12,
     borderWidth: 1,
     borderColor: COLORS.borderDefault,
   },
   demoMicBadge: {
-    width: 28, height: 28, borderRadius: 14,
-    backgroundColor: `${COLORS.kivo500}20`,
+    width: 30, height: 30, borderRadius: 15,
+    backgroundColor: `${COLORS.kivo500}18`,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: `${COLORS.kivo500}35`,
+    borderWidth: 1, borderColor: `${COLORS.kivo500}30`,
     flexShrink: 0,
   },
   demoInputText: {
@@ -384,86 +388,70 @@ const styles = StyleSheet.create({
     fontSize: 13, fontStyle: 'italic',
     flexWrap: 'wrap',
   },
-  demoAiBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 3,
-    backgroundColor: `${COLORS.ai}18`,
-    borderRadius: 8,
-    paddingHorizontal: 7,
-    paddingVertical: 4,
-    borderWidth: 1,
-    borderColor: `${COLORS.ai}25`,
+  demoSparkle: {
+    width: 26, height: 26, borderRadius: 13,
+    backgroundColor: `${COLORS.ai}15`,
+    alignItems: 'center', justifyContent: 'center',
     flexShrink: 0,
-  },
-  demoAiLabel: {
-    color: COLORS.ai, fontSize: 10, fontWeight: '700',
   },
 
   arrowRow: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
   },
-  arrowLine: { flex: 1, height: 1, backgroundColor: COLORS.borderSubtle },
+  arrowLine: {
+    flex: 1, height: 1, backgroundColor: COLORS.borderSubtle,
+  },
   arrowLabel: {
-    color: COLORS.textTertiary, fontSize: 10, fontWeight: '500', letterSpacing: 0.3,
+    color: COLORS.textTertiary, fontSize: 10.5,
+    fontWeight: '500', letterSpacing: 0.3,
   },
 
+  // Parsed row — usa borderLeftWidth como acento (sin View posicionado)
   parsedRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 11,
-    backgroundColor: `${COLORS.success}0C`,
+    backgroundColor: `${COLORS.success}09`,
     borderRadius: 13,
     padding: 12,
     borderWidth: 1,
-    borderColor: `${COLORS.success}22`,
-    overflow: 'hidden',
-  },
-  parsedAccentBar: {
-    position: 'absolute',
-    left: 0, top: 0, bottom: 0,
-    width: 3,
-    backgroundColor: COLORS.success,
-    opacity: 0.7,
+    borderLeftWidth: 3,
+    borderColor: `${COLORS.success}1E`,
+    borderLeftColor: COLORS.success,
   },
   parsedIcon: {
-    width: 36, height: 36, borderRadius: 10,
-    backgroundColor: COLORS.bgElevated,
+    width: 38, height: 38, borderRadius: 11,
+    backgroundColor: COLORS.bgSurface,
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: COLORS.borderSubtle,
-    marginLeft: 4,
   },
-  parsedEmoji: { fontSize: 17 },
+  parsedEmoji: { fontSize: 18 },
   parsedInfo: { flex: 1, gap: 2 },
-  parsedDesc: { color: COLORS.textPrimary, fontSize: 14, fontWeight: '600' },
-  parsedMeta: { color: COLORS.textSecondary, fontSize: 11 },
-  parsedRight: { alignItems: 'flex-end', gap: 4 },
+  parsedDesc: { color: COLORS.textPrimary, fontSize: 14, fontWeight: '700' },
+  parsedMeta: { color: COLORS.textTertiary, fontSize: 11 },
+  parsedRight: { alignItems: 'flex-end', gap: 5 },
   parsedAmount: {
-    color: COLORS.textPrimary, fontSize: 16, fontWeight: '800',
-    fontFamily: 'monospace', letterSpacing: -0.5,
+    color: COLORS.textPrimary, fontSize: 18, fontWeight: '800',
+    fontFamily: 'monospace', letterSpacing: -0.6,
   },
-  parsedSplitBadge: {
-    backgroundColor: `${COLORS.kivo500}1A`,
+  parsedPerPersonBadge: {
+    backgroundColor: `${COLORS.kivo500}18`,
     borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3,
-    borderWidth: 1, borderColor: `${COLORS.kivo500}30`,
+    borderWidth: 1, borderColor: `${COLORS.kivo500}28`,
   },
-  parsedSplitText: { color: COLORS.kivo500, fontSize: 10, fontWeight: '700' },
+  parsedPerPerson: { color: COLORS.kivo500, fontSize: 10, fontWeight: '700' },
 
   // Method chips
   methodsRow: {
     flexDirection: 'row', gap: 8, width: '100%',
   },
   methodChip: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    flex: 1, flexDirection: 'row',
+    alignItems: 'center', justifyContent: 'center',
     gap: 6,
     backgroundColor: COLORS.bgSurface,
-    borderRadius: 12,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: COLORS.borderDefault,
+    borderRadius: 12, paddingVertical: 9,
+    borderWidth: 1, borderColor: COLORS.borderDefault,
   },
   methodIconWrap: {
     width: 24, height: 24, borderRadius: 7,
@@ -474,68 +462,61 @@ const styles = StyleSheet.create({
   },
 
   // Tagline
-  taglineWrap: { alignItems: 'center', gap: 5 },
+  taglineWrap: { alignItems: 'center', gap: 6 },
   tagline: {
-    fontSize: 21, fontWeight: '800',
+    fontSize: 23, fontWeight: '800',
     color: COLORS.textPrimary, textAlign: 'center',
-    letterSpacing: -0.6, lineHeight: 26,
+    letterSpacing: -0.7, lineHeight: 29,
   },
   taglineSub: {
-    fontSize: 13, color: COLORS.textTertiary,
-    textAlign: 'center', lineHeight: 18,
+    fontSize: 13.5, color: COLORS.textTertiary,
+    textAlign: 'center', lineHeight: 19,
   },
 
-  // ── Auth CTAs ──────────────────────────────────────────────────
+  // ── Auth ─────────────────────────────────────────────────────────
   ctaContainer: {
     width: '100%',
-    gap: 9,
     alignItems: 'center',
+    gap: 10,
   },
 
   btnSocial: {
     width: '100%',
     backgroundColor: COLORS.bgSurface,
-    borderRadius: 15,
-    paddingVertical: 14,
-    paddingHorizontal: 18,
-    borderWidth: 1,
-    borderColor: COLORS.borderDefault,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 50,
+    borderRadius: 16,
+    paddingVertical: 14, paddingHorizontal: 20,
+    borderWidth: 1, borderColor: COLORS.borderDefault,
+    alignItems: 'center', justifyContent: 'center',
+    minHeight: 52,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
   },
   btnSocialInner: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
+    flexDirection: 'row', alignItems: 'center', gap: 11,
   },
   btnSocialText: {
     color: COLORS.textPrimary, fontSize: 15, fontWeight: '500',
   },
 
-  divider: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    width: '100%', marginVertical: 1,
+  // Separador sin texto — un simple línea fina
+  separator: {
+    width: '100%', height: 1,
+    backgroundColor: COLORS.borderSubtle,
+    marginVertical: 1,
   },
-  dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.borderSubtle },
-  dividerText: { color: COLORS.textTertiary, fontSize: 11, fontWeight: '500' },
 
+  // Email: acción secundaria como texto — sin botón lleno, sin divider redundante
   btnEmail: {
-    width: '100%',
-    borderRadius: 15,
-    paddingVertical: 14,
-    alignItems: 'center',
+    paddingVertical: 6, paddingHorizontal: 12,
   },
   btnEmailText: {
-    color: COLORS.textTertiary, fontSize: 14, fontWeight: '500',
+    color: COLORS.textTertiary, fontSize: 13.5, fontWeight: '500',
   },
 
   legal: {
-    color: COLORS.textTertiary, fontSize: 11,
-    textAlign: 'center', marginTop: -2,
+    color: COLORS.textTertiary, fontSize: 11, textAlign: 'center',
+    marginTop: -2,
   },
   legalLink: { color: COLORS.kivo400 },
 });

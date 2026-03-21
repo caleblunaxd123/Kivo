@@ -71,11 +71,9 @@ export default function LoginScreen() {
         const params = Object.fromEntries(
           hashPart.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
         );
-        const accessToken  = params['access_token'];
-        const refreshToken = params['refresh_token'];
-        if (accessToken && refreshToken) {
-          await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
-        }
+        const at = params['access_token'];
+        const rt = params['refresh_token'];
+        if (at && rt) await supabase.auth.setSession({ access_token: at, refresh_token: rt });
       });
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -95,8 +93,9 @@ export default function LoginScreen() {
       style={[styles.outer, { paddingTop: insets.top }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      {/* Background orb */}
+      {/* Orb de fondo */}
       <View style={styles.bgOrb} />
+      <View style={styles.bgOrb2} />
 
       {/* Header */}
       <View style={styles.header}>
@@ -115,15 +114,15 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Title */}
+        {/* Título */}
         <View style={styles.titleBlock}>
           <Text style={styles.title}>
             {isLogin ? 'Bienvenido de nuevo' : 'Crea tu cuenta'}
           </Text>
           <Text style={styles.subtitle}>
             {isLogin
-              ? 'Inicia sesión para continuar'
-              : 'Empieza a organizar gastos en grupo'}
+              ? 'Continúa donde lo dejaste'
+              : 'Empieza a organizar gastos en grupo hoy'}
           </Text>
         </View>
 
@@ -132,14 +131,14 @@ export default function LoginScreen() {
           <TouchableOpacity
             style={styles.btnSocial}
             onPress={() => handleOAuth('google')}
-            activeOpacity={0.82}
+            activeOpacity={0.80}
             disabled={!!oauthLoading}
           >
             {oauthLoading === 'google' ? (
-              <ActivityIndicator size="small" color={COLORS.textPrimary} />
+              <ActivityIndicator size="small" color={COLORS.textSecondary} />
             ) : (
               <View style={styles.btnSocialInner}>
-                <GoogleIcon />
+                <GoogleColorIcon size={22} />
                 <Text style={styles.btnSocialText}>Continuar con Google</Text>
               </View>
             )}
@@ -149,14 +148,14 @@ export default function LoginScreen() {
             <TouchableOpacity
               style={styles.btnSocial}
               onPress={() => handleOAuth('apple')}
-              activeOpacity={0.82}
+              activeOpacity={0.80}
               disabled={!!oauthLoading}
             >
               {oauthLoading === 'apple' ? (
-                <ActivityIndicator size="small" color={COLORS.textPrimary} />
+                <ActivityIndicator size="small" color={COLORS.textSecondary} />
               ) : (
                 <View style={styles.btnSocialInner}>
-                  <AppleIcon />
+                  <AppleIcon size={22} />
                   <Text style={styles.btnSocialText}>Continuar con Apple</Text>
                 </View>
               )}
@@ -164,18 +163,18 @@ export default function LoginScreen() {
           )}
         </View>
 
-        {/* Divider */}
+        {/* Separador */}
         <View style={styles.divider}>
           <View style={styles.dividerLine} />
           <Text style={styles.dividerText}>o con correo</Text>
           <View style={styles.dividerLine} />
         </View>
 
-        {/* ── Email form ── */}
+        {/* ── Formulario ── */}
         <View style={styles.formGroup}>
           <View style={[styles.inputWrap, emailFocused && styles.inputWrapFocused]}>
             <View style={styles.inputIconWrap}>
-              <Mail size={15} color={emailFocused ? COLORS.kivo400 : COLORS.textTertiary} />
+              <Mail size={15} color={emailFocused ? COLORS.kivo500 : COLORS.textTertiary} />
             </View>
             <TextInput
               style={styles.input}
@@ -193,7 +192,7 @@ export default function LoginScreen() {
 
           <View style={[styles.inputWrap, passFocused && styles.inputWrapFocused]}>
             <View style={styles.inputIconWrap}>
-              <Lock size={15} color={passFocused ? COLORS.kivo400 : COLORS.textTertiary} />
+              <Lock size={15} color={passFocused ? COLORS.kivo500 : COLORS.textTertiary} />
             </View>
             <TextInput
               style={styles.input}
@@ -211,7 +210,7 @@ export default function LoginScreen() {
           </View>
         </View>
 
-        {/* Submit */}
+        {/* CTA principal */}
         <Button
           label={isLogin ? 'Iniciar sesión' : 'Crear cuenta'}
           onPress={handleSubmit}
@@ -221,7 +220,7 @@ export default function LoginScreen() {
           size="lg"
         />
 
-        {/* Switch mode */}
+        {/* Cambio de modo */}
         <TouchableOpacity
           style={styles.switchBtn}
           onPress={() => setMode(isLogin ? 'signup' : 'login')}
@@ -245,55 +244,62 @@ export default function LoginScreen() {
   );
 }
 
-// ── Icon helpers ──────────────────────────────────────────────────────────────
-
-function GoogleIcon() {
+// ─── Ícono Google 4 colores reales ───────────────────────────────────────────
+function GoogleColorIcon({ size = 22 }: { size?: number }) {
+  const h = size / 2;
+  const innerR = size * 0.27;
+  const innerOffset = size * 0.5 - innerR;
   return (
-    <View style={iconStyles.wrap}>
-      <Text style={iconStyles.g}>G</Text>
+    <View style={{ width: size, height: size, borderRadius: h, overflow: 'hidden' }}>
+      <View style={{ position: 'absolute', left: 0, top: 0, width: h, height: h, backgroundColor: '#4285F4' }} />
+      <View style={{ position: 'absolute', right: 0, top: 0, width: h, height: h, backgroundColor: '#EA4335' }} />
+      <View style={{ position: 'absolute', left: 0, bottom: 0, width: h, height: h, backgroundColor: '#34A853' }} />
+      <View style={{ position: 'absolute', right: 0, bottom: 0, width: h, height: h, backgroundColor: '#FBBC04' }} />
+      <View style={{
+        position: 'absolute',
+        left: innerOffset, top: innerOffset,
+        width: innerR * 2, height: innerR * 2,
+        borderRadius: innerR,
+        backgroundColor: '#fff',
+        alignItems: 'center', justifyContent: 'center',
+      }}>
+        <Text style={{ fontSize: innerR * 0.95, fontWeight: '700', color: '#4285F4', lineHeight: innerR * 1.1 }}>G</Text>
+      </View>
     </View>
   );
 }
 
-function AppleIcon() {
+function AppleIcon({ size = 22 }: { size?: number }) {
   return (
-    <View style={iconStyles.wrap}>
-      <Text style={iconStyles.apple}></Text>
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontSize: size * 0.82, color: '#000', lineHeight: size }}>
+      </Text>
     </View>
   );
 }
 
-const iconStyles = StyleSheet.create({
-  wrap: { width: 20, height: 20, alignItems: 'center', justifyContent: 'center' },
-  g: {
-    fontSize: 15, fontWeight: '700', color: '#4285F4',
-    fontFamily: Platform.OS === 'ios' ? 'Georgia' : 'serif',
-  },
-  apple: { fontSize: 17, color: '#000', lineHeight: 20 },
-});
-
-// ── Styles ────────────────────────────────────────────────────────────────────
-
+// ─── Estilos ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   outer: {
-    flex: 1,
-    backgroundColor: COLORS.bgBase,
-    overflow: 'hidden',
+    flex: 1, backgroundColor: COLORS.bgBase, overflow: 'hidden',
   },
   bgOrb: {
     position: 'absolute',
-    width: 380, height: 380, borderRadius: 190,
-    backgroundColor: `${COLORS.kivo500}14`,
-    top: -160, right: -130,
+    width: 340, height: 340, borderRadius: 170,
+    backgroundColor: `${COLORS.kivo500}12`,
+    top: -150, right: -110,
+  },
+  bgOrb2: {
+    position: 'absolute',
+    width: 200, height: 200, borderRadius: 100,
+    backgroundColor: `${COLORS.ai}0A`,
+    bottom: 40, left: -60,
   },
 
   // Header
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    paddingHorizontal: 16, paddingVertical: 10,
   },
   backBtn: {
     width: 36, height: 36, borderRadius: 18,
@@ -302,27 +308,26 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: COLORS.borderDefault,
   },
   logoPill: {
-    flexDirection: 'row', alignItems: 'center', gap: 3,
-    backgroundColor: COLORS.bgElevated,
-    borderRadius: 999, paddingHorizontal: 14, paddingVertical: 7,
-    borderWidth: 1, borderColor: COLORS.borderAccent,
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    backgroundColor: COLORS.kivo500,
+    borderRadius: 999, paddingHorizontal: 16, paddingVertical: 8,
+    shadowColor: COLORS.kivo500,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
   },
-  logoText: { fontSize: 16, fontWeight: '800', color: COLORS.textPrimary, letterSpacing: -0.8 },
+  logoText: { fontSize: 17, fontWeight: '800', color: '#fff', letterSpacing: -0.9 },
   logoDot: {
     width: 6, height: 6, borderRadius: 3,
-    backgroundColor: COLORS.kivo500, marginTop: -7,
+    backgroundColor: 'rgba(255,255,255,0.60)', marginTop: -8,
   },
 
   // Scroll
   scroll: {
-    paddingHorizontal: 22,
-    paddingTop: 24,
-    paddingBottom: 40,
-    gap: 14,
+    paddingHorizontal: 22, paddingTop: 26, paddingBottom: 44, gap: 14,
   },
 
-  // Title
-  titleBlock: { gap: 5, marginBottom: 4 },
+  // Título
+  titleBlock: { gap: 5, marginBottom: 2 },
   title: {
     fontSize: 26, fontWeight: '800',
     color: COLORS.textPrimary, letterSpacing: -0.7,
@@ -331,24 +336,23 @@ const styles = StyleSheet.create({
     fontSize: 14, color: COLORS.textSecondary, lineHeight: 20,
   },
 
-  // Social auth
-  socialGroup: { gap: 9 },
+  // Social
+  socialGroup: { gap: 10 },
   btnSocial: {
     backgroundColor: COLORS.bgSurface,
-    borderRadius: 14, paddingVertical: 14, paddingHorizontal: 18,
+    borderRadius: 15, paddingVertical: 14, paddingHorizontal: 20,
     borderWidth: 1, borderColor: COLORS.borderDefault,
-    alignItems: 'center', justifyContent: 'center', minHeight: 50,
+    alignItems: 'center', justifyContent: 'center', minHeight: 52,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04, shadowRadius: 4, elevation: 2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
   },
-  btnSocialInner: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  btnSocialInner: { flexDirection: 'row', alignItems: 'center', gap: 11 },
   btnSocialText: { color: COLORS.textPrimary, fontSize: 15, fontWeight: '500' },
 
   // Divider
   divider: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    marginVertical: 2,
+    flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 2,
   },
   dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.borderSubtle },
   dividerText: { color: COLORS.textTertiary, fontSize: 11, fontWeight: '500' },
@@ -356,8 +360,7 @@ const styles = StyleSheet.create({
   // Form
   formGroup: { gap: 10 },
   inputWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'row', alignItems: 'center',
     backgroundColor: COLORS.bgInput,
     borderRadius: 14, borderWidth: 1, borderColor: COLORS.borderDefault,
     paddingHorizontal: 14,
@@ -369,12 +372,10 @@ const styles = StyleSheet.create({
     backgroundColor: `${COLORS.kivo500}07`,
   },
   inputIconWrap: { width: 18, alignItems: 'center' },
-  input: {
-    flex: 1, color: COLORS.textPrimary, fontSize: 15,
-  },
+  input: { flex: 1, color: COLORS.textPrimary, fontSize: 15 },
 
-  // Switch
-  switchBtn: { alignItems: 'center', paddingVertical: 2 },
+  // Cambio de modo
+  switchBtn: { alignItems: 'center', paddingVertical: 3 },
   switchText: { color: COLORS.textTertiary, fontSize: 14, textAlign: 'center' },
   switchLink: { color: COLORS.kivo400, fontWeight: '600' },
 
