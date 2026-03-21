@@ -15,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Kivo — Anota ahora, ordena después',
+  title: 'Vozpe — Anota ahora, ordena después',
   description: 'Workspace colaborativo para tracking de gastos por voz, foto y texto.',
   icons: {
     icon: '/favicon.ico',

@@ -88,7 +88,7 @@ function TimelineCard({
             <View style={styles.systemDot}><Sparkles size={10} color={COLORS.ai} /></View>
           )}
           <Text style={styles.creatorName} numberOfLines={1}>
-            {creator?.displayName ?? 'Kivo ✦'}
+            {creator?.displayName ?? 'Vozpe ✦'}
           </Text>
           <OriginIcon size={12} color={COLORS.textTertiary} />
           <Text style={styles.timestamp}>{formatRelativeTime(entry.createdAt)}</Text>

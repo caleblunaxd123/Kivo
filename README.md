@@ -1,8 +1,8 @@
-# Kivo
+# Vozpe
 
 > **"Habla, toma foto o escribe… y todo se ordena solo."**
 
-Kivo es un workspace colaborativo de captura rápida que transforma entradas caóticas —voz, foto, texto— en una tabla viva, editable, calculada y compartida en tiempo real.
+Vozpe es un workspace colaborativo de captura rápida que transforma entradas caóticas —voz, foto, texto— en una tabla viva, editable, calculada y compartida en tiempo real.
 
 ## Estructura del Proyecto
 

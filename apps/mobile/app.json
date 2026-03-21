@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "Kivo",
+    "name": "Vozpe",
     "slug": "kivo",
     "version": "0.1.0",
     "orientation": "portrait",
@@ -13,9 +13,9 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.kivo.app",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Kivo usa el micrófono para que puedas registrar gastos por voz.",
-        "NSCameraUsageDescription": "Kivo usa la cámara para escanear tickets y recibos.",
-        "NSPhotoLibraryUsageDescription": "Kivo accede a tu galería para adjuntar fotos de tickets."
+        "NSMicrophoneUsageDescription": "Vozpe usa el micrófono para que puedas registrar gastos por voz.",
+        "NSCameraUsageDescription": "Vozpe usa la cámara para escanear tickets y recibos.",
+        "NSPhotoLibraryUsageDescription": "Vozpe accede a tu galería para adjuntar fotos de tickets."
       }
     },
     "android": {

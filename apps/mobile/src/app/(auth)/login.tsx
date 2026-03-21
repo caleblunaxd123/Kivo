@@ -103,7 +103,7 @@ export default function LoginScreen() {
           <ChevronLeft size={20} color={COLORS.textSecondary} />
         </TouchableOpacity>
         <View style={styles.logoPill}>
-          <Text style={styles.logoText}>kivo</Text>
+          <Text style={styles.logoText}>vozpe</Text>
           <View style={styles.logoDot} />
         </View>
         <View style={{ width: 36 }} />
@@ -315,7 +315,7 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
   },
-  logoText: { fontSize: 17, fontWeight: '800', color: '#fff', letterSpacing: -0.9 },
+  logoText: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: -0.8 },
   logoDot: {
     width: 6, height: 6, borderRadius: 3,
     backgroundColor: 'rgba(255,255,255,0.60)', marginTop: -8,

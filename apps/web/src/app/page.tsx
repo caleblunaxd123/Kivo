@@ -7,9 +7,9 @@ export default function LandingPage() {
       <nav className="flex items-center justify-between px-8 py-5 border-b border-[#1E1E2E]">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-kivo-500 flex items-center justify-center">
-            <span className="text-white font-bold text-sm">K</span>
+            <span className="text-white font-bold text-sm">V</span>
           </div>
-          <span className="text-[#F0F0FF] font-semibold text-lg">Kivo</span>
+          <span className="text-[#F0F0FF] font-semibold text-lg">Vozpe</span>
         </div>
         <div className="flex items-center gap-3">
           <Link
@@ -40,7 +40,7 @@ export default function LandingPage() {
         </h1>
 
         <p className="text-[#9090B8] text-xl max-w-xl">
-          Kivo transforma entradas caóticas en una tabla viva, editable, calculada y compartida en tiempo real.
+          Vozpe transforma entradas caóticas en una tabla viva, editable, calculada y compartida en tiempo real.
         </p>
 
         <div className="flex items-center gap-4 mt-4">
@@ -89,7 +89,7 @@ export default function LandingPage() {
             {
               emoji: '💱',
               title: 'Múltiples monedas',
-              desc: 'Define la moneda base y Kivo convierte automáticamente.',
+              desc: 'Define la moneda base y Vozpe convierte automáticamente.',
             },
             {
               emoji: '📊',
@@ -116,7 +116,7 @@ export default function LandingPage() {
             Anota ahora, ordena después.
           </h2>
           <p className="text-[#9090B8] mb-8">
-            Únete a los primeros grupos que ya usan Kivo para sus gastos.
+            Únete a los primeros grupos que ya usan Vozpe para sus gastos.
           </p>
           <Link
             href="/auth/login"
@@ -129,7 +129,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="px-8 py-6 border-t border-[#1E1E2E] text-center text-[#5A5A80] text-sm">
-        © {new Date().getFullYear()} Kivo. Todos los derechos reservados.
+        © {new Date().getFullYear()} Vozpe. Todos los derechos reservados.
       </footer>
     </main>
   );

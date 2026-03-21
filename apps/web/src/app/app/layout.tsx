@@ -33,9 +33,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {/* Logo */}
         <div className="flex items-center gap-2 px-5 py-5 border-b border-[#1E1E2E]">
           <div className="w-7 h-7 rounded-lg bg-kivo-500 flex items-center justify-center">
-            <span className="text-white font-bold text-xs">K</span>
+            <span className="text-white font-bold text-xs">V</span>
           </div>
-          <span className="text-[#F0F0FF] font-semibold">Kivo</span>
+          <span className="text-[#F0F0FF] font-semibold">Vozpe</span>
         </div>
 
         {/* Nav */}

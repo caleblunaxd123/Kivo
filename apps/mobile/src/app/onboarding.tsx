@@ -89,7 +89,7 @@ export default function OnboardingScreen() {
       {/* ── Logo ── */}
       <Animated.View style={[styles.logoWrap, { opacity: logoOpacity }]}>
         <View style={styles.logoPill}>
-          <Text style={styles.logoText}>kivo</Text>
+          <Text style={styles.logoText}>vozpe</Text>
           <View style={styles.logoDot} />
         </View>
       </Animated.View>
@@ -118,7 +118,7 @@ export default function OnboardingScreen() {
           {/* Divider */}
           <View style={styles.arrowRow}>
             <View style={styles.arrowLine} />
-            <Text style={styles.arrowLabel}>Kivo entiende</Text>
+            <Text style={styles.arrowLabel}>Vozpe entiende</Text>
             <View style={styles.arrowLine} />
           </View>
 

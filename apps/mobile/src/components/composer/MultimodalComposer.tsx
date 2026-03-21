@@ -1,5 +1,5 @@
 /**
- * MultimodalComposer — El compositor multimodal de Kivo
+ * MultimodalComposer — El compositor multimodal de Vozpe
  * El componente más importante de la app.
  * Permite captura por voz, foto y texto.
  */
@@ -263,7 +263,7 @@ export function MultimodalComposer({
         <View style={styles.expandedHeader}>
           <View style={styles.aiLabel}>
             <Sparkles size={14} color={COLORS.ai} />
-            <Text style={styles.aiLabelText}>Kivo interpreta</Text>
+            <Text style={styles.aiLabelText}>Vozpe interpreta</Text>
           </View>
           <TouchableOpacity onPress={cancel} style={styles.closeBtn}>
             <X size={16} color={COLORS.textSecondary} />

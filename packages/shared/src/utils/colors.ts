@@ -1,10 +1,10 @@
 /**
- * Color utilities for Kivo
+ * Color utilities for Vozpe
  * Genera colores determinísticos para usuarios/miembros basados en su nombre
  */
 
 const MEMBER_COLORS = [
-  '#6366F1', // indigo (kivo brand)
+  '#6366F1', // indigo (vozpe brand)
   '#8B5CF6', // violet
   '#EC4899', // pink
   '#F59E0B', // amber

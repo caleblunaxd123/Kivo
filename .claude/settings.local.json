@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(head -120 \"/c/Proyectos/Kivo/.claude/worktrees/sleepy-ramanujan/apps/mobile/src/app/\\(app\\)/group/create.tsx\")",
+      "Bash(wc -l \"/c/Proyectos/Kivo/.claude/worktrees/sleepy-ramanujan/apps/mobile/src/app/\\(app\\)/group/[id].tsx\")"
+    ]
+  }
+}

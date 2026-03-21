@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: kivo-web
+    name: vozpe-web
     runtime: node
     region: oregon
     plan: free

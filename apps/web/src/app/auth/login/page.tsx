@@ -74,9 +74,9 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center space-y-2">
           <div className="w-12 h-12 rounded-2xl bg-kivo-500 flex items-center justify-center mx-auto">
-            <span className="text-white font-bold text-xl">K</span>
+            <span className="text-white font-bold text-xl">V</span>
           </div>
-          <h1 className="text-2xl font-bold text-[#F0F0FF]">Bienvenido a Kivo</h1>
+          <h1 className="text-2xl font-bold text-[#F0F0FF]">Bienvenido a Vozpe</h1>
           <p className="text-[#9090B8] text-sm">Anota ahora, ordena después.</p>
         </div>
 
