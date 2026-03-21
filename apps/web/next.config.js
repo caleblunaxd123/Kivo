@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@kivo/shared'],
+  transpilePackages: ['@vozpe/shared'],
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: '*.supabase.co' },

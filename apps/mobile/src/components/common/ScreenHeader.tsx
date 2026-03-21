@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { COLORS } from '@kivo/shared';
+import { COLORS } from '@vozpe/shared';
 
 interface ScreenHeaderProps {
   title: string;

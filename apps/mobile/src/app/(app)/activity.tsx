@@ -3,8 +3,8 @@ import {
   View, Text, StyleSheet, FlatList, RefreshControl, TouchableOpacity,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { COLORS, formatRelativeTime, CATEGORY_CONFIG } from '@kivo/shared';
-import type { Entry } from '@kivo/shared';
+import { COLORS, formatRelativeTime, CATEGORY_CONFIG } from '@vozpe/shared';
+import type { Entry } from '@vozpe/shared';
 import { useGroupStore } from '../../stores/group.store';
 import { supabase } from '../../lib/supabase';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -104,7 +104,7 @@ export default function ActivityScreen() {
           <RefreshControl
             refreshing={isLoading}
             onRefresh={fetchActivity}
-            tintColor={COLORS.kivo500}
+            tintColor={COLORS.vozpe500}
           />
         }
         ItemSeparatorComponent={() => <View style={styles.separator} />}
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   },
   rowBottom: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   rowGroup: {
-    fontSize: 12, color: COLORS.kivo400, fontWeight: '500',
+    fontSize: 12, color: COLORS.vozpe400, fontWeight: '500',
   },
   rowMeta: { fontSize: 12, color: COLORS.textTertiary, flex: 1 },
   rowTime: { fontSize: 11, color: COLORS.textTertiary },

@@ -1,12 +1,12 @@
 services:
   - type: web
-    name: kivo-web
+    name: vozpe-web
     runtime: node
     region: oregon
     plan: free
     rootDir: apps/web
-    buildCommand: cd ../.. && yarn install && yarn workspace @kivo/web build
-    startCommand: yarn workspace @kivo/web start
+    buildCommand: cd ../.. && yarn install && yarn workspace @vozpe/web build
+    startCommand: yarn workspace @vozpe/web start
     envVars:
       - key: NODE_VERSION
         value: 20.14.0

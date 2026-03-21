@@ -3,8 +3,8 @@
  */
 
 import { supabase } from '../lib/supabase';
-import { parseQuickText } from '@kivo/shared';
-import type { Entry, ParsedEntry, GroupMember } from '@kivo/shared';
+import { parseQuickText } from '@vozpe/shared';
+import type { Entry, ParsedEntry, GroupMember } from '@vozpe/shared';
 
 const VALID_CURRENCY_RE = /^[A-Z]{3}$/;
 function sanitizeCurrencyCode(c: string | null | undefined): string {
@@ -85,18 +85,24 @@ export async function createEntryFromPhoto(
     .from('attachments')
     .getPublicUrl(imagePath);
 
-  // Start async OCR + parsing job
-  const { data: job } = await supabase
-    .from('ai_parse_jobs')
-    .insert({
-      group_id: options.groupId,
-      created_by: options.createdBy,
-      input_type: 'ocr',
-      image_url: publicUrl,
-      status: 'pending',
-    })
-    .select()
-    .single();
+  // Try to create a tracking job (table may not exist yet — fail gracefully)
+  let jobId: string | null = null;
+  try {
+    const { data: job } = await supabase
+      .from('ai_parse_jobs')
+      .insert({
+        group_id: options.groupId,
+        created_by: options.createdBy,
+        input_type: 'ocr',
+        image_url: publicUrl,
+        status: 'pending',
+      })
+      .select()
+      .single();
+    jobId = job?.id ?? null;
+  } catch {
+    // ai_parse_jobs table doesn't exist yet — proceed without job tracking
+  }
 
   // Trigger edge function (don't await — it's async)
   fetch(AI_PARSE_ENDPOINT, {
@@ -106,7 +112,7 @@ export async function createEntryFromPhoto(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      jobId: job.id,
+      ...(jobId ? { jobId } : {}),
       groupId: options.groupId,
       inputType: 'ocr',
       imageUrl: publicUrl,
@@ -117,7 +123,7 @@ export async function createEntryFromPhoto(
     }),
   });
 
-  return { jobId: job.id, imageUrl: publicUrl };
+  return { jobId: jobId ?? 'pending', imageUrl: publicUrl };
 }
 
 // ─── Save entry to DB ─────────────────────────────────────────────────────────
@@ -214,6 +220,6 @@ function buildEntry(
     rawInput,
     pendingReasons: parsed.pendingReasons ?? [],
     aiConfidence: parsed.confidence,
-    entryDate: new Date().toISOString().split('T')[0],
+    entryDate: parsed.entryDate ?? new Date().toISOString().split('T')[0],
   };
 }

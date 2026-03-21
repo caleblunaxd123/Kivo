@@ -12,8 +12,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ChevronLeft, Trash2, Check, AlertTriangle, Pencil, CheckCircle2,
 } from 'lucide-react-native';
-import { COLORS, CATEGORY_CONFIG, formatCurrency, formatDate } from '@kivo/shared';
-import type { EntryCategory, EntryStatus } from '@kivo/shared';
+import { COLORS, CATEGORY_CONFIG, formatCurrency, formatDate } from '@vozpe/shared';
+import type { EntryCategory, EntryStatus } from '@vozpe/shared';
 import { useGroupStore } from '../../../../stores/group.store';
 import { useAuthStore } from '../../../../stores/auth.store';
 
@@ -341,7 +341,7 @@ const styles = StyleSheet.create({
   saveBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
     paddingHorizontal: 14, paddingVertical: 7,
-    backgroundColor: COLORS.kivo500, borderRadius: 8,
+    backgroundColor: COLORS.vozpe500, borderRadius: 8,
   },
   saveBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
 
@@ -375,9 +375,9 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace', letterSpacing: -1,
   },
   amountInput: {
-    fontSize: 36, fontWeight: '800', color: COLORS.kivo400,
+    fontSize: 36, fontWeight: '800', color: COLORS.vozpe400,
     fontFamily: 'monospace', letterSpacing: -1,
-    borderBottomWidth: 2, borderBottomColor: COLORS.kivo500,
+    borderBottomWidth: 2, borderBottomColor: COLORS.vozpe500,
     minWidth: 120, textAlign: 'center',
   },
   amountCurrency: { color: COLORS.textTertiary, fontSize: 13, fontWeight: '500' },
@@ -407,10 +407,10 @@ const styles = StyleSheet.create({
     borderRadius: 999, borderWidth: 1, borderColor: COLORS.borderDefault,
     backgroundColor: COLORS.bgElevated,
   },
-  catChipActive: { borderColor: COLORS.kivo500, backgroundColor: `${COLORS.kivo500}15` },
+  catChipActive: { borderColor: COLORS.vozpe500, backgroundColor: `${COLORS.vozpe500}15` },
   catEmoji: { fontSize: 13 },
   catLabel: { fontSize: 12, color: COLORS.textSecondary, fontWeight: '500' },
-  catLabelActive: { color: COLORS.kivo400 },
+  catLabelActive: { color: COLORS.vozpe400 },
 
   metaGrid: {
     marginHorizontal: 16, marginTop: 16,

@@ -32,10 +32,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <aside className="w-60 flex-shrink-0 bg-[#111118] border-r border-[#1E1E2E] flex flex-col">
         {/* Logo */}
         <div className="flex items-center gap-2 px-5 py-5 border-b border-[#1E1E2E]">
-          <div className="w-7 h-7 rounded-lg bg-kivo-500 flex items-center justify-center">
-            <span className="text-white font-bold text-xs">K</span>
+          <div className="w-7 h-7 rounded-lg bg-vozpe-500 flex items-center justify-center">
+            <span className="text-white font-bold text-xs">V</span>
           </div>
-          <span className="text-[#F0F0FF] font-semibold">Kivo</span>
+          <span className="text-[#F0F0FF] font-semibold">Vozpe</span>
         </div>
 
         {/* Nav */}
@@ -57,7 +57,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {/* User */}
         <div className="p-3 border-t border-[#1E1E2E]">
           <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#9090B8] text-sm">
-            <div className="w-7 h-7 rounded-full bg-kivo-500 flex items-center justify-center text-white text-xs font-bold">
+            <div className="w-7 h-7 rounded-full bg-vozpe-500 flex items-center justify-center text-white text-xs font-bold">
               {user.email?.[0]?.toUpperCase() ?? 'U'}
             </div>
             <span className="truncate flex-1">{user.email}</span>

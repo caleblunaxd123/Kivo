@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { User } from '@kivo/shared';
+import type { User } from '@vozpe/shared';
 import { supabase } from '../lib/supabase';
 
 // Supabase returns snake_case; our User type uses camelCase
@@ -93,7 +93,15 @@ export const useAuthStore = create<AuthState>((set) => ({
       } else {
         set({ isLoading: false });
       }
-    } catch {
+    } catch (err: any) {
+      // Refresh token inválido/expirado → limpiar sesión del storage para no quedar en loop
+      const isTokenError =
+        err?.name === 'AuthApiError' ||
+        err?.message?.toLowerCase().includes('refresh token') ||
+        err?.message?.toLowerCase().includes('invalid token');
+      if (isTokenError) {
+        try { await supabase.auth.signOut(); } catch {}
+      }
       set({ isLoading: false });
     }
 
@@ -107,7 +115,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           session.user.app_metadata?.provider,
         );
         set({ session, sessionUserId, user: userProfile, isAuthenticated: true });
-      } else if (event === 'SIGNED_OUT') {
+      } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
         set({ session: null, sessionUserId: null, user: null, isAuthenticated: false });
       }
     });

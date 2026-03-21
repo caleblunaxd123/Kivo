@@ -1,4 +1,4 @@
-// ─── Core Types for Kivo ─────────────────────────────────────────────────────
+// ─── Core Types for Vozpe ────────────────────────────────────────────────────
 
 export type EntryType = 'expense' | 'income' | 'discount' | 'adjustment' | 'transfer' | 'note';
 export type EntryStatus = 'draft' | 'parsed' | 'pending_review' | 'confirmed' | 'archived';
@@ -228,6 +228,7 @@ export interface ParsedEntry {
   pendingReasons: PendingReason[];
   confidence: number;              // 0.0 - 1.0
   isNoteOnly: boolean;
+  entryDate?: string;              // YYYY-MM-DD, optional (override today)
   items?: {                        // para tickets con múltiples líneas
     description: string;
     quantity: number;

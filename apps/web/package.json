@@ -1,5 +1,5 @@
 {
-  "name": "@kivo/web",
+  "name": "@vozpe/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@kivo/shared": "*",
+    "@vozpe/shared": "*",
     "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.39.8",
     "@tanstack/react-query": "^5.29.2",

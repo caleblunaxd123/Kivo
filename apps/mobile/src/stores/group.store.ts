@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Group, Entry, GroupMember, MemberBalance, EntryType, EntryCategory, SplitRule } from '@kivo/shared';
+import type { Group, Entry, GroupMember, MemberBalance, EntryType, EntryCategory, SplitRule } from '@vozpe/shared';
 import { supabase } from '../lib/supabase';
 
 /** Maps a raw DB row (snake_case) coming from Realtime into a typed Entry (camelCase). */
@@ -69,8 +69,8 @@ function mapGroup(raw: any, members?: any[]): Group {
     updatedAt: raw.updated_at ?? raw.updatedAt,
     closedAt: raw.closed_at ?? raw.closedAt,
     members: members?.map(mapMember),
-    totalAmount: raw.totalAmount ?? 0,
-    pendingCount: raw.pendingCount ?? 0,
+    totalAmount: raw.total_amount ?? raw.totalAmount ?? 0,
+    pendingCount: raw.pending_count ?? raw.pendingCount ?? 0,
   };
 }
 
@@ -93,7 +93,7 @@ interface GroupState {
   setActiveGroup: (groupId: string | null) => void;
   fetchGroups: () => Promise<void>;
   fetchGroupData: (groupId: string) => Promise<void>;
-  addEntryOptimistic: (entry: Partial<Entry>) => void;
+  addEntryOptimistic: (entry: Partial<Entry>) => string;
   updateEntryOptimistic: (id: string, updates: Partial<Entry>) => void;
   removeEntry: (id: string) => void;
   // Group management
@@ -215,6 +215,8 @@ export const useGroupStore = create<GroupState>((set, get) => ({
     set(state => ({
       entries: [optimisticEntry, ...state.entries],
     }));
+
+    return tempId;
   },
 
   updateEntryOptimistic: (id, updates) => {

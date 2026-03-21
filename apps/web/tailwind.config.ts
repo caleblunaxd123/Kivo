@@ -18,7 +18,7 @@ const config: Config = {
         'text-primary':   '#F0F0FF',
         'text-secondary': '#9090B8',
         'text-tertiary':  '#5A5A80',
-        kivo: {
+        vozpe: {
           400: '#818CF8',
           500: '#6366F1',
           600: '#4F46E5',

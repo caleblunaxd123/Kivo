@@ -80,7 +80,7 @@ serve(async (req: Request) => {
     ]);
 
     const csv = [
-      `# Kivo Export — ${group.name}`,
+      `# Vozpe Export — ${group.name}`,
       `# Exportado: ${new Date().toISOString()}`,
       '',
       headers.join(','),
@@ -91,7 +91,7 @@ serve(async (req: Request) => {
       headers: {
         ...corsHeaders,
         'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': `attachment; filename="kivo-${group.name}-${new Date().toISOString().slice(0, 10)}.csv"`,
+        'Content-Disposition': `attachment; filename="vozpe-${group.name}-${new Date().toISOString().slice(0, 10)}.csv"`,
       },
     });
   } catch (err) {

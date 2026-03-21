@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LogOut, ChevronRight, Pencil, Check, X } from 'lucide-react-native';
-import { COLORS } from '@kivo/shared';
+import { COLORS } from '@vozpe/shared';
 import { useAuthStore } from '../../stores/auth.store';
 import { Avatar } from '../../components/common/Avatar';
 
@@ -83,7 +83,7 @@ export default function ProfileScreen() {
                 />
                 <TouchableOpacity onPress={handleSaveName} disabled={isSaving} style={styles.nameAction}>
                   {isSaving
-                    ? <ActivityIndicator size="small" color={COLORS.kivo400} />
+                    ? <ActivityIndicator size="small" color={COLORS.vozpe400} />
                     : <Check size={18} color={COLORS.success} />
                   }
                 </TouchableOpacity>
@@ -162,7 +162,7 @@ export default function ProfileScreen() {
                 <Text style={[styles.currencyText, user?.preferredCurrency === c && styles.currencyTextActive]}>
                   {c}
                 </Text>
-                {user?.preferredCurrency === c && <Check size={16} color={COLORS.kivo400} />}
+                {user?.preferredCurrency === c && <Check size={16} color={COLORS.vozpe400} />}
               </TouchableOpacity>
             ))}
           </View>
@@ -191,7 +191,7 @@ const styles = StyleSheet.create({
   nameEditRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   nameInput: {
     flex: 1, fontSize: 18, fontWeight: '700', color: COLORS.textPrimary,
-    borderBottomWidth: 2, borderBottomColor: COLORS.kivo500,
+    borderBottomWidth: 2, borderBottomColor: COLORS.vozpe500,
     paddingVertical: 2,
   },
   nameAction: { padding: 4 },
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14, paddingHorizontal: 8,
     borderRadius: 10, marginBottom: 4,
   },
-  currencyRowActive: { backgroundColor: `${COLORS.kivo500}15` },
+  currencyRowActive: { backgroundColor: `${COLORS.vozpe500}15` },
   currencyText: { fontSize: 16, color: COLORS.textPrimary, fontWeight: '500' },
-  currencyTextActive: { color: COLORS.kivo400, fontWeight: '700' },
+  currencyTextActive: { color: COLORS.vozpe400, fontWeight: '700' },
 });

@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { generateInitials, generateMemberColor, COLORS } from '@kivo/shared';
+import { generateInitials, generateMemberColor, COLORS } from '@vozpe/shared';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 

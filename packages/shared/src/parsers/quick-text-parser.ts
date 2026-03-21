@@ -1,5 +1,5 @@
 /**
- * KIVO Quick Text Parser
+ * VOZPE Quick Text Parser
  * Parsea entradas de texto rápido sin necesidad de IA para casos simples.
  * La IA se usa como fallback para casos más complejos.
  */
@@ -190,13 +190,14 @@ function extractPaidBy(
   const personPaidMatch = text.match(PAID_BY_PATTERNS.person_paid);
   if (personPaidMatch) {
     const name = personPaidMatch[1];
-    return matchMemberName(name, members) || name;
+    // Solo retornar si encontramos el miembro — nunca un nombre raw (no es UUID válido)
+    return matchMemberName(name, members);
   }
 
   const altMatch = text.match(PAID_BY_PATTERNS.person_paid_alt);
   if (altMatch) {
     const name = altMatch[1];
-    return matchMemberName(name, members) || name;
+    return matchMemberName(name, members);
   }
 
   // Intentar encontrar nombre de miembro en el texto

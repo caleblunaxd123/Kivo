@@ -5,8 +5,8 @@ import {
 import { Mic, Camera, PenLine, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react-native';
 import {
   COLORS, CATEGORY_CONFIG, formatCurrency, formatRelativeTime,
-} from '@kivo/shared';
-import type { Entry, GroupMember } from '@kivo/shared';
+} from '@vozpe/shared';
+import type { Entry, GroupMember } from '@vozpe/shared';
 import { Avatar } from '../common/Avatar';
 import { EmptyState } from '../common/EmptyState';
 
@@ -52,7 +52,9 @@ export function TimelineView({ entries, members, onEntryPress }: TimelineViewPro
 function TimelineCard({
   entry, members, onPress,
 }: { entry: Entry; members: GroupMember[]; onPress?: () => void }) {
-  const creator = members.find(m => m.userId === entry.createdBy);
+  const creator = members.find(
+    m => (m.userId && m.userId === entry.createdBy) || m.id === entry.createdBy
+  );
   const cat = CATEGORY_CONFIG[entry.category as keyof typeof CATEGORY_CONFIG] ?? CATEGORY_CONFIG.other;
   const isPending = entry.status === 'pending_review';
 
@@ -86,7 +88,7 @@ function TimelineCard({
             <View style={styles.systemDot}><Sparkles size={10} color={COLORS.ai} /></View>
           )}
           <Text style={styles.creatorName} numberOfLines={1}>
-            {creator?.displayName ?? 'Kivo ✦'}
+            {creator?.displayName ?? 'Vozpe ✦'}
           </Text>
           <OriginIcon size={12} color={COLORS.textTertiary} />
           <Text style={styles.timestamp}>{formatRelativeTime(entry.createdAt)}</Text>
@@ -139,7 +141,7 @@ const styles = StyleSheet.create({
   dotCol: { alignItems: 'center', paddingTop: 16 },
   dot: {
     width: 10, height: 10, borderRadius: 5,
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
     borderWidth: 2, borderColor: COLORS.bgBase,
   },
   dotPending: { backgroundColor: COLORS.warning },
@@ -184,8 +186,8 @@ const styles = StyleSheet.create({
   },
   entryMeta: { flexDirection: 'row', gap: 6 },
   metaChip: {
-    color: COLORS.kivo400, fontSize: 11, fontWeight: '500',
-    backgroundColor: `${COLORS.kivo500}15`, borderRadius: 999,
+    color: COLORS.vozpe400, fontSize: 11, fontWeight: '500',
+    backgroundColor: `${COLORS.vozpe500}15`, borderRadius: 999,
     paddingHorizontal: 7, paddingVertical: 2,
   },
   metaCat: { color: COLORS.textTertiary, fontSize: 11 },
