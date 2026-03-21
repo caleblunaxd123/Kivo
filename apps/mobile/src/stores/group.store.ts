@@ -1,6 +1,39 @@
 import { create } from 'zustand';
-import type { Group, Entry, GroupMember, MemberBalance } from '@kivo/shared';
+import type { Group, Entry, GroupMember, MemberBalance, EntryType, EntryCategory, SplitRule } from '@kivo/shared';
 import { supabase } from '../lib/supabase';
+
+/** Maps a raw DB row (snake_case) coming from Realtime into a typed Entry (camelCase). */
+function mapRealtimeEntry(row: Record<string, unknown>): Entry {
+  return {
+    id:              row.id as string,
+    groupId:         row.group_id as string,
+    createdBy:       row.created_by as string | undefined,
+    type:            (row.type as EntryType) ?? 'expense',
+    status:          row.status as Entry['status'],
+    origin:          row.origin as Entry['origin'],
+    description:     (row.description as string) ?? '',
+    notes:           row.notes as string | undefined,
+    category:        (row.category as EntryCategory) ?? 'other',
+    amount:          row.amount as number,
+    currency:        row.currency as string,
+    amountInBase:    row.amount_in_base as number | undefined,
+    exchangeRate:    row.exchange_rate as number | undefined,
+    paidBy:          row.paid_by as string | undefined,
+    splitRule:       (row.split_rule as SplitRule) ?? 'equal',
+    aiConfidence:    row.ai_confidence as number | undefined,
+    rawInput:        row.raw_input as string | undefined,
+    entryDate:       row.entry_date as string,
+    confirmedAt:     row.confirmed_at as string | undefined,
+    pendingReasons:  (row.pending_reasons as Entry['pendingReasons']) ?? [],
+    attachmentCount: (row.attachment_count as number) ?? 0,
+    sortOrder:       (row.sort_order as number) ?? 0,
+    createdAt:       row.created_at as string,
+    updatedAt:       row.updated_at as string,
+    splits: [],
+    items: [],
+    attachments: [],
+  };
+}
 
 function mapMember(m: any): GroupMember {
   return {
@@ -273,18 +306,28 @@ export const useGroupStore = create<GroupState>((set, get) => ({
         { event: '*', schema: 'public', table: 'entries', filter: `group_id=eq.${groupId}` },
         (payload) => {
           if (payload.eventType === 'INSERT') {
+            const newEntry = mapRealtimeEntry(payload.new as Record<string, unknown>);
             set(state => ({
-              entries: [payload.new as Entry, ...state.entries.filter(e => !e.id.startsWith('temp_'))],
+              entries: [
+                newEntry,
+                // Remove any optimistic temp entry and avoid duplicates
+                ...state.entries.filter(e => !e.id.startsWith('temp_') && e.id !== newEntry.id),
+              ],
+              pendingCount: state.entries.filter(e => e.status === 'pending_review').length,
             }));
           } else if (payload.eventType === 'UPDATE') {
+            const updated = mapRealtimeEntry(payload.new as Record<string, unknown>);
             set(state => ({
-              entries: state.entries.map(e =>
-                e.id === (payload.new as Entry).id ? { ...e, ...payload.new as Entry } : e
-              ),
+              entries: state.entries.map(e => e.id === updated.id ? { ...e, ...updated } : e),
+              pendingCount: state.entries.filter(e =>
+                e.id === updated.id ? updated.status === 'pending_review' : e.status === 'pending_review'
+              ).length,
             }));
           } else if (payload.eventType === 'DELETE') {
+            const deletedId = (payload.old as { id: string }).id;
             set(state => ({
-              entries: state.entries.filter(e => e.id !== (payload.old as { id: string }).id),
+              entries: state.entries.filter(e => e.id !== deletedId),
+              pendingCount: state.entries.filter(e => e.id !== deletedId && e.status === 'pending_review').length,
             }));
           }
         }
