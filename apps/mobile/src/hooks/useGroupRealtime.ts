@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useGroupStore } from '../stores/group.store';
-import type { Entry, EntryCategory, EntryType, SplitRule } from '@kivo/shared';
+import type { Entry, EntryCategory, EntryType, SplitRule } from '@vozpe/shared';
 
 /**
  * Subscribes to realtime changes for a group and keeps the store in sync.

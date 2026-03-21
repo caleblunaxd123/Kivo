@@ -15,7 +15,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mic, Camera, PenLine, Sparkles } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
-import { COLORS } from '@kivo/shared';
+import { COLORS } from '@vozpe/shared';
 import { supabase } from '../lib/supabase';
 
 const { width } = Dimensions.get('window');
@@ -107,7 +107,7 @@ export default function OnboardingScreen() {
           {/* Voice input row */}
           <View style={styles.demoInputRow}>
             <View style={styles.demoMicBadge}>
-              <Mic size={13} color={COLORS.kivo500} />
+              <Mic size={13} color={COLORS.vozpe500} />
             </View>
             <Text style={styles.demoInputText}>"Taxi 40 dólares, entre 4"</Text>
             <View style={styles.demoSparkle}>
@@ -143,7 +143,7 @@ export default function OnboardingScreen() {
         {/* Method chips */}
         <View style={styles.methodsRow}>
           {[
-            { icon: Mic,     label: 'Voz',   color: COLORS.kivo500 },
+            { icon: Mic,     label: 'Voz',   color: COLORS.vozpe500 },
             { icon: Camera,  label: 'Foto',  color: COLORS.ai },
             { icon: PenLine, label: 'Texto', color: COLORS.success },
           ].map(({ icon: Icon, label, color }) => (
@@ -287,7 +287,7 @@ const styles = StyleSheet.create({
   orb1: {
     position: 'absolute',
     width: 320, height: 320, borderRadius: 160,
-    backgroundColor: `${COLORS.kivo500}14`,
+    backgroundColor: `${COLORS.vozpe500}14`,
     top: -110, left: -90,
   },
   // Orb 2: arriba derecha — contrapeso del logo
@@ -301,7 +301,7 @@ const styles = StyleSheet.create({
   orb3: {
     position: 'absolute',
     width: 260, height: 260, borderRadius: 130,
-    backgroundColor: `${COLORS.kivo400}0A`,
+    backgroundColor: `${COLORS.vozpe400}0A`,
     top: '28%', right: -100,
   },
   // Orb 4: abajo izquierda — enmarca el bloque auth
@@ -318,11 +318,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
     borderRadius: 999,
     paddingHorizontal: 22,
     paddingVertical: 11,
-    shadowColor: COLORS.kivo500,
+    shadowColor: COLORS.vozpe500,
     shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.38,
     shadowRadius: 16,
@@ -377,9 +377,9 @@ const styles = StyleSheet.create({
   },
   demoMicBadge: {
     width: 30, height: 30, borderRadius: 15,
-    backgroundColor: `${COLORS.kivo500}18`,
+    backgroundColor: `${COLORS.vozpe500}18`,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: `${COLORS.kivo500}30`,
+    borderWidth: 1, borderColor: `${COLORS.vozpe500}30`,
     flexShrink: 0,
   },
   demoInputText: {
@@ -435,11 +435,11 @@ const styles = StyleSheet.create({
     fontFamily: 'monospace', letterSpacing: -0.6,
   },
   parsedPerPersonBadge: {
-    backgroundColor: `${COLORS.kivo500}18`,
+    backgroundColor: `${COLORS.vozpe500}18`,
     borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3,
-    borderWidth: 1, borderColor: `${COLORS.kivo500}28`,
+    borderWidth: 1, borderColor: `${COLORS.vozpe500}28`,
   },
-  parsedPerPerson: { color: COLORS.kivo500, fontSize: 10, fontWeight: '700' },
+  parsedPerPerson: { color: COLORS.vozpe500, fontSize: 10, fontWeight: '700' },
 
   // Method chips
   methodsRow: {
@@ -518,5 +518,5 @@ const styles = StyleSheet.create({
     color: COLORS.textTertiary, fontSize: 11, textAlign: 'center',
     marginTop: -2,
   },
-  legalLink: { color: COLORS.kivo400 },
+  legalLink: { color: COLORS.vozpe400 },
 });

@@ -40,7 +40,7 @@ export function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-// Kivo design tokens — Light theme
+// Vozpe design tokens — Light theme
 // Fondos blancos/gris claro, acentos índigo vibrantes, legible y profesional.
 // Inspirado en Splitwise, Linear Light, Notion: clean y accesible.
 export const COLORS = {
@@ -63,12 +63,12 @@ export const COLORS = {
   textSecondary: '#5C6494',   // Gris-índigo medio
   textTertiary:  '#9BA3C9',   // Placeholder / muted
 
-  // ── Brand — Kivo Indigo ───────────────────────────────────────
-  kivo300: '#A5B4FC',
-  kivo400: '#818CF8',
-  kivo500: '#6366F1',
-  kivo600: '#4F46E5',
-  kivo700: '#4338CA',
+  // ── Brand — Vozpe Indigo ──────────────────────────────────────
+  vozpe300: '#A5B4FC',
+  vozpe400: '#818CF8',
+  vozpe500: '#6366F1',
+  vozpe600: '#4F46E5',
+  vozpe700: '#4338CA',
 
   // ── Semantic ─────────────────────────────────────────────────
   success:      '#059669',

@@ -5,8 +5,8 @@ import {
 import { Mic, Camera, PenLine, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react-native';
 import {
   COLORS, CATEGORY_CONFIG, formatCurrency, formatRelativeTime,
-} from '@kivo/shared';
-import type { Entry, GroupMember } from '@kivo/shared';
+} from '@vozpe/shared';
+import type { Entry, GroupMember } from '@vozpe/shared';
 import { Avatar } from '../common/Avatar';
 import { EmptyState } from '../common/EmptyState';
 
@@ -141,7 +141,7 @@ const styles = StyleSheet.create({
   dotCol: { alignItems: 'center', paddingTop: 16 },
   dot: {
     width: 10, height: 10, borderRadius: 5,
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
     borderWidth: 2, borderColor: COLORS.bgBase,
   },
   dotPending: { backgroundColor: COLORS.warning },
@@ -186,8 +186,8 @@ const styles = StyleSheet.create({
   },
   entryMeta: { flexDirection: 'row', gap: 6 },
   metaChip: {
-    color: COLORS.kivo400, fontSize: 11, fontWeight: '500',
-    backgroundColor: `${COLORS.kivo500}15`, borderRadius: 999,
+    color: COLORS.vozpe400, fontSize: 11, fontWeight: '500',
+    backgroundColor: `${COLORS.vozpe500}15`, borderRadius: 999,
     paddingHorizontal: 7, paddingVertical: 2,
   },
   metaCat: { color: COLORS.textTertiary, fontSize: 11 },

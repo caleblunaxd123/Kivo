@@ -1,8 +1,8 @@
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
-import { formatCurrency, formatRelativeTime } from '@kivo/shared';
-import type { Group } from '@kivo/shared';
+import { formatCurrency, formatRelativeTime } from '@vozpe/shared';
+import type { Group } from '@vozpe/shared';
 
 async function getGroups(): Promise<Group[]> {
   const cookieStore = cookies();
@@ -45,7 +45,7 @@ export default async function AppHomePage() {
         </div>
         <Link
           href="/app/groups/create"
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-kivo-500 hover:bg-kivo-600 text-white text-sm font-medium transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-vozpe-500 hover:bg-vozpe-600 text-white text-sm font-medium transition-colors"
         >
           + Nuevo grupo
         </Link>
@@ -58,7 +58,7 @@ export default async function AppHomePage() {
           <p className="text-[#9090B8] mb-6">Crea tu primer grupo para empezar a rastrear gastos.</p>
           <Link
             href="/app/groups/create"
-            className="px-6 py-3 rounded-xl bg-kivo-500 hover:bg-kivo-600 text-white font-medium transition-colors"
+            className="px-6 py-3 rounded-xl bg-vozpe-500 hover:bg-vozpe-600 text-white font-medium transition-colors"
           >
             Crear primer grupo
           </Link>

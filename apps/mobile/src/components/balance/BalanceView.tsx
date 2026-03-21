@@ -4,11 +4,11 @@ import { ArrowRight, TrendingUp, TrendingDown, Minus } from 'lucide-react-native
 import {
   COLORS, formatCurrency,
   calculateMinimalSettlements, getGroupTotals,
-} from '@kivo/shared';
-import type { MemberBalance } from '@kivo/shared';
+} from '@vozpe/shared';
+import type { MemberBalance } from '@vozpe/shared';
 import { EmptyState } from '../common/EmptyState';
 import { useGroupStore } from '../../stores/group.store';
-import { generateMemberColor, generateInitials } from '@kivo/shared';
+import { generateMemberColor, generateInitials } from '@vozpe/shared';
 
 interface BalanceViewProps {
   groupId: string;
@@ -141,7 +141,7 @@ export function BalanceView({ groupId, baseCurrency }: BalanceViewProps) {
                   <Text style={styles.settlementAmount}>
                     {formatCurrency(s.amount, s.currency)}
                   </Text>
-                  <ArrowRight size={14} color={COLORS.kivo400} />
+                  <ArrowRight size={14} color={COLORS.vozpe400} />
                 </View>
                 <View style={styles.settlementParty}>
                   <MemberDot name={s.toMemberName} />
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   settlementParty: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
   settlementName: { color: COLORS.textSecondary, fontSize: 13, fontWeight: '500', flex: 1 },
   settlementArrow: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8 },
-  settlementAmount: { color: COLORS.kivo400, fontSize: 13, fontWeight: '700', fontFamily: 'monospace' },
+  settlementAmount: { color: COLORS.vozpe400, fontSize: 13, fontWeight: '700', fontFamily: 'monospace' },
 
   miniAvatar: {
     width: 26,

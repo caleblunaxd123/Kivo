@@ -6,8 +6,8 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X } from 'lucide-react-native';
-import { COLORS, GROUP_TYPE_CONFIG } from '@kivo/shared';
-import type { GroupType } from '@kivo/shared';
+import { COLORS, GROUP_TYPE_CONFIG } from '@vozpe/shared';
+import type { GroupType } from '@vozpe/shared';
 import { supabase } from '../../../lib/supabase';
 import { useAuthStore } from '../../../stores/auth.store';
 import { useGroupStore } from '../../../stores/group.store';
@@ -211,12 +211,12 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', gap: 4,
   },
   typeCardActive: {
-    borderColor: COLORS.kivo500,
-    backgroundColor: `${COLORS.kivo500}15`,
+    borderColor: COLORS.vozpe500,
+    backgroundColor: `${COLORS.vozpe500}15`,
   },
   typeEmoji: { fontSize: 22 },
   typeLabel: { fontSize: 10, color: COLORS.textSecondary, fontWeight: '500', textAlign: 'center' },
-  typeLabelActive: { color: COLORS.kivo400 },
+  typeLabelActive: { color: COLORS.vozpe400 },
 
   currencyRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   currencyChip: {
@@ -225,11 +225,11 @@ const styles = StyleSheet.create({
     borderRadius: 999, borderWidth: 1, borderColor: COLORS.borderDefault,
   },
   currencyChipActive: {
-    borderColor: COLORS.kivo500,
-    backgroundColor: `${COLORS.kivo500}15`,
+    borderColor: COLORS.vozpe500,
+    backgroundColor: `${COLORS.vozpe500}15`,
   },
   currencyText: { color: COLORS.textSecondary, fontSize: 13, fontWeight: '500' },
-  currencyTextActive: { color: COLORS.kivo400 },
+  currencyTextActive: { color: COLORS.vozpe400 },
 
   footer: {
     paddingHorizontal: 20, paddingTop: 12,

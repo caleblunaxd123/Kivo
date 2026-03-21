@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "kivo-web",
+      "name": "vozpe-web",
       "runtimeExecutable": "cmd",
-      "runtimeArgs": ["/c", "C:\\Users\\Caleb\\AppData\\Roaming\\npm\\yarn.cmd", "workspace", "@kivo/web", "dev", "--port", "${PORT}"],
+      "runtimeArgs": ["/c", "C:\\Users\\Caleb\\AppData\\Roaming\\npm\\yarn.cmd", "workspace", "@vozpe/web", "dev", "--port", "${PORT}"],
       "port": 3001,
       "autoPort": true
     }

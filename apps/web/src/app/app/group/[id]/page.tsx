@@ -2,8 +2,8 @@ import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { formatCurrency, formatDate } from '@kivo/shared';
-import type { Entry, GroupMember } from '@kivo/shared';
+import { formatCurrency, formatDate } from '@vozpe/shared';
+import type { Entry, GroupMember } from '@vozpe/shared';
 
 async function getGroupData(groupId: string) {
   const cookieStore = cookies();

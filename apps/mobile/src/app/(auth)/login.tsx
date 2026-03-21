@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Mail, Lock } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
-import { COLORS } from '@kivo/shared';
+import { COLORS } from '@vozpe/shared';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../../components/common/Button';
 
@@ -174,7 +174,7 @@ export default function LoginScreen() {
         <View style={styles.formGroup}>
           <View style={[styles.inputWrap, emailFocused && styles.inputWrapFocused]}>
             <View style={styles.inputIconWrap}>
-              <Mail size={15} color={emailFocused ? COLORS.kivo500 : COLORS.textTertiary} />
+              <Mail size={15} color={emailFocused ? COLORS.vozpe500 : COLORS.textTertiary} />
             </View>
             <TextInput
               style={styles.input}
@@ -192,7 +192,7 @@ export default function LoginScreen() {
 
           <View style={[styles.inputWrap, passFocused && styles.inputWrapFocused]}>
             <View style={styles.inputIconWrap}>
-              <Lock size={15} color={passFocused ? COLORS.kivo500 : COLORS.textTertiary} />
+              <Lock size={15} color={passFocused ? COLORS.vozpe500 : COLORS.textTertiary} />
             </View>
             <TextInput
               style={styles.input}
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   bgOrb: {
     position: 'absolute',
     width: 340, height: 340, borderRadius: 170,
-    backgroundColor: `${COLORS.kivo500}12`,
+    backgroundColor: `${COLORS.vozpe500}12`,
     top: -150, right: -110,
   },
   bgOrb2: {
@@ -309,9 +309,9 @@ const styles = StyleSheet.create({
   },
   logoPill: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
     borderRadius: 999, paddingHorizontal: 16, paddingVertical: 8,
-    shadowColor: COLORS.kivo500,
+    shadowColor: COLORS.vozpe500,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
   },
@@ -368,8 +368,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   inputWrapFocused: {
-    borderColor: COLORS.kivo500,
-    backgroundColor: `${COLORS.kivo500}07`,
+    borderColor: COLORS.vozpe500,
+    backgroundColor: `${COLORS.vozpe500}07`,
   },
   inputIconWrap: { width: 18, alignItems: 'center' },
   input: { flex: 1, color: COLORS.textPrimary, fontSize: 15 },
@@ -377,9 +377,9 @@ const styles = StyleSheet.create({
   // Cambio de modo
   switchBtn: { alignItems: 'center', paddingVertical: 3 },
   switchText: { color: COLORS.textTertiary, fontSize: 14, textAlign: 'center' },
-  switchLink: { color: COLORS.kivo400, fontWeight: '600' },
+  switchLink: { color: COLORS.vozpe400, fontWeight: '600' },
 
   // Legal
   legal: { color: COLORS.textTertiary, fontSize: 11, textAlign: 'center' },
-  legalLink: { color: COLORS.kivo400 },
+  legalLink: { color: COLORS.vozpe400 },
 });

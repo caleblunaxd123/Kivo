@@ -73,7 +73,7 @@ export default function LoginPage() {
       <div className="max-w-sm w-full space-y-6">
         {/* Logo */}
         <div className="text-center space-y-2">
-          <div className="w-12 h-12 rounded-2xl bg-kivo-500 flex items-center justify-center mx-auto">
+          <div className="w-12 h-12 rounded-2xl bg-vozpe-500 flex items-center justify-center mx-auto">
             <span className="text-white font-bold text-xl">V</span>
           </div>
           <h1 className="text-2xl font-bold text-[#F0F0FF]">Bienvenido a Vozpe</h1>
@@ -109,7 +109,7 @@ export default function LoginPage() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             required
-            className="w-full px-4 py-3 rounded-xl bg-[#1E1E2E] border border-[#2A2A45] focus:border-kivo-500 focus:outline-none text-[#F0F0FF] placeholder-[#5A5A80] transition-colors"
+            className="w-full px-4 py-3 rounded-xl bg-[#1E1E2E] border border-[#2A2A45] focus:border-vozpe-500 focus:outline-none text-[#F0F0FF] placeholder-[#5A5A80] transition-colors"
           />
           {error && (
             <p className="text-red-400 text-sm">{error}</p>
@@ -117,7 +117,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading || !email.trim()}
-            className="w-full py-3 rounded-xl bg-kivo-500 hover:bg-kivo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
+            className="w-full py-3 rounded-xl bg-vozpe-500 hover:bg-vozpe-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold transition-colors"
           >
             {loading ? 'Enviando...' : 'Enviar enlace mágico'}
           </button>

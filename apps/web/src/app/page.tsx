@@ -6,7 +6,7 @@ export default function LandingPage() {
       {/* Nav */}
       <nav className="flex items-center justify-between px-8 py-5 border-b border-[#1E1E2E]">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-kivo-500 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-vozpe-500 flex items-center justify-center">
             <span className="text-white font-bold text-sm">V</span>
           </div>
           <span className="text-[#F0F0FF] font-semibold text-lg">Vozpe</span>
@@ -20,7 +20,7 @@ export default function LandingPage() {
           </Link>
           <Link
             href="/auth/login"
-            className="bg-kivo-500 hover:bg-kivo-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+            className="bg-vozpe-500 hover:bg-vozpe-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
           >
             Empezar gratis
           </Link>
@@ -36,7 +36,7 @@ export default function LandingPage() {
         <h1 className="text-5xl md:text-7xl font-bold text-[#F0F0FF] leading-tight max-w-3xl">
           Habla, toma foto
           <br />
-          <span className="text-kivo-400">o escribe</span>
+          <span className="text-vozpe-400">o escribe</span>
         </h1>
 
         <p className="text-[#9090B8] text-xl max-w-xl">
@@ -46,7 +46,7 @@ export default function LandingPage() {
         <div className="flex items-center gap-4 mt-4">
           <Link
             href="/auth/login"
-            className="bg-kivo-500 hover:bg-kivo-600 text-white px-8 py-3.5 rounded-xl text-base font-semibold transition-all hover:scale-105"
+            className="bg-vozpe-500 hover:bg-vozpe-600 text-white px-8 py-3.5 rounded-xl text-base font-semibold transition-all hover:scale-105"
           >
             Empezar gratis
           </Link>
@@ -120,7 +120,7 @@ export default function LandingPage() {
           </p>
           <Link
             href="/auth/login"
-            className="bg-kivo-500 hover:bg-kivo-600 text-white px-8 py-3.5 rounded-xl text-base font-semibold transition-all hover:scale-105 inline-block"
+            className="bg-vozpe-500 hover:bg-vozpe-600 text-white px-8 py-3.5 rounded-xl text-base font-semibold transition-all hover:scale-105 inline-block"
           >
             Crear cuenta gratis
           </Link>

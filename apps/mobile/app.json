@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Vozpe",
-    "slug": "kivo",
+    "slug": "vozpe",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
@@ -11,7 +11,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.kivo.app",
+      "bundleIdentifier": "com.vozpe.app",
       "infoPlist": {
         "NSMicrophoneUsageDescription": "Vozpe usa el micrófono para que puedas registrar gastos por voz.",
         "NSCameraUsageDescription": "Vozpe usa la cámara para escanear tickets y recibos.",
@@ -19,7 +19,7 @@
       }
     },
     "android": {
-      "package": "com.kivo.app",
+      "package": "com.vozpe.app",
       "permissions": [
         "RECORD_AUDIO",
         "CAMERA",
@@ -34,7 +34,7 @@
         "expo-router",
         {
           "root": "src/app",
-          "origin": "kivo://"
+          "origin": "vozpe://"
         }
       ],
       "expo-camera",
@@ -48,11 +48,11 @@
       "expo-web-browser",
       "expo-audio"
     ],
-    "scheme": "kivo",
+    "scheme": "vozpe",
     "extra": {
       "router": {
         "root": "src",
-        "origin": "kivo://"
+        "origin": "vozpe://"
       },
       "eas": {
         "projectId": "b393ec31-4e71-4cd6-b84b-cff6316aebaf"
