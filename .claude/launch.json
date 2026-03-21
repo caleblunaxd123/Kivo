@@ -5,7 +5,7 @@
       "name": "kivo-web",
       "runtimeExecutable": "cmd",
       "runtimeArgs": ["/c", "C:\\Users\\Caleb\\AppData\\Roaming\\npm\\yarn.cmd", "workspace", "@kivo/web", "dev", "--port", "${PORT}"],
-      "port": 3000,
+      "port": 3001,
       "autoPort": true
     }
   ]

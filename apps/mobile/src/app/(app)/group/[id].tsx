@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, MoreHorizontal, AlertTriangle } from 'lucide-react-native';
+import { ChevronLeft, MoreHorizontal, AlertTriangle, Users } from 'lucide-react-native';
 import { COLORS, formatCurrency } from '@kivo/shared';
 import type { ParsedEntry } from '@kivo/shared';
 import { useGroupStore } from '../../../stores/group.store';
@@ -20,29 +20,35 @@ import { createEntryFromPhoto } from '../../../services/entry.service';
 
 type ActiveTab = 'timeline' | 'sheet' | 'balance';
 
+const TABS: { key: ActiveTab; label: string; suffix?: string }[] = [
+  { key: 'timeline', label: 'Timeline' },
+  { key: 'sheet',    label: 'Sheet', suffix: '✦' },
+  { key: 'balance',  label: 'Balance' },
+];
+
 export default function GroupScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id }   = useLocalSearchParams<{ id: string }>();
   const router   = useRouter();
   const insets   = useSafeAreaInsets();
   const user     = useAuthStore(s => s.user);
 
   const {
     activeGroup, members, entries, pendingCount,
-    setActiveGroup, addEntryOptimistic,
+    setActiveGroup, addEntryOptimistic, removeEntry,
     archiveGroup, leaveGroup,
   } = useGroupStore();
 
-  const [tab,          setTab]          = useState<ActiveTab>('sheet');
-  const [menuVisible,  setMenuVisible]  = useState(false);
-  const [isActioning,  setIsActioning]  = useState(false);
+  const [tab,         setTab]         = useState<ActiveTab>('sheet');
+  const [menuVisible, setMenuVisible] = useState(false);
+  const [isActioning, setIsActioning] = useState(false);
 
   useEffect(() => {
     if (id) setActiveGroup(id);
     return () => setActiveGroup(null);
   }, [id]);
 
-  const group     = activeGroup;
-  const isOwner   = group?.ownerId === user?.id;
+  const group   = activeGroup;
+  const isOwner = group?.ownerId === user?.id;
   const totalAmount = entries
     .filter(e => e.status === 'confirmed')
     .reduce((sum, e) => sum + (e.amountInBase ?? e.amount), 0);
@@ -50,30 +56,29 @@ export default function GroupScreen() {
   const handleEntryConfirmed = useCallback(async (parsed: Partial<ParsedEntry>, rawInput: string) => {
     if (!id || !user) return;
     const entryData = {
-      groupId: id,
-      createdBy: user.id,
-      origin: 'text' as const,
-      type: parsed.type ?? 'expense',
-      description: parsed.description ?? '',
-      amount: parsed.amount ?? 0,
-      currency: (parsed.currency && /^[A-Z]{3}$/.test(parsed.currency.trim().toUpperCase()))
-        ? parsed.currency.trim().toUpperCase()
-        : (group?.baseCurrency ?? 'USD'),
-      paidBy: parsed.paidBy === 'me' ? user.id : parsed.paidBy ?? undefined,
-      splitRule: parsed.splitRule ?? 'equal',
-      category: parsed.category ?? 'other',
+      groupId:        id,
+      createdBy:      user.id,
+      origin:         'text' as const,
+      type:           parsed.type ?? 'expense',
+      description:    parsed.description ?? '',
+      amount:         parsed.amount ?? 0,
+      currency:       (parsed.currency && /^[A-Z]{3}$/.test(parsed.currency.trim().toUpperCase()))
+                        ? parsed.currency.trim().toUpperCase()
+                        : (group?.baseCurrency ?? 'USD'),
+      paidBy:         parsed.paidBy === 'me' ? user.id : parsed.paidBy ?? undefined,
+      splitRule:      parsed.splitRule ?? 'equal',
+      category:       parsed.category ?? 'other',
       rawInput,
       pendingReasons: parsed.pendingReasons ?? [],
-      aiConfidence: parsed.confidence,
-      entryDate: new Date().toISOString().split('T')[0],
+      aiConfidence:   parsed.confidence,
+      entryDate:      parsed.entryDate ?? new Date().toISOString().split('T')[0],
     };
-
-    addEntryOptimistic(entryData);
-
+    const tempId = addEntryOptimistic(entryData);
     try {
       await saveEntry(entryData);
     } catch (e) {
-      console.error('Failed to save entry:', e);
+      console.error('saveEntry failed:', e);
+      removeEntry(tempId);
     }
   }, [id, user, group, addEntryOptimistic]);
 
@@ -81,41 +86,27 @@ export default function GroupScreen() {
     if (!id || !user) return;
     try {
       await createEntryFromPhoto(uri, {
-        groupId: id,
-        members,
+        groupId: id, members,
         defaultCurrency: group?.baseCurrency ?? 'USD',
         createdBy: user.id,
       });
-    } catch (e) {
-      console.error('Photo upload failed:', e);
-    }
+    } catch (e) { console.error('Photo upload failed:', e); }
   }, [id, user, group, members]);
-
-  const handlePendingPress = useCallback(() => {
-    setTab('sheet');
-    // The sheet view will show pending filter
-  }, []);
 
   const handleArchiveGroup = useCallback(() => {
     setMenuVisible(false);
     Alert.alert(
       'Archivar grupo',
-      `¿Archivar "${group?.name}"? El grupo dejará de aparecer en tu lista. Los datos se conservan.`,
+      `¿Archivar "${group?.name}"? Los datos se conservan, pero el grupo desaparecerá de tu lista.`,
       [
         { text: 'Cancelar', style: 'cancel' },
         {
-          text: 'Archivar',
-          style: 'destructive',
+          text: 'Archivar', style: 'destructive',
           onPress: async () => {
             setIsActioning(true);
-            try {
-              await archiveGroup(id);
-              router.replace('/(app)');
-            } catch (e: any) {
-              Alert.alert('Error', e?.message ?? 'No se pudo archivar');
-            } finally {
-              setIsActioning(false);
-            }
+            try { await archiveGroup(id); router.replace('/(app)'); }
+            catch (e: any) { Alert.alert('Error', e?.message ?? 'No se pudo archivar'); }
+            finally { setIsActioning(false); }
           },
         },
       ]
@@ -130,18 +121,12 @@ export default function GroupScreen() {
       [
         { text: 'Cancelar', style: 'cancel' },
         {
-          text: 'Salir',
-          style: 'destructive',
+          text: 'Salir', style: 'destructive',
           onPress: async () => {
             setIsActioning(true);
-            try {
-              await leaveGroup(id);
-              router.replace('/(app)');
-            } catch (e: any) {
-              Alert.alert('Error', e?.message ?? 'No se pudo salir del grupo');
-            } finally {
-              setIsActioning(false);
-            }
+            try { await leaveGroup(id); router.replace('/(app)'); }
+            catch (e: any) { Alert.alert('Error', e?.message ?? 'No se pudo salir del grupo'); }
+            finally { setIsActioning(false); }
           },
         },
       ]
@@ -156,6 +141,7 @@ export default function GroupScreen() {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.loading}>
+          <ActivityIndicator color={COLORS.kivo500} />
           <Text style={styles.loadingText}>Cargando grupo…</Text>
         </View>
       </View>
@@ -164,86 +150,101 @@ export default function GroupScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* ─── Header ─── */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ChevronLeft size={22} color={COLORS.textSecondary} />
-        </TouchableOpacity>
 
-        <View style={styles.headerCenter}>
-          <Text style={styles.groupEmoji}>{group.coverEmoji}</Text>
-          <View>
-            <Text style={styles.groupName} numberOfLines={1}>{group.name}</Text>
-            <Text style={styles.groupMeta}>{members.length} miembros</Text>
+      {/* ── Header banner (colored) ── */}
+      <View style={styles.headerBanner}>
+        {/* Decorative orb */}
+        <View style={styles.bannerOrb} />
+
+        {/* Top row: back + menu */}
+        <View style={styles.bannerTopRow}>
+          <TouchableOpacity style={styles.bannerIconBtn} onPress={() => router.back()}>
+            <ChevronLeft size={20} color="rgba(255,255,255,0.9)" />
+          </TouchableOpacity>
+          <View style={styles.bannerRight}>
+            {pendingCount > 0 && (
+              <TouchableOpacity style={styles.pendingBtnBanner} onPress={() => setTab('sheet')}>
+                <AlertTriangle size={12} color="#fff" />
+                <Text style={styles.pendingCountBanner}>{pendingCount}</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              style={styles.bannerIconBtn}
+              onPress={() => setMenuVisible(true)}
+              disabled={isActioning}
+            >
+              {isActioning
+                ? <ActivityIndicator size="small" color="#fff" />
+                : <MoreHorizontal size={20} color="rgba(255,255,255,0.9)" />}
+            </TouchableOpacity>
           </View>
         </View>
 
-        <View style={styles.headerRight}>
-          {pendingCount > 0 && (
-            <TouchableOpacity style={styles.pendingBtn} onPress={handlePendingPress}>
-              <AlertTriangle size={16} color={COLORS.warning} />
-              <Text style={styles.pendingCount}>{pendingCount}</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            style={styles.iconBtn}
-            onPress={() => setMenuVisible(true)}
-            disabled={isActioning}
-          >
-            {isActioning
-              ? <ActivityIndicator size="small" color={COLORS.textSecondary} />
-              : <MoreHorizontal size={20} color={COLORS.textSecondary} />
-            }
-          </TouchableOpacity>
+        {/* Group identity */}
+        <View style={styles.bannerIdentity}>
+          <View style={styles.bannerEmojiWrap}>
+            <Text style={styles.bannerEmoji}>{group.coverEmoji}</Text>
+          </View>
+          <View>
+            <Text style={styles.bannerGroupName} numberOfLines={1}>{group.name}</Text>
+            <View style={styles.bannerMembersRow}>
+              <Users size={11} color="rgba(255,255,255,0.7)" />
+              <Text style={styles.bannerMeta}>
+                {members.length} miembro{members.length !== 1 ? 's' : ''}
+              </Text>
+            </View>
+          </View>
         </View>
-      </View>
 
-      {/* ─── Total strip ─── */}
-      <View style={styles.totalStrip}>
-        <View>
-          <Text style={styles.totalLabel}>Total del grupo</Text>
-          <Text style={styles.totalAmount}>
-            {formatCurrency(totalAmount, group.baseCurrency)}
-          </Text>
-        </View>
-        <AvatarGroup
-          members={members.map(m => ({ name: m.displayName, colorHex: m.colorHex }))}
-          size="sm"
-          max={5}
-        />
-      </View>
-
-      {/* ─── Tab bar ─── */}
-      <View style={styles.tabBar}>
-        {(['timeline', 'sheet', 'balance'] as ActiveTab[]).map(t => (
-          <TouchableOpacity
-            key={t}
-            style={[styles.tab, tab === t && styles.tabActive]}
-            onPress={() => setTab(t)}
-          >
-            <Text style={[styles.tabText, tab === t && styles.tabTextActive]}>
-              {t === 'timeline' ? 'Timeline' : t === 'sheet' ? 'Sheet ✦' : 'Balance'}
+        {/* Balance cards */}
+        <View style={styles.bannerCards}>
+          <View style={styles.bannerCard}>
+            <Text style={styles.bannerCardLabel}>Total del grupo</Text>
+            <Text style={styles.bannerCardAmount}>
+              {formatCurrency(totalAmount, group.baseCurrency)}
             </Text>
+            <AvatarGroup
+              members={members.map(m => ({ name: m.displayName, colorHex: m.colorHex }))}
+              size="xs"
+              max={4}
+            />
+          </View>
+          <View style={[styles.bannerCard, styles.bannerCardDark]}>
+            <Text style={styles.bannerCardLabel}>Entradas</Text>
+            <Text style={styles.bannerCardAmount}>{entries.length}</Text>
+            <Text style={styles.bannerCardSub}>
+              {pendingCount > 0 ? `${pendingCount} pendiente${pendingCount !== 1 ? 's' : ''}` : 'todo confirmado'}
+            </Text>
+          </View>
+        </View>
+      </View>
+
+      {/* ── Tab bar ── */}
+      <View style={styles.tabBar}>
+        {TABS.map(t => (
+          <TouchableOpacity
+            key={t.key}
+            style={[styles.tab, tab === t.key && styles.tabActive]}
+            onPress={() => setTab(t.key)}
+          >
+            <Text style={[styles.tabText, tab === t.key && styles.tabTextActive]}>
+              {t.label}{t.suffix ? ` ${t.suffix}` : ''}
+            </Text>
+            {tab === t.key && <View style={styles.tabIndicator} />}
           </TouchableOpacity>
         ))}
       </View>
 
-      {/* ─── Content ─── */}
+      {/* ── Content ── */}
       <View style={styles.content}>
         {tab === 'timeline' && (
-          <TimelineView
-            entries={entries}
-            members={members}
-            onEntryPress={handleEntryPress}
-          />
+          <TimelineView entries={entries} members={members} onEntryPress={handleEntryPress} />
         )}
         {tab === 'sheet' && (
           <SheetView
-            entries={entries}
-            members={members}
-            groupId={id}
+            entries={entries} members={members}
+            groupId={id} baseCurrency={group.baseCurrency}
             onEntryPress={handleEntryPress}
-            initialFilter={pendingCount > 0 && tab === 'sheet' ? undefined : undefined}
           />
         )}
         {tab === 'balance' && (
@@ -251,7 +252,7 @@ export default function GroupScreen() {
         )}
       </View>
 
-      {/* ─── Composer ─── */}
+      {/* ── Composer ── */}
       <MultimodalComposer
         groupId={id}
         members={members}
@@ -260,15 +261,15 @@ export default function GroupScreen() {
         onPhotoSelected={handlePhotoSelected}
       />
 
-      {/* ─── Group Menu Modal ─── */}
+      {/* ── Group Menu Modal ── */}
       <Modal
         visible={menuVisible}
         transparent
-        animationType="fade"
+        animationType="slide"
         onRequestClose={() => setMenuVisible(false)}
       >
         <Pressable style={styles.menuOverlay} onPress={() => setMenuVisible(false)}>
-          <View style={[styles.menuSheet, { paddingBottom: insets.bottom + 8 }]}>
+          <Pressable style={[styles.menuSheet, { paddingBottom: insets.bottom + 12 }]}>
             <View style={styles.menuHandle} />
             <Text style={styles.menuGroupName}>{group.coverEmoji} {group.name}</Text>
 
@@ -282,13 +283,10 @@ export default function GroupScreen() {
               </TouchableOpacity>
             )}
 
-            <TouchableOpacity
-              style={styles.menuItemCancel}
-              onPress={() => setMenuVisible(false)}
-            >
+            <TouchableOpacity style={styles.menuItemCancel} onPress={() => setMenuVisible(false)}>
               <Text style={styles.menuItemCancelText}>Cancelar</Text>
             </TouchableOpacity>
-          </View>
+          </Pressable>
         </Pressable>
       </Modal>
     </View>
@@ -297,81 +295,114 @@ export default function GroupScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: COLORS.bgBase },
-  loading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  loadingText: { color: COLORS.textSecondary, fontSize: 15 },
-
-  // Header
-  header: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-    paddingHorizontal: 16, paddingVertical: 10,
-    borderBottomWidth: 1, borderBottomColor: COLORS.borderSubtle,
+  loading: {
+    flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12,
   },
-  backBtn: {
+  loadingText: { color: COLORS.textSecondary, fontSize: 14 },
+
+  // ── Header banner ────────────────────────────────────────────
+  headerBanner: {
+    backgroundColor: COLORS.kivo500,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+    gap: 14,
+    overflow: 'hidden',
+    shadowColor: COLORS.kivo600,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  bannerOrb: {
+    position: 'absolute',
+    width: 280, height: 280, borderRadius: 140,
+    backgroundColor: 'rgba(255,255,255,0.07)',
+    top: -120, right: -80,
+  },
+  bannerTopRow: {
+    flexDirection: 'row', alignItems: 'center',
+    justifyContent: 'space-between', paddingTop: 8,
+  },
+  bannerIconBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: COLORS.bgElevated,
+    backgroundColor: 'rgba(255,255,255,0.15)',
     alignItems: 'center', justifyContent: 'center',
   },
-  headerCenter: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 },
-  groupEmoji: { fontSize: 28 },
-  groupName: { fontSize: 16, fontWeight: '700', color: COLORS.textPrimary, letterSpacing: -0.3 },
-  groupMeta: { fontSize: 12, color: COLORS.textSecondary, marginTop: 1 },
-  headerRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  pendingBtn: {
+  bannerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  pendingBtnBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: `${COLORS.warning}15`,
+    backgroundColor: 'rgba(245,158,11,0.9)',
     borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5,
-    borderWidth: 1, borderColor: `${COLORS.warning}30`,
   },
-  pendingCount: { color: COLORS.warning, fontSize: 12, fontWeight: '700' },
-  iconBtn: {
-    width: 36, height: 36, borderRadius: 18,
-    backgroundColor: COLORS.bgElevated,
+  pendingCountBanner: { color: '#fff', fontSize: 12, fontWeight: '700' },
+  bannerIdentity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  bannerEmojiWrap: {
+    width: 46, height: 46, borderRadius: 15,
+    backgroundColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center', justifyContent: 'center',
   },
-
-  // Total strip
-  totalStrip: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 20, paddingVertical: 14,
-    borderBottomWidth: 1, borderBottomColor: COLORS.borderSubtle,
+  bannerEmoji: { fontSize: 24 },
+  bannerGroupName: {
+    fontSize: 20, fontWeight: '800', color: '#fff', letterSpacing: -0.5,
   },
-  totalLabel: { fontSize: 12, color: COLORS.textSecondary, fontWeight: '500' },
-  totalAmount: {
-    fontSize: 28, fontWeight: '800', color: COLORS.textPrimary,
-    fontFamily: 'monospace', letterSpacing: -1, marginTop: 2,
+  bannerMembersRow: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 2 },
+  bannerMeta: { fontSize: 12, color: 'rgba(255,255,255,0.75)', fontWeight: '500' },
+  bannerCards: { flexDirection: 'row', gap: 10 },
+  bannerCard: {
+    flex: 1, backgroundColor: 'rgba(255,255,255,0.15)',
+    borderRadius: 16, padding: 14, gap: 4,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
   },
+  bannerCardDark: {
+    backgroundColor: 'rgba(0,0,0,0.12)', borderColor: 'rgba(0,0,0,0.1)',
+  },
+  bannerCardLabel: {
+    fontSize: 10, color: 'rgba(255,255,255,0.7)',
+    fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.4,
+  },
+  bannerCardAmount: {
+    fontSize: 20, fontWeight: '800',
+    color: '#fff', fontFamily: 'monospace', letterSpacing: -0.6,
+  },
+  bannerCardSub: { fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: '500' },
 
-  // Tab bar
+  // ── Tab bar ──────────────────────────────────────────────────
   tabBar: {
     flexDirection: 'row',
+    backgroundColor: COLORS.bgSurface,
     borderBottomWidth: 1, borderBottomColor: COLORS.borderSubtle,
   },
   tab: {
     flex: 1, paddingVertical: 12, alignItems: 'center',
-    borderBottomWidth: 2, borderBottomColor: 'transparent',
+    position: 'relative',
   },
-  tabActive: { borderBottomColor: COLORS.kivo500 },
-  tabText: { fontSize: 14, fontWeight: '500', color: COLORS.textTertiary },
-  tabTextActive: { color: COLORS.kivo400, fontWeight: '600' },
+  tabActive: {},
+  tabText: {
+    fontSize: 13, fontWeight: '500', color: COLORS.textTertiary,
+  },
+  tabTextActive: { color: COLORS.kivo400, fontWeight: '700' },
+  tabIndicator: {
+    position: 'absolute', bottom: 0, left: '20%', right: '20%',
+    height: 2, borderRadius: 1,
+    backgroundColor: COLORS.kivo500,
+  },
 
   content: { flex: 1 },
 
-  // Menu modal
+  // ── Menu modal ───────────────────────────────────────────────
   menuOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    flex: 1, backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'flex-end',
   },
   menuSheet: {
     backgroundColor: COLORS.bgSurface,
-    borderTopLeftRadius: 20, borderTopRightRadius: 20,
-    paddingTop: 12,
-    paddingHorizontal: 16,
-    gap: 8,
+    borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    paddingTop: 12, paddingHorizontal: 16, gap: 8,
+    borderTopWidth: 1, borderColor: COLORS.borderDefault,
   },
   menuHandle: {
     width: 36, height: 4, borderRadius: 2,
-    backgroundColor: COLORS.borderDefault,
+    backgroundColor: COLORS.borderStrong,
     alignSelf: 'center', marginBottom: 12,
   },
   menuGroupName: {
@@ -379,21 +410,17 @@ const styles = StyleSheet.create({
     textAlign: 'center', marginBottom: 8,
   },
   menuItemDanger: {
-    paddingVertical: 16,
-    borderRadius: 12,
-    backgroundColor: `${COLORS.error}12`,
-    borderWidth: 1, borderColor: `${COLORS.error}25`,
-    alignItems: 'center',
-    marginBottom: 4,
+    paddingVertical: 15, borderRadius: 14,
+    backgroundColor: COLORS.errorMuted,
+    borderWidth: 1, borderColor: `${COLORS.error}30`,
+    alignItems: 'center', marginBottom: 4,
   },
-  menuItemDangerText: { color: COLORS.error, fontSize: 16, fontWeight: '600' },
+  menuItemDangerText: { color: COLORS.error, fontSize: 15, fontWeight: '600' },
   menuItemCancel: {
-    paddingVertical: 15,
-    borderRadius: 12,
+    paddingVertical: 14, borderRadius: 14,
     backgroundColor: COLORS.bgElevated,
     borderWidth: 1, borderColor: COLORS.borderDefault,
-    alignItems: 'center',
-    marginBottom: 8,
+    alignItems: 'center', marginBottom: 4,
   },
-  menuItemCancelText: { color: COLORS.textSecondary, fontSize: 16, fontWeight: '500' },
+  menuItemCancelText: { color: COLORS.textSecondary, fontSize: 15, fontWeight: '500' },
 });

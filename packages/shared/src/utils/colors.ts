@@ -40,35 +40,47 @@ export function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-// Kivo design tokens
+// Kivo design tokens — Light theme
+// Fondos blancos/gris claro, acentos índigo vibrantes, legible y profesional.
+// Inspirado en Splitwise, Linear Light, Notion: clean y accesible.
 export const COLORS = {
-  // Background
-  bgBase: '#0A0A0F',
-  bgSurface: '#111118',
-  bgElevated: '#1A1A26',
-  bgInput: '#1E1E2E',
-  bgHover: '#252538',
-  bgSelected: '#2A2A45',
-  // Borders
-  borderSubtle: '#1E1E2E',
-  borderDefault: '#2A2A45',
-  borderStrong: '#3A3A5C',
-  // Text
-  textPrimary: '#F0F0FF',
-  textSecondary: '#9090B8',
-  textTertiary: '#5A5A80',
-  // Accent - Kivo Blue/Indigo
+  // ── Backgrounds ──────────────────────────────────────────────
+  bgBase:     '#F4F6FB',   // Gris lavanda muy suave (pantalla base)
+  bgSurface:  '#FFFFFF',   // Blanco puro — cards, modales
+  bgElevated: '#EEF1FB',   // Ligeramente elevado con tinte índigo
+  bgInput:    '#F4F6FB',   // Campos de texto
+  bgHover:    '#E8ECFA',   // Hover interactivo
+  bgSelected: '#DDE3F8',   // Seleccionado / activo
+
+  // ── Borders ──────────────────────────────────────────────────
+  borderSubtle:  '#ECEEF8',   // Divisores muy sutiles
+  borderDefault: '#E2E6F5',   // Bordes normales
+  borderStrong:  '#C7CEEA',   // Bordes con peso
+  borderAccent:  'rgba(99,102,241,0.3)', // Borde con tinte índigo
+
+  // ── Text ─────────────────────────────────────────────────────
+  textPrimary:   '#1A1D35',   // Casi negro con tinte índigo
+  textSecondary: '#5C6494',   // Gris-índigo medio
+  textTertiary:  '#9BA3C9',   // Placeholder / muted
+
+  // ── Brand — Kivo Indigo ───────────────────────────────────────
+  kivo300: '#A5B4FC',
   kivo400: '#818CF8',
   kivo500: '#6366F1',
   kivo600: '#4F46E5',
   kivo700: '#4338CA',
-  // Semantic
-  success: '#22C55E',
-  successMuted: 'rgba(34,197,94,0.15)',
-  warning: '#F97316',
-  warningMuted: 'rgba(249,115,22,0.15)',
-  error: '#EF4444',
-  errorMuted: 'rgba(239,68,68,0.15)',
-  ai: '#A78BFA',
-  aiMuted: 'rgba(167,139,250,0.15)',
+
+  // ── Semantic ─────────────────────────────────────────────────
+  success:      '#059669',
+  successMuted: 'rgba(5,150,105,0.10)',
+  warning:      '#D97706',
+  warningMuted: 'rgba(217,119,6,0.10)',
+  error:        '#DC2626',
+  errorMuted:   'rgba(220,38,38,0.10)',
+  ai:           '#7C3AED',
+  aiMuted:      'rgba(124,58,237,0.08)',
+
+  // ── Misc ─────────────────────────────────────────────────────
+  white:       '#FFFFFF',
+  transparent: 'transparent',
 } as const;

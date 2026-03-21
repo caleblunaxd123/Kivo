@@ -228,6 +228,7 @@ export interface ParsedEntry {
   pendingReasons: PendingReason[];
   confidence: number;              // 0.0 - 1.0
   isNoteOnly: boolean;
+  entryDate?: string;              // YYYY-MM-DD, optional (override today)
   items?: {                        // para tickets con múltiples líneas
     description: string;
     quantity: number;

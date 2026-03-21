@@ -13,13 +13,18 @@ const corsHeaders = {
 };
 
 interface ParseRequest {
-  groupId: string;
-  inputType: 'voice' | 'text' | 'ocr';
+  mode?: 'transcribe' | 'parse';
+  // Transcribe-only mode
+  audioBase64?: string;
+  audioFormat?: string;
+  // Full parse mode
+  groupId?: string;
+  inputType?: 'voice' | 'text' | 'ocr';
   rawInput?: string;
   audioUrl?: string;
   imageUrl?: string;
   jobId?: string;
-  groupContext: {
+  groupContext?: {
     members: { id: string; name: string }[];
     baseCurrency: string;
     recentCategories?: string[];
@@ -33,7 +38,52 @@ serve(async (req) => {
 
   try {
     const body: ParseRequest = await req.json();
+
+    // ── Transcribe-only mode (mobile sends audioBase64) ──────────────────────
+    if (body.mode === 'transcribe') {
+      const { audioBase64, audioFormat = 'm4a' } = body;
+      if (!audioBase64) {
+        return new Response(
+          JSON.stringify({ success: false, error: 'audioBase64 required' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      const audioBytes = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0));
+      const audioBlob = new Blob([audioBytes], { type: `audio/${audioFormat}` });
+
+      const formData = new FormData();
+      formData.append('file', audioBlob, `recording.${audioFormat}`);
+      formData.append('model', 'whisper-1');
+      formData.append('language', 'es');
+      formData.append('response_format', 'text');
+
+      const whisperRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${Deno.env.get('OPENAI_API_KEY')}` },
+        body: formData,
+      });
+
+      if (!whisperRes.ok) {
+        throw new Error(`Whisper error: ${whisperRes.status} ${await whisperRes.text()}`);
+      }
+
+      const transcription = await whisperRes.text();
+      return new Response(
+        JSON.stringify({ success: true, transcription }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // ── Full parse mode ───────────────────────────────────────────────────────
     const { groupId, inputType, rawInput, audioUrl, imageUrl, jobId, groupContext } = body;
+
+    if (!groupContext) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'groupContext required for parse mode' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL')!,

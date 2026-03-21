@@ -14,7 +14,7 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { Mic, Camera, PenLine, Plus, Square, X, Sparkles, Check } from 'lucide-react-native';
+import { Mic, Camera, PenLine, Plus, Square, X, Sparkles, Check, ArrowRight } from 'lucide-react-native';
 import {
   useAudioRecorder,
   requestRecordingPermissionsAsync,
@@ -22,6 +22,7 @@ import {
   RecordingPresets,
 } from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
 import { COLORS } from '@kivo/shared';
 import type { ParsedEntry, GroupMember } from '@kivo/shared';
 import { parseQuickText } from '@kivo/shared';
@@ -52,7 +53,8 @@ export function MultimodalComposer({
 
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const durationInterval = useRef<ReturnType<typeof setInterval> | null>(null);
-  const scaleAnim = useRef(new Animated.Value(1)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const pulseLoop = useRef<Animated.CompositeAnimation | null>(null);
 
   // ─── Voice Recording ───────────────────────────────────────────────────────
 
@@ -60,11 +62,7 @@ export function MultimodalComposer({
     const { granted } = await requestRecordingPermissionsAsync();
     if (!granted) return;
 
-    await setAudioModeAsync({
-      allowsRecording: true,
-      playsInSilentMode: true,
-    });
-
+    await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
     await recorder.prepareToRecordAsync();
     recorder.record();
     setMode('voice_recording');
@@ -74,56 +72,70 @@ export function MultimodalComposer({
       setRecordingDuration(d => d + 1);
     }, 1000);
 
-    // Pulse animation on mic button
-    Animated.loop(
+    pulseLoop.current = Animated.loop(
       Animated.sequence([
-        Animated.timing(scaleAnim, { toValue: 1.15, duration: 600, useNativeDriver: true }),
-        Animated.timing(scaleAnim, { toValue: 1.0, duration: 600, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1.18, duration: 650, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1.0,  duration: 650, useNativeDriver: true }),
       ])
-    ).start();
-  }, [recorder, scaleAnim]);
+    );
+    pulseLoop.current.start();
+  }, [recorder, pulseAnim]);
 
   const stopVoiceRecording = useCallback(async () => {
     if (!recorder.isRecording) return;
     clearInterval(durationInterval.current!);
-    scaleAnim.stopAnimation();
-    scaleAnim.setValue(1);
+    pulseLoop.current?.stop();
+    pulseAnim.setValue(1);
 
     setIsProcessing(true);
     setMode('voice_preview');
 
     try {
       await recorder.stop();
+      const uri = recorder.uri;
 
-      // For now, use a placeholder transcription
-      // In production: upload to Supabase, call Whisper via Edge Function
-      const mockTranscription = transcription || 'Procesando grabación…';
-      setTranscription(mockTranscription);
+      if (uri) {
+        // Read audio as base64 and send to Whisper via Edge Function
+        const audioBase64 = await FileSystem.readAsStringAsync(uri, {
+          encoding: 'base64' as any,
+        });
+        await FileSystem.deleteAsync(uri, { idempotent: true });
 
-      // Quick parse the transcription
-      const { parsed } = parseQuickText(
-        mockTranscription,
-        members.map(m => ({ id: m.id, name: m.displayName })),
-        defaultCurrency
-      );
-      setParsedPreview(parsed);
+        const { supabase } = await import('../../lib/supabase');
+        const { data, error } = await supabase.functions.invoke('parse-entry', {
+          body: { mode: 'transcribe', audioBase64, audioFormat: 'm4a' },
+        });
+
+        const result = error ? null : (data?.transcription as string | null);
+        const textToUse = result ?? '';
+        setTranscription(textToUse);
+
+        if (textToUse) {
+          const { parsed } = parseQuickText(
+            textToUse,
+            members.map(m => ({ id: m.id, name: m.displayName })),
+            defaultCurrency
+          );
+          setParsedPreview(parsed);
+        }
+      }
+    } catch (err) {
+      console.error('[stopVoiceRecording] error:', err);
     } finally {
       setIsProcessing(false);
     }
-  }, [recorder, defaultCurrency, members, transcription, scaleAnim]);
+  }, [recorder, defaultCurrency, members, pulseAnim]);
 
   // ─── Photo ─────────────────────────────────────────────────────────────────
 
   const openCamera = useCallback(async () => {
     const { granted } = await ImagePicker.requestCameraPermissionsAsync();
     if (!granted) return;
-
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.8,
       allowsEditing: false,
     });
-
     if (!result.canceled && result.assets[0]) {
       onPhotoSelected(result.assets[0].uri);
     }
@@ -156,145 +168,179 @@ export function MultimodalComposer({
   }, [mode, onEntryConfirmed, parsedPreview, text, transcription]);
 
   const cancel = useCallback(() => {
-    if (recorder.isRecording) {
-      recorder.stop().catch(() => {});
-    }
+    if (recorder.isRecording) recorder.stop().catch(() => {});
     clearInterval(durationInterval.current!);
-    scaleAnim.setValue(1);
+    pulseLoop.current?.stop();
+    pulseAnim.setValue(1);
     setText('');
     setTranscription('');
     setParsedPreview(null);
     setMode('idle');
-  }, [recorder, scaleAnim]);
+  }, [recorder, pulseAnim]);
 
-  const formatDuration = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
-  };
+  const formatDuration = (s: number) =>
+    `${Math.floor(s / 60)}:${(s % 60).toString().padStart(2, '0')}`;
 
-  // ─── Render ────────────────────────────────────────────────────────────────
+  // ─── Idle bar ──────────────────────────────────────────────────────────────
 
   if (mode === 'idle') {
     return (
-      <View style={styles.container}>
-        <View style={styles.actions}>
-          <TouchableOpacity style={styles.actionButton} onPress={startVoiceRecording}>
-            <Mic size={22} color={COLORS.kivo400} />
+      <View style={styles.idleContainer}>
+        <View style={styles.idleRow}>
+          {/* Action buttons */}
+          <TouchableOpacity style={styles.actionBtn} onPress={startVoiceRecording}>
+            <Mic size={20} color={COLORS.kivo400} strokeWidth={1.8} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={openCamera}>
-            <Camera size={22} color={COLORS.kivo400} />
+          <TouchableOpacity style={styles.actionBtn} onPress={openCamera}>
+            <Camera size={20} color={COLORS.kivo400} strokeWidth={1.8} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.actionButton} onPress={() => setMode('text_input')}>
-            <PenLine size={22} color={COLORS.kivo400} />
+          <TouchableOpacity style={styles.actionBtn} onPress={() => setMode('text_input')}>
+            <PenLine size={20} color={COLORS.kivo400} strokeWidth={1.8} />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.primaryButton}>
-            <Plus size={20} color="#fff" />
-            <Text style={styles.primaryButtonText}>Agregar</Text>
+
+          {/* Primary CTA */}
+          <TouchableOpacity
+            style={styles.primaryBtn}
+            onPress={() => setMode('text_input')}
+          >
+            <Plus size={18} color={COLORS.white} strokeWidth={2.5} />
+            <Text style={styles.primaryBtnText}>Agregar entrada</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   }
 
+  // ─── Voice recording ───────────────────────────────────────────────────────
+
   if (mode === 'voice_recording') {
     return (
-      <View style={styles.containerExpanded}>
-        <View style={styles.recordingHeader}>
-          <View style={styles.recDot} />
-          <Text style={styles.recLabel}>GRABANDO</Text>
+      <View style={styles.expandedContainer}>
+        {/* Header */}
+        <View style={styles.expandedHeader}>
+          <View style={styles.recIndicator}>
+            <View style={styles.recDot} />
+            <Text style={styles.recLabel}>GRABANDO</Text>
+          </View>
           <Text style={styles.duration}>{formatDuration(recordingDuration)}</Text>
-          <TouchableOpacity onPress={cancel}>
-            <X size={20} color={COLORS.textSecondary} />
+          <TouchableOpacity onPress={cancel} style={styles.closeBtn}>
+            <X size={16} color={COLORS.textSecondary} />
           </TouchableOpacity>
         </View>
 
-        <View style={styles.waveformContainer}>
-          {/* Simplified waveform visualization */}
-          {Array.from({ length: 30 }).map((_, i) => (
+        {/* Waveform */}
+        <View style={styles.waveform}>
+          {Array.from({ length: 28 }).map((_, i) => (
             <View
               key={i}
-              style={[styles.waveBar, { height: Math.random() * 40 + 10 }]}
+              style={[
+                styles.waveBar,
+                {
+                  height: Math.sin(i * 0.8) * 18 + 22,
+                  opacity: 0.3 + (i % 3) * 0.2,
+                },
+              ]}
             />
           ))}
         </View>
 
-        <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
-          <TouchableOpacity style={styles.stopButton} onPress={stopVoiceRecording}>
-            <Square size={20} color="#fff" fill="#fff" />
+        {/* Stop button */}
+        <Animated.View style={[styles.stopWrap, { transform: [{ scale: pulseAnim }] }]}>
+          <TouchableOpacity style={styles.stopBtn} onPress={stopVoiceRecording}>
+            <Square size={18} color={COLORS.white} fill={COLORS.white} />
           </TouchableOpacity>
         </Animated.View>
+        <Text style={styles.stopHint}>Toca para detener</Text>
       </View>
     );
   }
 
+  // ─── Voice preview ─────────────────────────────────────────────────────────
+
   if (mode === 'voice_preview') {
     return (
-      <View style={styles.containerExpanded}>
-        <View style={styles.previewHeader}>
-          <Sparkles size={16} color={COLORS.ai} />
-          <Text style={styles.previewTitle}>Kivo interpreta:</Text>
-          <TouchableOpacity onPress={cancel}>
-            <X size={18} color={COLORS.textSecondary} />
+      <View style={styles.expandedContainer}>
+        <View style={styles.expandedHeader}>
+          <View style={styles.aiLabel}>
+            <Sparkles size={14} color={COLORS.ai} />
+            <Text style={styles.aiLabelText}>Kivo interpreta</Text>
+          </View>
+          <TouchableOpacity onPress={cancel} style={styles.closeBtn}>
+            <X size={16} color={COLORS.textSecondary} />
           </TouchableOpacity>
         </View>
 
         {isProcessing ? (
-          <Text style={styles.processingText}>Procesando…</Text>
+          <View style={styles.processingRow}>
+            <View style={styles.processingDot} />
+            <Text style={styles.processingText}>Procesando audio…</Text>
+          </View>
         ) : (
           <View style={styles.parsedCard}>
             {parsedPreview?.description ? (
-              <Text style={styles.parsedDescription}>{parsedPreview.description}</Text>
+              <Text style={styles.parsedDesc}>{parsedPreview.description}</Text>
             ) : null}
-            <Text style={styles.parsedDetails}>
-              {parsedPreview?.amount != null ? `$${parsedPreview.amount}` : ''}
+            <Text style={styles.parsedMeta}>
+              {parsedPreview?.amount != null ? `$${parsedPreview.amount}` : '—'}
               {parsedPreview?.currency ? ` ${parsedPreview.currency}` : ''}
               {parsedPreview?.splitRule === 'equal' ? ' · División igual' : ''}
             </Text>
             {parsedPreview?.pendingReasons?.length ? (
-              <Text style={styles.pendingLabel}>
+              <Text style={styles.pendingHint}>
                 ⚠ Faltan: {parsedPreview.pendingReasons.join(', ')}
               </Text>
             ) : null}
           </View>
         )}
 
-        <View style={styles.previewActions}>
-          <TouchableOpacity style={styles.confirmButton} onPress={confirmEntry}>
-            <Check size={18} color="#fff" />
-            <Text style={styles.confirmButtonText}>Confirmar</Text>
+        <View style={styles.actionRow}>
+          <TouchableOpacity style={styles.cancelBtn} onPress={cancel}>
+            <Text style={styles.cancelBtnText}>Cancelar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.cancelButton} onPress={cancel}>
-            <Text style={styles.cancelButtonText}>Cancelar</Text>
+          <TouchableOpacity style={styles.confirmBtn} onPress={confirmEntry}>
+            <Check size={16} color={COLORS.white} />
+            <Text style={styles.confirmBtnText}>Confirmar</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
   }
 
+  // ─── Text input ────────────────────────────────────────────────────────────
+
   if (mode === 'text_input') {
     return (
-      <View style={styles.containerExpanded}>
-        <View style={styles.textHeader}>
+      <View style={styles.expandedContainer}>
+        <View style={styles.expandedHeader}>
           <Text style={styles.textTitle}>Escribe rápido</Text>
-          <TouchableOpacity onPress={cancel}>
-            <X size={18} color={COLORS.textSecondary} />
+          <TouchableOpacity onPress={cancel} style={styles.closeBtn}>
+            <X size={16} color={COLORS.textSecondary} />
           </TouchableOpacity>
         </View>
 
-        <TextInput
-          style={styles.textInput}
-          placeholder="uber 22 dividido entre 3…"
-          placeholderTextColor={COLORS.textTertiary}
-          value={text}
-          onChangeText={handleTextChange}
-          autoFocus
-          returnKeyType="done"
-          onSubmitEditing={parsedPreview ? confirmEntry : undefined}
-        />
+        <View style={styles.textInputWrap}>
+          <TextInput
+            style={styles.textInput}
+            placeholder="uber 22 dividido entre 3…"
+            placeholderTextColor={COLORS.textTertiary}
+            value={text}
+            onChangeText={handleTextChange}
+            autoFocus
+            returnKeyType="send"
+            onSubmitEditing={parsedPreview ? confirmEntry : undefined}
+          />
+          <TouchableOpacity
+            style={[styles.sendBtn, !parsedPreview && styles.sendBtnDisabled]}
+            onPress={confirmEntry}
+            disabled={!parsedPreview}
+          >
+            <ArrowRight size={18} color={parsedPreview ? COLORS.white : COLORS.textTertiary} />
+          </TouchableOpacity>
+        </View>
 
         {parsedPreview && (
           <View style={styles.livePreview}>
+            <Sparkles size={12} color={COLORS.ai} />
             <Text style={styles.livePreviewText}>
               {parsedPreview.description ?? ''}
               {parsedPreview.amount != null ? ` · $${parsedPreview.amount}` : ''}
@@ -302,14 +348,6 @@ export function MultimodalComposer({
             </Text>
           </View>
         )}
-
-        <TouchableOpacity
-          style={[styles.confirmButton, !parsedPreview && styles.buttonDisabled]}
-          onPress={confirmEntry}
-          disabled={!parsedPreview}
-        >
-          <Text style={styles.confirmButtonText}>Agregar →</Text>
-        </TouchableOpacity>
       </View>
     );
   }
@@ -317,203 +355,196 @@ export function MultimodalComposer({
   return null;
 }
 
+const COMPOSER_BORDER_RADIUS = 0;
+const BOTTOM_EXTRA = Platform.OS === 'ios' ? 28 : 12;
+
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: COLORS.bgElevated,
+  // ── Idle bar ─────────────────────────────────────────────────
+  idleContainer: {
+    backgroundColor: COLORS.bgSurface,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderSubtle,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    paddingBottom: Platform.OS === 'ios' ? 28 : 12,
+    borderTopColor: COLORS.borderDefault,
+    paddingHorizontal: 14,
+    paddingTop: 10,
+    paddingBottom: BOTTOM_EXTRA,
   },
-  containerExpanded: {
+  idleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  actionBtn: {
+    width: 44, height: 44,
+    borderRadius: 14,
     backgroundColor: COLORS.bgElevated,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: COLORS.borderDefault,
+  },
+  primaryBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 7,
+    backgroundColor: COLORS.kivo500,
+    borderRadius: 14,
+    paddingVertical: 12,
+    shadowColor: COLORS.kivo500,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
+  },
+  primaryBtnText: {
+    color: COLORS.white,
+    fontSize: 14,
+    fontWeight: '600',
+    letterSpacing: -0.2,
+  },
+
+  // ── Expanded container ────────────────────────────────────────
+  expandedContainer: {
+    backgroundColor: COLORS.bgSurface,
     borderTopWidth: 1,
     borderTopColor: COLORS.borderDefault,
     padding: 16,
-    paddingBottom: Platform.OS === 'ios' ? 36 : 16,
+    paddingBottom: BOTTOM_EXTRA,
     gap: 12,
   },
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  actionButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: COLORS.bgInput,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    borderColor: COLORS.borderDefault,
-  },
-  primaryButton: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.kivo500,
-    borderRadius: 12,
-    paddingVertical: 12,
-    gap: 6,
-  },
-  primaryButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  recordingHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  recDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: COLORS.error,
-  },
-  recLabel: {
-    color: COLORS.error,
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 1,
-    flex: 1,
-  },
-  duration: {
-    color: COLORS.textSecondary,
-    fontSize: 14,
-    fontFamily: 'monospace',
-  },
-  waveformContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-    height: 60,
-  },
-  waveBar: {
-    width: 3,
-    borderRadius: 2,
-    backgroundColor: COLORS.kivo400,
-    opacity: 0.8,
-  },
-  stopButton: {
-    alignSelf: 'center',
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    backgroundColor: COLORS.kivo600,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  previewHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  previewTitle: {
-    color: COLORS.ai,
-    fontSize: 14,
-    fontWeight: '600',
-    flex: 1,
-  },
-  parsedCard: {
-    backgroundColor: COLORS.aiMuted,
-    borderWidth: 1,
-    borderColor: COLORS.ai,
-    borderRadius: 12,
-    padding: 14,
-    gap: 4,
-  },
-  parsedDescription: {
-    color: COLORS.textPrimary,
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  parsedDetails: {
-    color: COLORS.textSecondary,
-    fontSize: 14,
-    fontFamily: 'monospace',
-  },
-  pendingLabel: {
-    color: COLORS.warning,
-    fontSize: 12,
-    marginTop: 4,
-  },
-  processingText: {
-    color: COLORS.textSecondary,
-    textAlign: 'center',
-    fontSize: 14,
-  },
-  previewActions: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  confirmButton: {
-    flex: 2,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.kivo500,
-    borderRadius: 12,
-    paddingVertical: 13,
-    gap: 6,
-  },
-  confirmButtonText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  cancelButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: COLORS.bgInput,
-    borderRadius: 12,
-    paddingVertical: 13,
-    borderWidth: 1,
-    borderColor: COLORS.borderDefault,
-  },
-  cancelButtonText: {
-    color: COLORS.textSecondary,
-    fontSize: 15,
-  },
-  buttonDisabled: {
-    opacity: 0.4,
-  },
-  textHeader: {
+  expandedHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  textTitle: {
-    color: COLORS.textPrimary,
-    fontSize: 16,
-    fontWeight: '600',
+  closeBtn: {
+    width: 28, height: 28, borderRadius: 14,
+    backgroundColor: COLORS.bgElevated,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: COLORS.borderDefault,
   },
-  textInput: {
+
+  // ── Recording ────────────────────────────────────────────────
+  recIndicator: { flexDirection: 'row', alignItems: 'center', gap: 7, flex: 1 },
+  recDot: {
+    width: 8, height: 8, borderRadius: 4,
+    backgroundColor: COLORS.error,
+  },
+  recLabel: {
+    color: COLORS.error, fontSize: 11, fontWeight: '700', letterSpacing: 1.2,
+  },
+  duration: {
+    color: COLORS.textSecondary, fontSize: 14, fontFamily: 'monospace',
+    marginRight: 8,
+  },
+  waveform: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 3,
+    height: 56,
+  },
+  waveBar: {
+    width: 3.5,
+    borderRadius: 2,
+    backgroundColor: COLORS.kivo400,
+  },
+  stopWrap: { alignSelf: 'center' },
+  stopBtn: {
+    width: 58, height: 58, borderRadius: 29,
+    backgroundColor: COLORS.kivo500,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 2, borderColor: COLORS.kivo300,
+    shadowColor: COLORS.kivo500,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  stopHint: {
+    color: COLORS.textTertiary, fontSize: 11, textAlign: 'center',
+  },
+
+  // ── AI label ─────────────────────────────────────────────────
+  aiLabel: { flexDirection: 'row', alignItems: 'center', gap: 7, flex: 1 },
+  aiLabelText: { color: COLORS.ai, fontSize: 13, fontWeight: '600' },
+
+  // ── Processing ────────────────────────────────────────────────
+  processingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8 },
+  processingDot: {
+    width: 8, height: 8, borderRadius: 4,
+    backgroundColor: COLORS.ai,
+  },
+  processingText: { color: COLORS.textSecondary, fontSize: 14 },
+
+  // ── Parsed card ───────────────────────────────────────────────
+  parsedCard: {
+    backgroundColor: COLORS.aiMuted,
+    borderWidth: 1, borderColor: `${COLORS.ai}35`,
+    borderRadius: 14, padding: 14, gap: 4,
+  },
+  parsedDesc: { color: COLORS.textPrimary, fontSize: 16, fontWeight: '600' },
+  parsedMeta: {
+    color: COLORS.textSecondary, fontSize: 13, fontFamily: 'monospace',
+  },
+  pendingHint: { color: COLORS.warning, fontSize: 12, marginTop: 4 },
+
+  // ── Action row ────────────────────────────────────────────────
+  actionRow: { flexDirection: 'row', gap: 10 },
+  cancelBtn: {
+    flex: 1, alignItems: 'center', justifyContent: 'center',
+    backgroundColor: COLORS.bgElevated,
+    borderRadius: 14, paddingVertical: 13,
+    borderWidth: 1, borderColor: COLORS.borderDefault,
+  },
+  cancelBtnText: { color: COLORS.textSecondary, fontSize: 14, fontWeight: '500' },
+  confirmBtn: {
+    flex: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 7,
+    backgroundColor: COLORS.kivo500,
+    borderRadius: 14, paddingVertical: 13,
+    shadowColor: COLORS.kivo500,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35, shadowRadius: 8, elevation: 5,
+  },
+  confirmBtnText: { color: COLORS.white, fontSize: 14, fontWeight: '600' },
+
+  // ── Text input ────────────────────────────────────────────────
+  textTitle: { color: COLORS.textPrimary, fontSize: 15, fontWeight: '600', flex: 1 },
+  textInputWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
     backgroundColor: COLORS.bgInput,
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.borderDefault,
-    padding: 14,
+    paddingHorizontal: 14,
+    paddingVertical: Platform.OS === 'ios' ? 12 : 8,
+  },
+  textInput: {
+    flex: 1,
     color: COLORS.textPrimary,
-    fontSize: 16,
+    fontSize: 15,
     fontFamily: 'monospace',
+  },
+  sendBtn: {
+    width: 34, height: 34, borderRadius: 11,
+    backgroundColor: COLORS.kivo500,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  sendBtnDisabled: {
+    backgroundColor: COLORS.bgElevated,
+    borderWidth: 1, borderColor: COLORS.borderDefault,
   },
   livePreview: {
-    backgroundColor: COLORS.bgSelected,
-    borderRadius: 8,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: COLORS.kivo400,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 7,
+    backgroundColor: COLORS.bgElevated,
+    borderRadius: 10, padding: 10,
+    borderWidth: 1, borderColor: COLORS.borderAccent,
   },
   livePreviewText: {
-    color: COLORS.kivo400,
-    fontSize: 13,
-    fontFamily: 'monospace',
+    color: COLORS.kivo600, fontSize: 12, fontFamily: 'monospace', flex: 1,
   },
 });
