@@ -228,7 +228,7 @@ export function MultimodalComposer({
     );
   }
 
-  if (mode === 'voice_preview' || (mode === 'text_input' && parsedPreview)) {
+  if (mode === 'voice_preview') {
     return (
       <View style={styles.containerExpanded}>
         <View style={styles.previewHeader}>
