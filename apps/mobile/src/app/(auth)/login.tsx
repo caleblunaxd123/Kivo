@@ -98,13 +98,11 @@ export default function LoginScreen() {
       <View style={styles.bgOrb} />
       <View style={styles.bgOrb2} />
 
-      {/* Header */}
+      {/* Header — solo botón volver */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <ChevronLeft size={20} color={COLORS.textSecondary} />
         </TouchableOpacity>
-        <VozpeLogo size="sm" />
-        <View style={{ width: 36 }} />
       </View>
 
       <ScrollView
@@ -112,6 +110,11 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
+        {/* Logo prominente */}
+        <View style={styles.logoWrap}>
+          <VozpeLogo size="lg" />
+        </View>
+
         {/* Título */}
         <View style={styles.titleBlock}>
           <Text style={styles.title}>
@@ -296,7 +299,7 @@ const styles = StyleSheet.create({
 
   // Header
   header: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    flexDirection: 'row', alignItems: 'center',
     paddingHorizontal: 16, paddingVertical: 10,
   },
   backBtn: {
@@ -306,9 +309,12 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: COLORS.borderDefault,
   },
 
+  // Logo
+  logoWrap: { alignItems: 'center', paddingBottom: 4 },
+
   // Scroll
   scroll: {
-    paddingHorizontal: 22, paddingTop: 26, paddingBottom: 44, gap: 14,
+    paddingHorizontal: 22, paddingTop: 14, paddingBottom: 44, gap: 14,
   },
 
   // Título
