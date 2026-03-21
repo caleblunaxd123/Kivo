@@ -19,11 +19,11 @@ export function BalanceView({ groupId, baseCurrency }: BalanceViewProps) {
   const { entries, members } = useGroupStore();
 
   const balances = useMemo<MemberBalance[]>(() => {
+    // Use m.id (group member ID) as map key — works for both auth users and guests
     const map: Record<string, { paid: number; share: number }> = {};
 
-    // Init all members
     for (const m of members) {
-      if (m.userId) map[m.userId] = { paid: 0, share: 0 };
+      map[m.id] = { paid: 0, share: 0 };
     }
 
     const confirmed = entries.filter(e => e.status === 'confirmed');
@@ -31,31 +31,34 @@ export function BalanceView({ groupId, baseCurrency }: BalanceViewProps) {
     for (const entry of confirmed) {
       const amount = entry.amountInBase ?? entry.amount;
 
-      // Who paid
-      if (entry.paidBy && map[entry.paidBy] !== undefined) {
-        map[entry.paidBy].paid += amount;
+      // Find paying member: paidBy stores userId, match by userId or by member id
+      const payer = members.find(
+        m => (m.userId && m.userId === entry.paidBy) || m.id === entry.paidBy
+      );
+      if (payer && map[payer.id] !== undefined) {
+        map[payer.id].paid += amount;
       }
 
       // How splits are distributed
       if (entry.splits && entry.splits.length > 0) {
         for (const split of entry.splits) {
+          // split.memberId is the group member ID
           if (map[split.memberId] !== undefined) {
             map[split.memberId].share += split.amount;
           }
         }
       } else {
-        // Default: equal split
-        const share = amount / members.length;
+        // Default: equal split across all members
+        const activeMemberCount = members.length || 1;
+        const share = amount / activeMemberCount;
         for (const m of members) {
-          if (m.userId && map[m.userId] !== undefined) {
-            map[m.userId].share += share;
-          }
+          map[m.id].share += share;
         }
       }
     }
 
     return members.map(m => {
-      const data = (m.userId ? map[m.userId] : undefined) ?? { paid: 0, share: 0 };
+      const data = map[m.id] ?? { paid: 0, share: 0 };
       const net = data.paid - data.share;
       return {
         memberId: m.id,

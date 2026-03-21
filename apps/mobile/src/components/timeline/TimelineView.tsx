@@ -52,7 +52,9 @@ export function TimelineView({ entries, members, onEntryPress }: TimelineViewPro
 function TimelineCard({
   entry, members, onPress,
 }: { entry: Entry; members: GroupMember[]; onPress?: () => void }) {
-  const creator = members.find(m => m.userId === entry.createdBy);
+  const creator = members.find(
+    m => (m.userId && m.userId === entry.createdBy) || m.id === entry.createdBy
+  );
   const cat = CATEGORY_CONFIG[entry.category as keyof typeof CATEGORY_CONFIG] ?? CATEGORY_CONFIG.other;
   const isPending = entry.status === 'pending_review';
 
