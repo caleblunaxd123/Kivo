@@ -56,7 +56,9 @@ export default function GroupScreen() {
       type: parsed.type ?? 'expense',
       description: parsed.description ?? '',
       amount: parsed.amount ?? 0,
-      currency: parsed.currency ?? (group?.baseCurrency ?? 'USD'),
+      currency: (parsed.currency && /^[A-Z]{3}$/.test(parsed.currency.trim().toUpperCase()))
+        ? parsed.currency.trim().toUpperCase()
+        : (group?.baseCurrency ?? 'USD'),
       paidBy: parsed.paidBy === 'me' ? user.id : parsed.paidBy ?? undefined,
       splitRule: parsed.splitRule ?? 'equal',
       category: parsed.category ?? 'other',

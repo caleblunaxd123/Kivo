@@ -6,6 +6,13 @@ import { supabase } from '../lib/supabase';
 import { parseQuickText } from '@kivo/shared';
 import type { Entry, ParsedEntry, GroupMember } from '@kivo/shared';
 
+const VALID_CURRENCY_RE = /^[A-Z]{3}$/;
+function sanitizeCurrencyCode(c: string | null | undefined): string {
+  if (!c) return 'USD';
+  const code = c.trim().toUpperCase();
+  return VALID_CURRENCY_RE.test(code) ? code : 'USD';
+}
+
 const AI_PARSE_ENDPOINT = `${process.env.EXPO_PUBLIC_SUPABASE_URL}/functions/v1/parse-entry`;
 
 export interface CreateEntryOptions {
@@ -131,7 +138,7 @@ export async function saveEntry(
       notes: entry.notes,
       category: entry.category ?? 'other',
       amount: entry.amount ?? 0,
-      currency: entry.currency ?? 'USD',
+      currency: sanitizeCurrencyCode(entry.currency) ?? 'USD',
       paid_by: entry.paidBy,
       split_rule: entry.splitRule ?? 'equal',
       raw_input: entry.rawInput,

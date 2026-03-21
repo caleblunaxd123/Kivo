@@ -2,31 +2,47 @@
  * Formatting utilities for Kivo
  */
 
+/** Validates that a currency string is a 3-letter ISO 4217 code. */
+const VALID_CURRENCY_RE = /^[A-Z]{3}$/;
+
+function sanitizeCurrency(currency: string | null | undefined): string {
+  if (!currency) return 'USD';
+  const code = currency.trim().toUpperCase();
+  return VALID_CURRENCY_RE.test(code) ? code : 'USD';
+}
+
 export function formatCurrency(
   amount: number,
-  currency = 'USD',
+  currency?: string | null,
   locale = 'es-PE'
 ): string {
-  return new Intl.NumberFormat(locale, {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
+  const safeCode = sanitizeCurrency(currency);
+  try {
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: safeCode,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(amount ?? 0);
+  } catch {
+    // Last-resort: plain number + code (Hermes may reject valid-looking codes on some Android versions)
+    return `${safeCode}\u00A0${(amount ?? 0).toFixed(2)}`;
+  }
 }
 
 export function formatCompactCurrency(
   amount: number,
-  currency = 'USD',
+  currency?: string | null,
   locale = 'es-PE'
 ): string {
+  const safeCode = sanitizeCurrency(currency);
   if (Math.abs(amount) >= 1_000_000) {
-    return `${formatCurrencySymbol(currency)}${(amount / 1_000_000).toFixed(1)}M`;
+    return `${formatCurrencySymbol(safeCode)}${(amount / 1_000_000).toFixed(1)}M`;
   }
   if (Math.abs(amount) >= 1_000) {
-    return `${formatCurrencySymbol(currency)}${(amount / 1_000).toFixed(1)}K`;
+    return `${formatCurrencySymbol(safeCode)}${(amount / 1_000).toFixed(1)}K`;
   }
-  return formatCurrency(amount, currency, locale);
+  return formatCurrency(amount, safeCode, locale);
 }
 
 export function formatCurrencySymbol(currency: string): string {
