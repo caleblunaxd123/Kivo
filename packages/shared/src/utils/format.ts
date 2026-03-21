@@ -1,5 +1,5 @@
 /**
- * Formatting utilities for Kivo
+ * Formatting utilities for Vozpe
  */
 
 /** Validates that a currency string is a 3-letter ISO 4217 code. */

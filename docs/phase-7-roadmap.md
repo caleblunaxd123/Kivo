@@ -1,10 +1,10 @@
-# KIVO — Fase 7: Roadmap por Versiones y Estrategia MVP
+# VOZPE — Fase 7: Roadmap por Versiones y Estrategia MVP
 
 ---
 
 ## 7.1 ESTRATEGIA MVP (V1)
 
-### ¿Qué es el MVP de Kivo?
+### ¿Qué es el MVP de Vozpe?
 
 El MVP debe probar **una sola hipótesis core**:
 > "Los usuarios prefieren capturar gastos por texto rápido o voz y verlos en una tabla viva, en lugar de llenar formularios."
@@ -296,7 +296,7 @@ La imagen de resumen del grupo debe verse tan bien que la gente la comparta en W
 ## 7.9 ESTRUCTURA DE CARPETAS FINAL DEL PROYECTO
 
 ```
-kivo/
+vozpe/
 ├── apps/
 │   ├── mobile/                    # React Native + Expo
 │   │   ├── src/

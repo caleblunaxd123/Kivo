@@ -1,4 +1,4 @@
-# KIVO — Fase 4: Modelo de Datos, Lógica Funcional y Arquitectura Técnica
+# VOZPE — Fase 4: Modelo de Datos, Lógica Funcional y Arquitectura Técnica
 
 ---
 
@@ -942,7 +942,7 @@ async function parseWithAI(
 }
 
 function buildSystemPrompt(context: ParseRequest['groupContext']): string {
-  return `Eres el motor de parsing de Kivo. Tu tarea es interpretar entradas de gastos en lenguaje natural.
+  return `Eres el motor de parsing de Vozpe. Tu tarea es interpretar entradas de gastos en lenguaje natural.
 Miembros del grupo: ${context.members.map(m => m.name).join(', ')}.
 Moneda base: ${context.baseCurrency}.
 Categorías recientes: ${context.recentCategories.join(', ')}.

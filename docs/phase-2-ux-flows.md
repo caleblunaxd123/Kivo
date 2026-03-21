@@ -1,8 +1,8 @@
-# KIVO — Fase 2: Flujo UX Completo y Descripción Detallada de Pantallas
+# VOZPE — Fase 2: Flujo UX Completo y Descripción Detallada de Pantallas
 
 ---
 
-## PRINCIPIOS UX DE KIVO
+## PRINCIPIOS UX DE VOZPE
 
 - **Zero friction first** — Cualquier entrada debe poder completarse en menos de 5 segundos
 - **La tabla es la verdad** — Siempre hay una ruta directa a la sheet
@@ -22,7 +22,7 @@ Crear impacto emocional en los primeros 10 segundos. Comunicar el diferenciador 
 ```
 ┌─────────────────────────────────────────┐
 │                                         │
-│         [KIVO logotipo]                 │
+│         [VOZPE logotipo]                 │
 │                                         │
 │    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━       │
 │    Animación hero (3-4 segundos):       │
@@ -72,9 +72,9 @@ Acceso rápido sin fricción. Prioridad: Google/Apple OAuth. Email como fallback
 ### Estructura Visual
 ```
 ┌─────────────────────────────────────────┐
-│  ← [back]           [kivo]              │
+│  ← [back]           [vozpe]              │
 │                                         │
-│  Bienvenido a Kivo                      │
+│  Bienvenido a Vozpe                      │
 │  Tu workspace colaborativo              │
 │                                         │
 │  ┌─────────────────────────────────┐    │
@@ -90,7 +90,7 @@ Acceso rápido sin fricción. Prioridad: Google/Apple OAuth. Email como fallback
 │  [Continuar →]                          │
 │                                         │
 │  Al continuar aceptas los Términos      │
-│  y Política de Privacidad de Kivo       │
+│  y Política de Privacidad de Vozpe       │
 │                                         │
 └─────────────────────────────────────────┘
 ```
@@ -122,7 +122,7 @@ Personalizar el primer grupo y el tono de la app según el contexto del usuario.
 ```
 ┌─────────────────────────────────────────┐
 │                                         │
-│  ¿Para qué vas a usar Kivo hoy?        │
+│  ¿Para qué vas a usar Vozpe hoy?        │
 │  Puedes cambiar esto después            │
 │                                         │
 │  ┌──────────┐  ┌──────────┐            │
@@ -410,7 +410,7 @@ El modo de captura activo. Se expande sobre el home al activar cualquier entrada
 **Post-grabación — Preview de parsing:**
 ```
 ┌─────────────────────────────────────────┐
-│  ✦ Kivo interpretó esto                │
+│  ✦ Vozpe interpretó esto                │
 │─────────────────────────────────────────│
 │  Descripción:  Taxi              [✏]   │
 │  Monto:        $ 40.00           [✏]   │
@@ -707,7 +707,7 @@ Resolver el caos pendiente sin interrumpir el flujo. No punir al usuario por reg
 ┌─────────────────────────────────────────┐
 │  Pendientes              4 por resolver │
 │                                         │
-│  ✦ Kivo te ayuda a completarlos        │
+│  ✦ Vozpe te ayuda a completarlos        │
 │                                         │
 │  ── FALTA QUIÉN PAGÓ ─────────────     │
 │  ┌──────────────────────────────────┐   │
@@ -880,7 +880,7 @@ Crear un momento memorable al final del día. Resumen visual potente. El equival
 │                                         │
 │  ─────────────────────────────────────  │
 │                                         │
-│  ✦ Insight de Kivo                     │
+│  ✦ Insight de Vozpe                     │
 │  "Diego y Ana tienen saldo negativo.   │
 │  Sugerimos que mañana paguen ellos."   │
 │                                         │
@@ -908,7 +908,7 @@ Formato story (9:16):
 │                                         │
 │  4 personas · 12 entradas              │
 │                                         │
-│  Registrado con Kivo ✦                 │
+│  Registrado con Vozpe ✦                 │
 └─────────────────────────────────────────┘
 ```
 

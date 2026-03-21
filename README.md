@@ -7,7 +7,7 @@ Vozpe es un workspace colaborativo de captura rápida que transforma entradas ca
 ## Estructura del Proyecto
 
 ```
-kivo/
+vozpe/
 ├── apps/mobile/        # React Native + Expo (iOS + Android)
 ├── apps/web/           # Next.js 14 (dashboard web)
 ├── packages/shared/    # Tipos, calculadores y parsers compartidos
@@ -66,7 +66,7 @@ yarn dev:web
 
 **"Anota ahora, ordena después."**
 
-Kivo resuelve el caos de los gastos grupales transformando entradas rápidas e incompletas en una hoja clara, editable, calculada y colaborativa.
+Vozpe resuelve el caos de los gastos grupales transformando entradas rápidas e incompletas en una hoja clara, editable, calculada y colaborativa.
 
 No es un expense tracker.
 No es un clon de Splitwise.

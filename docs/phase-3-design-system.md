@@ -1,4 +1,4 @@
-# KIVO — Fase 3: Design System y Dirección Visual Premium
+# VOZPE — Fase 3: Design System y Dirección Visual Premium
 
 ---
 
@@ -51,27 +51,27 @@ text-tertiary:  #5A5A80   → Texto deshabilitado / placeholder
 text-inverse:   #0A0A0F   → Texto sobre fondos claros
 ```
 
-### Accent — El Azul Kivo
+### Accent — El Azul Vozpe
 
 ```
-Kivo Blue (primario):
+Vozpe Blue (primario):
 ─────────────────────────────────────────
-kivo-50:        #EEF2FF
-kivo-100:       #E0E7FF
-kivo-200:       #C7D2FE
-kivo-300:       #A5B4FC
-kivo-400:       #818CF8
-kivo-500:       #6366F1   → Brand primary (indigo-500)
-kivo-600:       #4F46E5   → Hover
-kivo-700:       #4338CA   → Active/pressed
-kivo-800:       #3730A3
-kivo-900:       #312E81
+vozpe-50:        #EEF2FF
+vozpe-100:       #E0E7FF
+vozpe-200:       #C7D2FE
+vozpe-300:       #A5B4FC
+vozpe-400:       #818CF8
+vozpe-500:       #6366F1   → Brand primary (indigo-500)
+vozpe-600:       #4F46E5   → Hover
+vozpe-700:       #4338CA   → Active/pressed
+vozpe-800:       #3730A3
+vozpe-900:       #312E81
 
 Uso:
-→ kivo-500: CTAs principales, links, íconos activos
-→ kivo-400: Borders de inputs activos, chips seleccionados
-→ kivo-600: Botones en hover
-→ kivo-300: Decorativo, glows, halos
+→ vozpe-500: CTAs principales, links, íconos activos
+→ vozpe-400: Borders de inputs activos, chips seleccionados
+→ vozpe-600: Botones en hover
+→ vozpe-300: Decorativo, glows, halos
 ```
 
 ### Semánticos — Estados y Categorías
@@ -296,7 +296,7 @@ shadow-lg:    0 8px 32px rgba(0,0,0,0.7)
 shadow-xl:    0 16px 64px rgba(0,0,0,0.8)
 
 Glow effects (accent):
-glow-kivo:    0 0 20px rgba(99,102,241,0.3)
+glow-vozpe:    0 0 20px rgba(99,102,241,0.3)
 glow-ai:      0 0 24px rgba(167,139,250,0.25)
 glow-success: 0 0 16px rgba(74,222,128,0.2)
 
@@ -339,7 +339,7 @@ icon-xl:  32px  → estados vacíos, hero sections
 icon-2xl: 48px  → onboarding, ilustraciones
 ```
 
-### Íconos Principales de Kivo
+### Íconos Principales de Vozpe
 
 | Función | Ícono Lucide | Notas |
 |---------|-------------|-------|
@@ -376,10 +376,10 @@ type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 // Anatomía visual:
 
 Primary (filled):
-  Background: kivo-500
+  Background: vozpe-500
   Text: white
-  Hover: kivo-600
-  Active: kivo-700 + scale(0.97)
+  Hover: vozpe-600
+  Active: vozpe-700 + scale(0.97)
   Disabled: opacity 40%
   Border-radius: radius-lg (12px)
   Padding: 12px 20px (md)
@@ -423,7 +423,7 @@ Anatomía:
 
 Estados:
 Default:  border-default, bg-input
-Focus:    border: kivo-400, glow: glow-kivo (sutil), label flota arriba
+Focus:    border: vozpe-400, glow: glow-vozpe (sutil), label flota arriba
 Error:    border: error-base, helper: error-base
 Success:  border: success-base
 Disabled: opacity 50%, no interacción
@@ -458,7 +458,7 @@ Default: como arriba
 Hover: bg-hover, border-default
 Pressed: scale(0.98), shadow-xs
 Pending: border-left: 3px warning-base
-Selected: bg-selected, border: kivo-400
+Selected: bg-selected, border: vozpe-400
 ```
 
 ### Chip / Badge System
@@ -523,7 +523,7 @@ Pending row:
 
 Editing row:
 - Background: bg-selected
-- Border: kivo-400 en la celda activa
+- Border: vozpe-400 en la celda activa
 - Input inline visible
 ```
 
@@ -565,7 +565,7 @@ Warning toast:
 bg: warning-subtle, border: warning-base
 
 AI toast:
-[✦ Kivo procesó 3 ítems del ticket]
+[✦ Vozpe procesó 3 ítems del ticket]
 bg: ai-subtle, border: ai-base
 
 Error toast:
@@ -623,7 +623,7 @@ ease-bounce:      spring(stiffness: 400, damping: 15) → confirmaciones
 
 **Al grabar voz:**
 ```
-1. Botón mic: scale(1.2) + glow pulsante (kivo-300) loop
+1. Botón mic: scale(1.2) + glow pulsante (vozpe-300) loop
 2. Waveform: amplitud reacciona al volumen real (AudioContext)
 3. Transcripción: palabras aparecen con fade-in gradual
 4. Al terminar: onda colapsa hacia centro → preview aparece
@@ -664,7 +664,7 @@ ease-bounce:      spring(stiffness: 400, damping: 15) → confirmaciones
 
 **Presencia de colaboradores:**
 ```
-Avatar: outline pulsante (glow-kivo) cuando otro user está activo
+Avatar: outline pulsante (glow-vozpe) cuando otro user está activo
 Cursor de colaborador: aparece con fade en la celda que edita
 ```
 
@@ -684,7 +684,7 @@ Visual: Ilustración minimal dark
 Copy:
   Título: "Tu grupo está listo"
   Subtítulo: "Habla, toma foto o escribe lo primero
-              que gastaron. Kivo lo ordena solo."
+              que gastaron. Vozpe lo ordena solo."
 
 CTAs:
   [🎤 Di algo]  →  abre modo voz
@@ -748,7 +748,7 @@ CTA: [Crear grupo]
 ### Composer Multimodal
 
 ```
-El componente más importante de Kivo. Siempre visible.
+El componente más importante de Vozpe. Siempre visible.
 
 Anatomía (collapsed):
 ┌───────────────────────────────────────────┐
@@ -767,7 +767,7 @@ height: 200px, blur-lg, z-50
 
 Anatomía (parsing preview):
 ─────────────────────────────────────────────
-  ✦ Kivo interpreta:
+  ✦ Vozpe interpreta:
   ┌──────────────────────────────────┐
   │ 🚗 Taxi · $40 · USD · ÷4       │
   │ Pagó: Caleb · Transporte        │
@@ -794,7 +794,7 @@ Requisitos técnicos del componente:
 Durante grabación de voz:
 - Barras verticales (30–40 barras)
 - Altura de cada barra reacciona al audio en tiempo real (AudioContext API)
-- Colores: kivo-400 → kivo-300 de izquierda a derecha
+- Colores: vozpe-400 → vozpe-300 de izquierda a derecha
 - Barras no activas: text-tertiary
 - Animación idle: suave oscilación cuando no hay sonido
 ```
@@ -830,7 +830,7 @@ Suggestion card: border-left 3px ai-base, bg ai-subtle, text ai-strong
 
 ## 3.12 DIRECCIÓN VISUAL PREMIUM — GUIDELINES
 
-### Lo que Kivo ES visualmente
+### Lo que Vozpe ES visualmente
 
 - Fondos muy oscuros con profundidad sutil (casi negros con tinte azulado)
 - Blur y glassmorphism con moderación y propósito
@@ -842,7 +842,7 @@ Suggestion card: border-left 3px ai-base, bg ai-subtle, text ai-strong
 - Borders ultra-sutiles que definen sin gritar
 - Spacing generoso fuera de la sheet, denso dentro de ella
 
-### Lo que Kivo NO ES visualmente
+### Lo que Vozpe NO ES visualmente
 
 - No es una app de colores múltiples sin jerarquía
 - No tiene fondos claros llenos de cards blancas
@@ -856,7 +856,7 @@ Suggestion card: border-left 3px ai-base, bg ai-subtle, text ai-strong
 ### Tokens de Identidad (para comunicar la marca)
 
 ```
-Logo: "kivo" — minúsculas, Inter weight 700
+Logo: "vozpe" — minúsculas, Inter weight 700
       Punto luminoso sobre la "i" (como una estrella/pixel)
 
 Color primario de marca: Indigo (#6366F1)

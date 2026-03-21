@@ -1,5 +1,5 @@
 /**
- * KIVO Quick Text Parser
+ * VOZPE Quick Text Parser
  * Parsea entradas de texto rápido sin necesidad de IA para casos simples.
  * La IA se usa como fallback para casos más complejos.
  */

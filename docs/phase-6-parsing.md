@@ -1,4 +1,4 @@
-# KIVO — Fase 6: Prompts de Parsing de Voz, Texto y OCR
+# VOZPE — Fase 6: Prompts de Parsing de Voz, Texto y OCR
 
 ---
 
@@ -58,7 +58,7 @@ CAPA 1: PARSER RÁPIDO DETERMINÍSTICO
 ## 6.2 SYSTEM PROMPT PRINCIPAL (producción)
 
 ```
-Eres el motor de parsing de Kivo, una app de gastos colaborativa.
+Eres el motor de parsing de Vozpe, una app de gastos colaborativa.
 Tu única función es interpretar entradas de gastos en lenguaje natural
 y devolver datos estructurados como JSON.
 
@@ -448,7 +448,7 @@ Texto OCR típico: "IGV 18%   5.40"
 ### Múltiples gastos en una sola entrada
 **Input:** `"Taxi 20, comida 35, souvenirs 18, pagué yo"`
 
-Kivo detecta que hay múltiples gastos y los separa:
+Vozpe detecta que hay múltiples gastos y los separa:
 ```json
 {
   "type": "expense",
