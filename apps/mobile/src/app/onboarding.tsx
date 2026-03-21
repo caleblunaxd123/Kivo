@@ -12,11 +12,12 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Mic, Camera, PenLine, Sparkles } from 'lucide-react-native';
+import { Camera, PenLine, Sparkles, Mic } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { COLORS } from '@vozpe/shared';
 import { supabase } from '../lib/supabase';
+import { VozpeLogo } from '../components/common/VozpeLogo';
 
 const { width } = Dimensions.get('window');
 
@@ -88,10 +89,7 @@ export default function OnboardingScreen() {
 
       {/* ── Logo ── */}
       <Animated.View style={[styles.logoWrap, { opacity: logoOpacity }]}>
-        <View style={styles.logoPill}>
-          <Text style={styles.logoText}>vozpe</Text>
-          <View style={styles.logoDot} />
-        </View>
+        <VozpeLogo size="lg" variant="full" />
       </Animated.View>
 
       {/* ── Hero ── */}
@@ -283,60 +281,37 @@ const styles = StyleSheet.create({
   },
 
   // ── Orbs ────────────────────────────────────────────────────────
-  // Orb 1: arriba izquierda — enmarca el logo
+  // Orb 1: arriba izquierda — teal (color del ícono del logo)
   orb1: {
     position: 'absolute',
     width: 320, height: 320, borderRadius: 160,
-    backgroundColor: `${COLORS.vozpe500}14`,
+    backgroundColor: `${COLORS.vozpe500}16`,
     top: -110, left: -90,
   },
-  // Orb 2: arriba derecha — contrapeso del logo
+  // Orb 2: arriba derecha — navy suave (color "Voz")
   orb2: {
     position: 'absolute',
     width: 200, height: 200, borderRadius: 100,
-    backgroundColor: `${COLORS.ai}0E`,
+    backgroundColor: `${COLORS.vozpeNavy}0C`,
     top: 20, right: -60,
   },
-  // Orb 3: centro derecha — enmarca el demo card
+  // Orb 3: centro derecha — cyan claro
   orb3: {
     position: 'absolute',
     width: 260, height: 260, borderRadius: 130,
-    backgroundColor: `${COLORS.vozpe400}0A`,
+    backgroundColor: `${COLORS.vozpe400}0C`,
     top: '28%', right: -100,
   },
-  // Orb 4: abajo izquierda — enmarca el bloque auth
+  // Orb 4: abajo izquierda — lime suave (color "PE")
   orb4: {
     position: 'absolute',
     width: 220, height: 220, borderRadius: 110,
-    backgroundColor: `${COLORS.success}08`,
+    backgroundColor: `${COLORS.vozpeGreen}0A`,
     bottom: 60, left: -70,
   },
 
   // ── Logo ─────────────────────────────────────────────────────────
-  logoWrap: { alignItems: 'center' },
-  logoPill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 5,
-    backgroundColor: COLORS.vozpe500,
-    borderRadius: 999,
-    paddingHorizontal: 22,
-    paddingVertical: 11,
-    shadowColor: COLORS.vozpe500,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.38,
-    shadowRadius: 16,
-    elevation: 10,
-  },
-  logoText: {
-    fontSize: 26, fontWeight: '800',
-    color: '#fff', letterSpacing: -1.2,
-  },
-  logoDot: {
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.60)',
-    marginTop: -10,
-  },
+  logoWrap: { alignItems: 'center', paddingVertical: 6 },
 
   // ── Hero ─────────────────────────────────────────────────────────
   heroContainer: {

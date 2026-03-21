@@ -12,6 +12,7 @@ import * as Linking from 'expo-linking';
 import { COLORS } from '@vozpe/shared';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../../components/common/Button';
+import { VozpeLogo } from '../../components/common/VozpeLogo';
 
 type Mode = 'login' | 'signup';
 
@@ -102,10 +103,7 @@ export default function LoginScreen() {
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
           <ChevronLeft size={20} color={COLORS.textSecondary} />
         </TouchableOpacity>
-        <View style={styles.logoPill}>
-          <Text style={styles.logoText}>vozpe</Text>
-          <View style={styles.logoDot} />
-        </View>
+        <VozpeLogo size="sm" variant="full" />
         <View style={{ width: 36 }} />
       </View>
 
@@ -306,19 +304,6 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.bgElevated,
     alignItems: 'center', justifyContent: 'center',
     borderWidth: 1, borderColor: COLORS.borderDefault,
-  },
-  logoPill: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: COLORS.vozpe500,
-    borderRadius: 999, paddingHorizontal: 16, paddingVertical: 8,
-    shadowColor: COLORS.vozpe500,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3, shadowRadius: 8, elevation: 6,
-  },
-  logoText: { fontSize: 15, fontWeight: '800', color: '#fff', letterSpacing: -0.8 },
-  logoDot: {
-    width: 6, height: 6, borderRadius: 3,
-    backgroundColor: 'rgba(255,255,255,0.60)', marginTop: -8,
   },
 
   // Scroll

@@ -4,7 +4,7 @@
  */
 
 const MEMBER_COLORS = [
-  '#6366F1', // indigo (vozpe brand)
+  '#0891B2', // cyan  (vozpe brand)
   '#8B5CF6', // violet
   '#EC4899', // pink
   '#F59E0B', // amber
@@ -13,8 +13,8 @@ const MEMBER_COLORS = [
   '#EF4444', // red
   '#14B8A6', // teal
   '#F97316', // orange
-  '#06B6D4', // cyan
-  '#84CC16', // lime
+  '#65A30D', // lime (vozpe green)
+  '#84CC16', // lime light
   '#A855F7', // purple
 ];
 
@@ -41,34 +41,43 @@ export function hexToRgba(hex: string, alpha: number): string {
 }
 
 // Vozpe design tokens — Light theme
-// Fondos blancos/gris claro, acentos índigo vibrantes, legible y profesional.
-// Inspirado en Splitwise, Linear Light, Notion: clean y accesible.
+// Alineado con identidad visual del logo: teal/cyan + lime green + navy.
+// Fondos limpios en blanco/gris muy suave, acentos en teal vibrante.
 export const COLORS = {
   // ── Backgrounds ──────────────────────────────────────────────
-  bgBase:     '#F4F6FB',   // Gris lavanda muy suave (pantalla base)
+  bgBase:     '#F4FAFB',   // Blanco con tinte cyan muy suave (pantalla base)
   bgSurface:  '#FFFFFF',   // Blanco puro — cards, modales
-  bgElevated: '#EEF1FB',   // Ligeramente elevado con tinte índigo
-  bgInput:    '#F4F6FB',   // Campos de texto
-  bgHover:    '#E8ECFA',   // Hover interactivo
-  bgSelected: '#DDE3F8',   // Seleccionado / activo
+  bgElevated: '#ECFEFF',   // Tinte cyan-50 suave — superficies elevadas
+  bgInput:    '#F4FAFB',   // Campos de texto
+  bgHover:    '#CFFAFE',   // Hover interactivo (cyan-100)
+  bgSelected: '#A5F3FC',   // Seleccionado / activo (cyan-200)
 
   // ── Borders ──────────────────────────────────────────────────
-  borderSubtle:  '#ECEEF8',   // Divisores muy sutiles
-  borderDefault: '#E2E6F5',   // Bordes normales
-  borderStrong:  '#C7CEEA',   // Bordes con peso
-  borderAccent:  'rgba(99,102,241,0.3)', // Borde con tinte índigo
+  borderSubtle:  '#E0F7FA',   // Divisores muy sutiles
+  borderDefault: '#BAE6FD',   // Bordes normales (sky-200)
+  borderStrong:  '#7DD3FC',   // Bordes con peso (sky-300)
+  borderAccent:  'rgba(8,145,178,0.25)', // Borde con tinte cyan
 
   // ── Text ─────────────────────────────────────────────────────
-  textPrimary:   '#1A1D35',   // Casi negro con tinte índigo
-  textSecondary: '#5C6494',   // Gris-índigo medio
-  textTertiary:  '#9BA3C9',   // Placeholder / muted
+  textPrimary:   '#0C1A2E',   // Casi negro con tinte navy
+  textSecondary: '#374E6B',   // Navy-gris medio
+  textTertiary:  '#6B8FA8',   // Placeholder / muted
 
-  // ── Brand — Vozpe Indigo ──────────────────────────────────────
-  vozpe300: '#A5B4FC',
-  vozpe400: '#818CF8',
-  vozpe500: '#6366F1',
-  vozpe600: '#4F46E5',
-  vozpe700: '#4338CA',
+  // ── Brand — VozPE Teal/Cyan (icon + UI accent) ────────────────
+  vozpe300: '#67E8F9',   // cyan-300
+  vozpe400: '#22D3EE',   // cyan-400 — iconos, chips
+  vozpe500: '#0891B2',   // cyan-600 — primario UI (botones, highlights)
+  vozpe600: '#0E7490',   // cyan-700 — hover/pressed
+  vozpe700: '#155E75',   // cyan-800 — muy oscuro
+
+  // ── Brand — VozPE Navy (texto "Voz" en el logo) ───────────────
+  vozpeNavy:      '#1E3A8A',   // blue-800 — color de "Voz" en el logo
+  vozpeNavyLight: '#EFF6FF',   // bg muy suave navy
+
+  // ── Brand — VozPE Green (texto "PE" en el logo) ───────────────
+  vozpeGreen:      '#65A30D',   // lime-600 — legible en fondo claro
+  vozpeGreenLight: '#F7FEE7',   // lime-50 — bg muy suave
+  vozpeGreenBright: '#84CC16',  // lime-500 — para iconos/chips
 
   // ── Semantic ─────────────────────────────────────────────────
   success:      '#059669',
