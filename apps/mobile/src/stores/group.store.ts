@@ -185,12 +185,29 @@ export const useGroupStore = create<GroupState>((set, get) => ({
           .eq('group_id', groupId)
           .neq('status', 'archived')
           .order('entry_date', { ascending: false });
-        const pendingCount = fallbackEntries?.filter(e => e.status === 'pending_review').length ?? 0;
-        set({ entries: fallbackEntries ?? [], pendingCount, isLoadingEntries: false });
+        const resolvedEntries = fallbackEntries ?? [];
+        const pendingCount = resolvedEntries.filter((e: any) => e.status === 'pending_review').length;
+        const totalAmount  = resolvedEntries
+          .filter((e: any) => e.status === 'confirmed')
+          .reduce((s: number, e: any) => s + (e.amount_in_base ?? e.amount ?? 0), 0);
+        set(state => ({
+          entries: resolvedEntries,
+          pendingCount,
+          isLoadingEntries: false,
+          groups: state.groups.map(g => g.id === groupId ? { ...g, totalAmount, pendingCount } : g),
+        }));
       } else {
         const entries = Array.isArray(entriesData) ? entriesData : [];
         const pendingCount = entries.filter((e: any) => e.status === 'pending_review').length;
-        set({ entries, pendingCount, isLoadingEntries: false });
+        const totalAmount  = entries
+          .filter((e: any) => e.status === 'confirmed')
+          .reduce((s: number, e: any) => s + (e.amount_in_base ?? e.amount ?? 0), 0);
+        set(state => ({
+          entries,
+          pendingCount,
+          isLoadingEntries: false,
+          groups: state.groups.map(g => g.id === groupId ? { ...g, totalAmount, pendingCount } : g),
+        }));
       }
     } catch (err) {
       console.error('[fetchGroupData] unexpected error:', err);
@@ -309,14 +326,17 @@ export const useGroupStore = create<GroupState>((set, get) => ({
         (payload) => {
           if (payload.eventType === 'INSERT') {
             const newEntry = mapRealtimeEntry(payload.new as Record<string, unknown>);
-            set(state => ({
-              entries: [
+            set(state => {
+              const updatedEntries = [
                 newEntry,
                 // Remove any optimistic temp entry and avoid duplicates
                 ...state.entries.filter(e => !e.id.startsWith('temp_') && e.id !== newEntry.id),
-              ],
-              pendingCount: state.entries.filter(e => e.status === 'pending_review').length,
-            }));
+              ];
+              return {
+                entries: updatedEntries,
+                pendingCount: updatedEntries.filter(e => e.status === 'pending_review').length,
+              };
+            });
           } else if (payload.eventType === 'UPDATE') {
             const updated = mapRealtimeEntry(payload.new as Record<string, unknown>);
             set(state => ({

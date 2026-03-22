@@ -34,7 +34,7 @@ export async function createEntryFromText(
     options.defaultCurrency
   );
 
-  if (needsAI || parsed.confidence! < 0.6) {
+  if (needsAI || (parsed.confidence ?? 1) < 0.6) {
     // Delegate to AI
     const aiResult = await parseWithAI(rawText, 'text', options);
     return { entry: buildEntry(aiResult, rawText, 'text', options), needsAI: true, parsed: aiResult };
@@ -53,7 +53,7 @@ export async function createEntryFromVoice(
   const audioPath = `groups/${options.groupId}/audio/${Date.now()}.m4a`;
   const audioBlob = await fetch(audioUri).then(r => r.blob());
 
-  const { data: uploadData } = await supabase.storage
+  await supabase.storage
     .from('attachments')
     .upload(audioPath, audioBlob, { contentType: 'audio/m4a' });
 
@@ -77,7 +77,7 @@ export async function createEntryFromPhoto(
   const imagePath = `groups/${options.groupId}/receipts/${Date.now()}.jpg`;
   const imageBlob = await fetch(imageUri).then(r => r.blob());
 
-  const { data: uploadData } = await supabase.storage
+  await supabase.storage
     .from('attachments')
     .upload(imagePath, imageBlob, { contentType: 'image/jpeg' });
 
@@ -195,7 +195,15 @@ async function parseWithAI(
     }),
   });
 
-  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(`AI parse failed: ${response.status}`);
+  }
+  let data: any;
+  try {
+    data = await response.json();
+  } catch {
+    throw new Error('AI parse returned invalid JSON');
+  }
   return data.parsed as ParsedEntry;
 }
 

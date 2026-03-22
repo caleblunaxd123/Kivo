@@ -77,6 +77,13 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   initialize: async () => {
+    // Prevent duplicate listeners if initialize() is called more than once
+    if ((useAuthStore as any)._authListenerRegistered) {
+      set({ isLoading: false });
+      return;
+    }
+    (useAuthStore as any)._authListenerRegistered = true;
+
     set({ isLoading: true });
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -105,7 +112,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       set({ isLoading: false });
     }
 
-    supabase.auth.onAuthStateChange(async (event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' && session) {
         const sessionUserId = session.user.id;
         const userProfile = await upsertProfile(
@@ -115,9 +122,11 @@ export const useAuthStore = create<AuthState>((set) => ({
           session.user.app_metadata?.provider,
         );
         set({ session, sessionUserId, user: userProfile, isAuthenticated: true });
-      } else if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
+      } else if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
         set({ session: null, sessionUserId: null, user: null, isAuthenticated: false });
       }
     });
+    // Store unsubscribe fn so it can be cleaned up if needed
+    (useAuthStore as any)._authUnsubscribe = subscription.unsubscribe.bind(subscription);
   },
 }));

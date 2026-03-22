@@ -2,10 +2,14 @@ import { Tabs, Redirect } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Users, Activity, User } from 'lucide-react-native';
 import { useAuthStore } from '../../stores/auth.store';
+import { useOfflineQueue } from '../../hooks/useOfflineQueue';
 import { COLORS } from '@vozpe/shared';
 
 export default function AppLayout() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+  // Procesa la cola offline automáticamente al activar la app
+  useOfflineQueue();
+
   if (!isAuthenticated) return <Redirect href="/onboarding" />;
 
   return (

@@ -65,23 +65,27 @@ export default function LoginScreen() {
     setOauthLoading(provider);
     try {
       const redirectTo = Linking.createURL('/');
-      const subscription = Linking.addEventListener('url', async ({ url }) => {
-        subscription.remove();
-        await WebBrowser.dismissBrowser();
-        const hashPart = url.includes('#') ? url.split('#')[1] : (url.split('?')[1] ?? '');
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo, skipBrowserRedirect: true },
+      });
+      if (error) { Alert.alert('Error', error.message); return; }
+      if (!data?.url) return;
+
+      // openAuthSessionAsync cierra el browser automáticamente cuando detecta
+      // el redirect de vuelta al scheme vozpe://
+      const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+      if (result.type === 'success' && result.url) {
+        const hashPart = result.url.includes('#')
+          ? result.url.split('#')[1]
+          : (result.url.split('?')[1] ?? '');
         const params = Object.fromEntries(
           hashPart.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
         );
         const at = params['access_token'];
         const rt = params['refresh_token'];
         if (at && rt) await supabase.auth.setSession({ access_token: at, refresh_token: rt });
-      });
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo, skipBrowserRedirect: true },
-      });
-      if (error) { subscription.remove(); Alert.alert('Error', error.message); return; }
-      if (data?.url) await WebBrowser.openBrowserAsync(data.url);
+      }
     } finally {
       setOauthLoading(null);
     }
