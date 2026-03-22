@@ -15,15 +15,10 @@ import { Button } from '../../components/common/Button';
 import { VozpeLogo } from '../../components/common/VozpeLogo';
 
 function getRedirectUrl(): string {
-  // In Expo Go dev: use the stable EAS project URL (add this once to Supabase Redirect URLs)
-  // In production: use the vozpe:// custom scheme
-  if (__DEV__) {
-    const url = 'exp://u.expo.dev/b393ec31-4e71-4cd6-b84b-cff6316aebaf';
-    console.log('[OAuth] redirectTo (dev):', url);
-    return url;
-  }
+  // createURL genera exp://IP:PUERTO/ en dev y vozpe:// en producción.
+  // Agrega exp://* en Supabase → Auth → URL Configuration → Redirect URLs.
   const url = Linking.createURL('/');
-  console.log('[OAuth] redirectTo (prod):', url);
+  console.log('[OAuth] redirectTo:', url);
   return url;
 }
 
@@ -166,7 +161,7 @@ export default function LoginScreen() {
       >
         {/* Logo */}
         <View style={styles.logoWrap}>
-          <VozpeLogo size="xl" style={{ transform: [{ scale: 1.3 }] }} />
+          <VozpeLogo size="xxl" />
         </View>
 
         {/* Título */}
@@ -354,7 +349,7 @@ function AppleIcon({ size = 22 }: { size?: number }) {
 // ─── Estilos ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   outer: {
-    flex: 1, backgroundColor: COLORS.bgBase, overflow: 'hidden',
+    flex: 1, backgroundColor: COLORS.bgBase,
   },
   bgOrb: {
     position: 'absolute',
@@ -381,8 +376,8 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: COLORS.borderDefault,
   },
 
-  // Logo
-  logoWrap: { alignItems: 'center', paddingVertical: 36, marginBottom: 4 },
+  // Logo — sin padding horizontal para que xxl use el ancho completo
+  logoWrap: { alignItems: 'center', paddingVertical: 20, marginBottom: 4, marginHorizontal: -22 },
 
   // Scroll
   scroll: {

@@ -18,12 +18,11 @@ import * as Linking from 'expo-linking';
 import { COLORS } from '@vozpe/shared';
 
 function getRedirectUrl(): string {
-  if (__DEV__) {
-    const url = 'exp://u.expo.dev/b393ec31-4e71-4cd6-b84b-cff6316aebaf';
-    console.log('[OAuth] redirectTo (dev):', url);
-    return url;
-  }
-  return Linking.createURL('/');
+  // createURL genera exp://IP:PUERTO/ en dev y vozpe:// en producción.
+  // Agrega exp://* en Supabase → Auth → URL Configuration → Redirect URLs.
+  const url = Linking.createURL('/');
+  console.log('[OAuth] redirectTo:', url);
+  return url;
 }
 import { supabase } from '../lib/supabase';
 import { VozpeLogo } from '../components/common/VozpeLogo';
@@ -113,15 +112,17 @@ export default function OnboardingScreen() {
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom + 14, paddingTop: insets.top + 6 }]}>
 
-      {/* ── Orbs de fondo ── */}
-      <View style={styles.orb1} />
-      <View style={styles.orb2} />
-      <View style={styles.orb3} />
-      <View style={styles.orb4} />
+      {/* ── Orbs de fondo — en su propio layer con overflow hidden ── */}
+      <View style={styles.orbsLayer} pointerEvents="none">
+        <View style={styles.orb1} />
+        <View style={styles.orb2} />
+        <View style={styles.orb3} />
+        <View style={styles.orb4} />
+      </View>
 
       {/* ── Logo ── */}
       <Animated.View style={[styles.logoWrap, { opacity: logoOpacity }]}>
-        <VozpeLogo size="xl" style={{ transform: [{ scale: 1.3 }] }} />
+        <VozpeLogo size="xxl" />
       </Animated.View>
 
       {/* ── Hero ── */}
@@ -307,6 +308,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 22,
+  },
+
+  // ── Orbs layer (absoluteFill con overflow hidden para no afectar layout) ──
+  orbsLayer: {
+    ...StyleSheet.absoluteFillObject,
     overflow: 'hidden',
   },
 
@@ -341,7 +347,12 @@ const styles = StyleSheet.create({
   },
 
   // ── Logo ─────────────────────────────────────────────────────────
-  logoWrap: { alignItems: 'center', paddingVertical: 28 },
+  logoWrap: {
+    alignItems: 'center',
+    paddingTop: 14,
+    paddingBottom: 8,
+    // Sin paddingHorizontal para que el logo xxl use el ancho completo
+  },
 
   // ── Hero ─────────────────────────────────────────────────────────
   heroContainer: {

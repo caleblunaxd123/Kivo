@@ -222,6 +222,14 @@ export default function GroupScreen() {
                 <Text style={styles.pendingCountBanner}>{pendingCount}</Text>
               </TouchableOpacity>
             )}
+            {/* Botón compartir directo — sin abrir el menú */}
+            <TouchableOpacity
+              style={styles.bannerIconBtn}
+              onPress={handleExport}
+              accessibilityLabel="Exportar y compartir"
+            >
+              <Share2 size={18} color="rgba(255,255,255,0.9)" />
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.bannerIconBtn}
               onPress={() => setMenuVisible(true)}

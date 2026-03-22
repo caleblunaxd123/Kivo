@@ -4,10 +4,12 @@
  */
 
 import React from 'react';
-import { Image, ImageStyle, StyleProp } from 'react-native';
+import { Image, ImageStyle, StyleProp, Dimensions } from 'react-native';
 
 // Asset PNG con fondo transparente
 const logoAsset = require('../../../assets/logo-vozpe.png');
+
+const SW = Dimensions.get('window').width;
 
 // Dimensiones por tamaño (ratio ~3.8:1 basado en el logo horizontal)
 const SIZES = {
@@ -16,6 +18,8 @@ const SIZES = {
   md:  { height: 50,  width: 190 },
   lg:  { height: 70,  width: 266 },
   xl:  { height: 90,  width: 342 },
+  // xxl: ocupa el ancho disponible de pantalla sin padding lateral
+  xxl: { height: Math.round(SW / 3.5), width: SW },
 };
 
 interface VozpeLogoProps {
