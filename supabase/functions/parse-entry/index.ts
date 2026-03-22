@@ -65,7 +65,12 @@ serve(async (req) => {
       });
 
       if (!whisperRes.ok) {
-        throw new Error(`Whisper error: ${whisperRes.status} ${await whisperRes.text()}`);
+        const whisperError = await whisperRes.text();
+        console.error(`[parse-entry] Whisper error ${whisperRes.status}:`, whisperError);
+        return new Response(
+          JSON.stringify({ success: false, error: `Whisper ${whisperRes.status}: ${whisperError}` }),
+          { status: whisperRes.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       const transcription = await whisperRes.text();

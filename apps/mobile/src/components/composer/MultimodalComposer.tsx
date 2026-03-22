@@ -116,14 +116,22 @@ export function MultimodalComposer({
           body: { mode: 'transcribe', audioBase64, audioFormat: 'm4a' },
         });
 
-        if (fnError) throw new Error('No se pudo transcribir el audio');
+        if (fnError) {
+          // Log real error for debugging, fall back to text input so the user
+          // doesn't lose their recording intent
+          console.error('[stopVoiceRecording] transcription error detail:', fnError);
+          setMode('text_input');
+          setError('Transcripción no disponible. Escribe el gasto manualmente.');
+          return;
+        }
 
         const result = (data?.transcription as string | null);
         const textToUse = result ?? '';
         setTranscription(textToUse);
 
         if (!textToUse) {
-          setError('No se detectó voz. Intenta de nuevo.');
+          setMode('text_input');
+          setError('No se detectó voz. Escribe el gasto manualmente.');
           return;
         }
 
