@@ -77,63 +77,59 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   initialize: async () => {
-    // Prevent duplicate listeners if initialize() is called more than once
-    if ((useAuthStore as any)._authListenerRegistered) {
-      set({ isLoading: false });
-      return;
-    }
+    // Idempotente — si ya se registró el listener, no hacer nada
+    // (NO cambiar isLoading aquí para evitar flash prematuro)
+    if ((useAuthStore as any)._authListenerRegistered) return;
     (useAuthStore as any)._authListenerRegistered = true;
 
-    set({ isLoading: true });
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        const sessionUserId = session.user.id;
-        const { data: raw } = await supabase.from('users').select('*').eq('id', sessionUserId).single();
-        set({
-          session,
-          sessionUserId,
-          user: raw ? mapUser(raw) : null,
-          isAuthenticated: true,
-          isLoading: false,
-        });
-      } else {
-        set({ isLoading: false });
-      }
-    } catch (err: any) {
-      // Refresh token inválido/expirado → limpiar sesión del storage para no quedar en loop
-      const isTokenError =
-        err?.name === 'AuthApiError' ||
-        err?.message?.toLowerCase().includes('refresh token') ||
-        err?.message?.toLowerCase().includes('invalid token');
-      if (isTokenError) {
-        try { await supabase.auth.signOut(); } catch {}
-      }
-      set({ isLoading: false });
-    }
-
+    // Registrar el listener PRIMERO — Supabase v2 dispara INITIAL_SESSION
+    // inmediatamente con la sesión almacenada, eliminando la necesidad de
+    // llamar getSession() por separado y evitando la race condition.
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('[Auth] onAuthStateChange:', event, session?.user?.id ?? 'no session');
-      if (event === 'SIGNED_IN' && session) {
-        // Primer login — hacer upsert del perfil
-        const sessionUserId = session.user.id;
+      console.log('[Auth]', event, session?.user?.email ?? 'no session');
+
+      if (event === 'INITIAL_SESSION') {
+        // App arrancó — sesión restaurada desde SecureStore (o null si no hay)
+        if (session) {
+          try {
+            const { data: raw } = await supabase
+              .from('users').select('*').eq('id', session.user.id).single();
+            set({
+              session, sessionUserId: session.user.id,
+              user: raw ? mapUser(raw) : null,
+              isAuthenticated: true, isLoading: false,
+            });
+          } catch {
+            // Si falla la DB, igual autenticar con datos de Supabase Auth
+            set({ session, sessionUserId: session.user.id, isAuthenticated: true, isLoading: false });
+          }
+        } else {
+          // Sin sesión → mostrar onboarding
+          set({ isLoading: false });
+        }
+
+      } else if (event === 'SIGNED_IN' && session) {
+        // Login nuevo (OAuth o email)
         const userProfile = await upsertProfile(
-          sessionUserId,
+          session.user.id,
           session.user.email!,
           session.user.user_metadata?.full_name,
           session.user.app_metadata?.provider,
         );
-        set({ session, sessionUserId, user: userProfile, isAuthenticated: true });
+        set({ session, sessionUserId: session.user.id, user: userProfile, isAuthenticated: true, isLoading: false });
+
       } else if (event === 'TOKEN_REFRESHED' && session) {
-        // Refresh silencioso — solo actualizar sesión, no refetch de perfil
+        // Refresh silencioso — solo actualizar sesión, sin refetch de perfil
         set({ session, sessionUserId: session.user.id, isAuthenticated: true });
+
       } else if (event === 'USER_UPDATED' && session) {
         set({ session, isAuthenticated: true });
-      } else if (!session || event === 'SIGNED_OUT') {
-        set({ session: null, sessionUserId: null, user: null, isAuthenticated: false });
+
+      } else if (event === 'SIGNED_OUT' || !session) {
+        set({ session: null, sessionUserId: null, user: null, isAuthenticated: false, isLoading: false });
       }
     });
-    // Store unsubscribe fn so it can be cleaned up if needed
+
     (useAuthStore as any)._authUnsubscribe = subscription.unsubscribe.bind(subscription);
   },
 }));

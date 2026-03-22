@@ -3,7 +3,7 @@ import { Redirect } from 'expo-router';
 import { useAuthStore } from '../stores/auth.store';
 import { SplashLoader } from '../components/common/SplashLoader';
 
-const SPLASH_MIN_MS = 1400; // mínimo para que el splash sea visible y elegante
+const SPLASH_MIN_MS = 800; // mínimo para que el splash sea visible sin sentirse lento
 
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuthStore();
