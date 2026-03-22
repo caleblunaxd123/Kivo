@@ -5,7 +5,9 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, MoreHorizontal, AlertTriangle, Users } from 'lucide-react-native';
+import { ChevronLeft, MoreHorizontal, AlertTriangle, Users, Share2 } from 'lucide-react-native';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
 import { COLORS, formatCurrency } from '@vozpe/shared';
 import type { ParsedEntry } from '@vozpe/shared';
 import { useGroupStore } from '../../../stores/group.store';
@@ -143,6 +145,47 @@ export default function GroupScreen() {
   const handleEntryPress = useCallback((entryId: string) => {
     router.push(`/(app)/group/entry/${entryId}`);
   }, [router]);
+
+  const handleExport = useCallback(async () => {
+    setMenuVisible(false);
+    try {
+      const isAvailable = await Sharing.isAvailableAsync();
+      if (!isAvailable) {
+        Alert.alert('No disponible', 'El compartir no está disponible en este dispositivo.');
+        return;
+      }
+
+      // Build CSV
+      const header = 'Fecha,Descripción,Tipo,Monto,Moneda,Pagado por,Categoría,Estado';
+      const rows = entries.map(e => {
+        const paidMember = members.find(m => m.id === e.paidBy);
+        const cols = [
+          e.entryDate ?? '',
+          `"${(e.description ?? '').replace(/"/g, '""')}"`,
+          e.type ?? 'expense',
+          e.amount?.toString() ?? '0',
+          e.currency ?? group?.baseCurrency ?? '',
+          `"${paidMember?.displayName ?? e.paidBy ?? ''}"`,
+          e.category ?? '',
+          e.status ?? '',
+        ];
+        return cols.join(',');
+      });
+      const csv = [header, ...rows].join('\n');
+
+      const filename = `${(group?.name ?? 'grupo').replace(/[^a-zA-Z0-9]/g, '_')}_${new Date().toISOString().split('T')[0]}.csv`;
+      const path = `${FileSystem.cacheDirectory}${filename}`;
+      await FileSystem.writeAsStringAsync(path, csv, { encoding: FileSystem.EncodingType.UTF8 });
+
+      await Sharing.shareAsync(path, {
+        mimeType: 'text/csv',
+        dialogTitle: `Exportar ${group?.name ?? 'grupo'}`,
+        UTI: 'public.comma-separated-values-text',
+      });
+    } catch (e: any) {
+      Alert.alert('Error al exportar', e?.message ?? 'No se pudo exportar el archivo.');
+    }
+  }, [entries, members, group]);
 
   if (!group) {
     return (
@@ -284,6 +327,12 @@ export default function GroupScreen() {
             <View style={styles.menuHandle} />
             <Text style={styles.menuGroupName}>{group.coverEmoji} {group.name}</Text>
 
+            {/* Export / Share */}
+            <TouchableOpacity style={styles.menuItemExport} onPress={handleExport}>
+              <Share2 size={16} color={COLORS.vozpe500} />
+              <Text style={styles.menuItemExportText}>Exportar y compartir (CSV / Excel)</Text>
+            </TouchableOpacity>
+
             {isOwner ? (
               <TouchableOpacity style={styles.menuItemDanger} onPress={handleArchiveGroup}>
                 <Text style={styles.menuItemDangerText}>Archivar grupo</Text>
@@ -420,6 +469,15 @@ const styles = StyleSheet.create({
     fontSize: 15, fontWeight: '600', color: COLORS.textSecondary,
     textAlign: 'center', marginBottom: 8,
   },
+  menuItemExport: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 10,
+    paddingVertical: 15, borderRadius: 14,
+    backgroundColor: `${COLORS.vozpe500}10`,
+    borderWidth: 1, borderColor: `${COLORS.vozpe500}30`,
+    marginBottom: 4,
+  },
+  menuItemExportText: { color: COLORS.vozpe500, fontSize: 15, fontWeight: '600' },
   menuItemDanger: {
     paddingVertical: 15, borderRadius: 14,
     backgroundColor: COLORS.errorMuted,
