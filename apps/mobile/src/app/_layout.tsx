@@ -4,7 +4,13 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LogBox, NativeModules } from 'react-native';
+import * as WebBrowser from 'expo-web-browser';
 import { useAuthStore } from '../stores/auth.store';
+
+// CRÍTICO para OAuth en Expo Go: señala al browser que la sesión completó
+// cuando el deep link reabre la app tras el redirect de Google/Apple.
+// Sin esto, openAuthSessionAsync nunca resuelve con 'success' en Android.
+WebBrowser.maybeCompleteAuthSession();
 
 // Suprimir el error inofensivo de expo-keep-awake en desarrollo
 LogBox.ignoreLogs(['Unable to activate keep awake', 'keep awake']);
@@ -47,7 +53,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <StatusBar style="light" backgroundColor="#0A0A0F" />
+        <StatusBar style="dark" backgroundColor="#F4F9FD" />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="onboarding" />
