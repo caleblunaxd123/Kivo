@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, MoreHorizontal, AlertTriangle, Users, Share2 } from 'lucide-react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { formatCurrency } from '@vozpe/shared';
+import { formatCurrency, COLORS } from '@vozpe/shared';
 import { T } from '../../../theme/tokens';
 import type { ParsedEntry } from '@vozpe/shared';
 import { useGroupStore } from '../../../stores/group.store';

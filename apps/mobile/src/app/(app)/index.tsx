@@ -1,7 +1,7 @@
 import React, { useEffect, useCallback, useState } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity,
-  StyleSheet, RefreshControl, Modal, Linking,
+  StyleSheet, RefreshControl, Modal, Linking, Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -69,7 +69,10 @@ export default function GroupsHomeScreen() {
           </View>
 
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.iconBtn}>
+            <TouchableOpacity
+              style={styles.iconBtn}
+              onPress={() => Alert.alert('Próximamente', 'Las notificaciones estarán disponibles en la próxima versión.')}
+            >
               <Bell size={17} color={T.textSecondary} strokeWidth={1.8} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconBtn} onPress={() => setHelpVisible(true)}>

@@ -178,7 +178,7 @@ export default function CreateGroupScreen() {
           <View style={styles.coverCircle}>
             <Text style={styles.coverEmoji}>{emoji}</Text>
           </View>
-          <Text style={styles.coverHint}>Toca para cambiar</Text>
+          <Text style={styles.coverHint}>Se actualiza según el tipo</Text>
         </View>
 
         {/* Voice banner */}

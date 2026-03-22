@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, StyleSheet, Animated, Dimensions,
-  TouchableOpacity, Alert, ActivityIndicator, ScrollView,
+  TouchableOpacity, Alert, ActivityIndicator, ScrollView, Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -228,9 +228,9 @@ export default function OnboardingScreen() {
 
           <Text style={styles.legal}>
             Al continuar aceptas los{' '}
-            <Text style={styles.legalLink}>Términos</Text>
+            <Text style={styles.legalLink} onPress={() => Linking.openURL('https://vozpe.com/terminos')}>Términos</Text>
             {' '}y la{' '}
-            <Text style={styles.legalLink}>Privacidad</Text>.
+            <Text style={styles.legalLink} onPress={() => Linking.openURL('https://vozpe.com/privacidad')}>Privacidad</Text>.
           </Text>
         </Animated.View>
       </ScrollView>
