@@ -15,9 +15,15 @@ import { Button } from '../../components/common/Button';
 import { VozpeLogo } from '../../components/common/VozpeLogo';
 
 function getRedirectUrl(): string {
-  // Always use Linking.createURL — returns exp://IP:port in dev, app scheme in prod
+  // In Expo Go dev: use the stable EAS project URL (add this once to Supabase Redirect URLs)
+  // In production: use the vozpe:// custom scheme
+  if (__DEV__) {
+    const url = 'exp://u.expo.dev/b393ec31-4e71-4cd6-b84b-cff6316aebaf';
+    console.log('[OAuth] redirectTo (dev):', url);
+    return url;
+  }
   const url = Linking.createURL('/');
-  if (__DEV__) console.log('[OAuth] redirectTo:', url);
+  console.log('[OAuth] redirectTo (prod):', url);
   return url;
 }
 
@@ -160,7 +166,7 @@ export default function LoginScreen() {
       >
         {/* Logo */}
         <View style={styles.logoWrap}>
-          <VozpeLogo size="xl" />
+          <VozpeLogo size="xl" style={{ transform: [{ scale: 1.3 }] }} />
         </View>
 
         {/* Título */}
@@ -376,7 +382,7 @@ const styles = StyleSheet.create({
   },
 
   // Logo
-  logoWrap: { alignItems: 'center', paddingVertical: 24, marginBottom: 4 },
+  logoWrap: { alignItems: 'center', paddingVertical: 36, marginBottom: 4 },
 
   // Scroll
   scroll: {

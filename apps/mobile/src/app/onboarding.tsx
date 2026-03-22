@@ -18,9 +18,12 @@ import * as Linking from 'expo-linking';
 import { COLORS } from '@vozpe/shared';
 
 function getRedirectUrl(): string {
-  const url = Linking.createURL('/');
-  if (__DEV__) console.log('[OAuth] redirectTo:', url);
-  return url;
+  if (__DEV__) {
+    const url = 'exp://u.expo.dev/b393ec31-4e71-4cd6-b84b-cff6316aebaf';
+    console.log('[OAuth] redirectTo (dev):', url);
+    return url;
+  }
+  return Linking.createURL('/');
 }
 import { supabase } from '../lib/supabase';
 import { VozpeLogo } from '../components/common/VozpeLogo';
@@ -118,7 +121,7 @@ export default function OnboardingScreen() {
 
       {/* ── Logo ── */}
       <Animated.View style={[styles.logoWrap, { opacity: logoOpacity }]}>
-        <VozpeLogo size="xl" />
+        <VozpeLogo size="xl" style={{ transform: [{ scale: 1.3 }] }} />
       </Animated.View>
 
       {/* ── Hero ── */}
@@ -338,7 +341,7 @@ const styles = StyleSheet.create({
   },
 
   // ── Logo ─────────────────────────────────────────────────────────
-  logoWrap: { alignItems: 'center', paddingVertical: 16 },
+  logoWrap: { alignItems: 'center', paddingVertical: 28 },
 
   // ── Hero ─────────────────────────────────────────────────────────
   heroContainer: {
