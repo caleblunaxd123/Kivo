@@ -9,6 +9,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Mail, Lock } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import Constants from 'expo-constants';
+
+// En Expo Go usamos la URL estable del proyecto EAS (no depende de IP local)
+// En producción usamos el deep link vozpe://
+function getRedirectUrl(): string {
+  if (__DEV__) {
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+    if (projectId) return `exp://u.expo.dev/${projectId}`;
+  }
+  return Linking.createURL('/');
+}
 import { COLORS } from '@vozpe/shared';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../../components/common/Button';
@@ -64,7 +75,7 @@ export default function LoginScreen() {
   const handleOAuth = async (provider: 'google' | 'apple') => {
     setOauthLoading(provider);
     try {
-      const redirectTo = Linking.createURL('/');
+      const redirectTo = getRedirectUrl();
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo, skipBrowserRedirect: true },

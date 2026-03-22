@@ -15,7 +15,16 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Camera, PenLine, Sparkles, Mic } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import Constants from 'expo-constants';
 import { COLORS } from '@vozpe/shared';
+
+function getRedirectUrl(): string {
+  if (__DEV__) {
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+    if (projectId) return `exp://u.expo.dev/${projectId}`;
+  }
+  return Linking.createURL('/');
+}
 import { supabase } from '../lib/supabase';
 import { VozpeLogo } from '../components/common/VozpeLogo';
 
@@ -55,7 +64,7 @@ export default function OnboardingScreen() {
   const handleOAuth = async (provider: 'google' | 'apple') => {
     setOauthLoading(provider);
     try {
-      const redirectTo = Linking.createURL('/');
+      const redirectTo = getRedirectUrl();
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo, skipBrowserRedirect: true },
