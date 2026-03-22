@@ -57,8 +57,14 @@ export default function LoginScreen() {
   const [emailFocused, setEmailFocused] = useState(false);
   const [passFocused,  setPassFocused]  = useState(false);
 
+  const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   const handleSubmit = async () => {
     if (!email.trim() || !password) return;
+    if (!EMAIL_REGEX.test(email.trim())) {
+      Alert.alert('Correo inválido', 'Ingresa una dirección de correo electrónico válida.');
+      return;
+    }
     if (password.length < 6) {
       Alert.alert('Contraseña corta', 'Debe tener al menos 6 caracteres.');
       return;
@@ -300,9 +306,9 @@ export default function LoginScreen() {
 
         <Text style={styles.legal}>
           Al continuar aceptas los{' '}
-          <Text style={styles.legalLink}>Términos</Text>
+          <Text style={styles.legalLink} onPress={() => Linking.openURL('https://vozpe.com/terminos')}>Términos</Text>
           {' '}y la{' '}
-          <Text style={styles.legalLink}>Privacidad</Text>
+          <Text style={styles.legalLink} onPress={() => Linking.openURL('https://vozpe.com/privacidad')}>Privacidad</Text>
         </Text>
       </ScrollView>
     </KeyboardAvoidingView>

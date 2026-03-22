@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Activity } from 'lucide-react-native';
+import { Activity, ChevronRight } from 'lucide-react-native';
 import { formatRelativeTime, CATEGORY_CONFIG, formatCurrency } from '@vozpe/shared';
 import type { Entry } from '@vozpe/shared';
 import { useGroupStore } from '../../stores/group.store';
@@ -26,9 +26,9 @@ interface ActivityItem {
 }
 
 export default function ActivityScreen() {
-  const insets  = useSafeAreaInsets();
-  const router  = useRouter();
-  const groups  = useGroupStore(s => s.groups);
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const groups = useGroupStore(s => s.groups);
   const [items,     setItems]     = useState<ActivityItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -143,7 +143,9 @@ export default function ActivityScreen() {
             />
           ) : null
         }
-        renderItem={({ item }) => <ActivityRow item={item} onPress={() => router.push(`/(app)/group/${item.groupId}`)} />}
+        renderItem={({ item }) => (
+          <ActivityRow item={item} onPress={() => router.push(`/(app)/group/${item.groupId}`)} />
+        )}
       />
     </View>
   );
@@ -154,7 +156,11 @@ function ActivityRow({ item, onPress }: { item: ActivityItem; onPress: () => voi
   const isPending = item.status === 'pending_review';
 
   return (
-    <TouchableOpacity style={[styles.row, isPending && styles.rowPending]} onPress={onPress} activeOpacity={0.7}>
+    <TouchableOpacity
+      style={[styles.row, isPending && styles.rowPending]}
+      onPress={onPress}
+      activeOpacity={0.72}
+    >
       {/* Emoji del grupo */}
       <View style={styles.rowLeft}>
         <Text style={styles.groupEmoji}>{item.groupEmoji}</Text>
@@ -170,14 +176,16 @@ function ActivityRow({ item, onPress }: { item: ActivityItem; onPress: () => voi
         <View style={styles.rowMeta}>
           <Text style={styles.rowGroup} numberOfLines={1}>{item.groupName}</Text>
           <Text style={styles.dot}>·</Text>
-          <Text style={styles.rowCat}>{cat.emoji} {cat.label}</Text>
+          <Text style={styles.rowCat} numberOfLines={1}>{cat.emoji} {cat.label}</Text>
           <Text style={styles.dot}>·</Text>
-          <Text style={styles.rowTime}>{formatRelativeTime(item.createdAt)}</Text>
+          <Text style={styles.rowTime} numberOfLines={1}>{formatRelativeTime(item.createdAt)}</Text>
         </View>
         {isPending && (
           <Text style={styles.pendingLabel}>⚠ Pendiente de revisión</Text>
         )}
       </View>
+
+      <ChevronRight size={14} color={T.textMuted} style={{ marginLeft: 4 }} />
     </TouchableOpacity>
   );
 }
@@ -254,9 +262,9 @@ const styles = StyleSheet.create({
   rowDesc:    { flex: 1, fontSize: T.fsMd, fontWeight: '600', color: T.textPrimary, marginRight: 8 },
   rowAmount:  { fontSize: T.fsMd, fontWeight: '700', color: T.textPrimary, fontFamily: 'monospace' },
 
-  rowMeta:  { flexDirection: 'row', alignItems: 'center', flexWrap: 'nowrap' },
-  rowGroup: { fontSize: T.fsSm, color: T.blue, fontWeight: '600', flexShrink: 1 },
-  dot:      { color: T.strokeBlue, fontSize: T.fsXs, marginHorizontal: 5 },
+  rowMeta:  { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' },
+  rowGroup: { fontSize: T.fsSm, color: T.blue, fontWeight: '600', flexShrink: 1, maxWidth: '40%' },
+  dot:      { color: T.strokeBlue, fontSize: T.fsXs, marginHorizontal: 4 },
   rowCat:   { fontSize: T.fsSm, color: T.textMuted, flexShrink: 1 },
   rowTime:  { fontSize: T.fsXs, color: T.textMuted, marginLeft: 2 },
 

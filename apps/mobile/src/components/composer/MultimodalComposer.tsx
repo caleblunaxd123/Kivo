@@ -355,9 +355,15 @@ export function MultimodalComposer({
           <TouchableOpacity style={styles.cancelBtn} onPress={cancel}>
             <Text style={styles.cancelBtnText}>Cancelar</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.confirmBtn} onPress={confirmEntry}>
-            <Check size={16} color={COLORS.white} />
-            <Text style={styles.confirmBtnText}>Confirmar</Text>
+          <TouchableOpacity
+            style={[styles.confirmBtn, !parsedPreview && styles.confirmBtnDisabled]}
+            onPress={confirmEntry}
+            disabled={!parsedPreview}
+          >
+            <Check size={16} color={parsedPreview ? '#fff' : T.textMuted} />
+            <Text style={[styles.confirmBtnText, !parsedPreview && styles.confirmBtnTextDisabled]}>
+              Confirmar
+            </Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -548,6 +554,13 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3, shadowRadius: 10, elevation: 6,
   },
   confirmBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  confirmBtnDisabled: {
+    backgroundColor: T.blueSoft,
+    shadowOpacity: 0,
+    elevation: 0,
+    borderWidth: 1, borderColor: T.strokeSoft,
+  },
+  confirmBtnTextDisabled: { color: T.textMuted },
 
   // ── Text input ────────────────────────────────────────────────
   textTitle: { color: T.textPrimary, fontSize: 15, fontWeight: '600', flex: 1 },

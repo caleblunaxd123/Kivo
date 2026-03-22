@@ -69,7 +69,10 @@ export default function GroupsHomeScreen() {
           </View>
 
           <View style={styles.headerActions}>
-            <TouchableOpacity style={styles.iconBtn} onPress={() => Alert.alert('Notificaciones', 'Las notificaciones estarán disponibles próximamente.')}>
+            <TouchableOpacity
+              style={styles.iconBtn}
+              onPress={() => Alert.alert('Próximamente', 'Las notificaciones estarán disponibles en la próxima versión.')}
+            >
               <Bell size={17} color={T.textSecondary} strokeWidth={1.8} />
             </TouchableOpacity>
             <TouchableOpacity style={styles.iconBtn} onPress={() => setHelpVisible(true)}>

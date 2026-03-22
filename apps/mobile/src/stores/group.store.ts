@@ -122,6 +122,8 @@ export const useGroupStore = create<GroupState>((set, get) => ({
   setActiveGroup: (groupId) => {
     set({ activeGroupId: groupId });
     if (groupId) {
+      // Clear stale data immediately so previous group's entries aren't visible
+      set({ activeGroup: null, entries: [], members: [], balances: [], pendingCount: 0, isLoadingEntries: true });
       get().fetchGroupData(groupId);
       get().subscribeToGroup(groupId);
     } else {
