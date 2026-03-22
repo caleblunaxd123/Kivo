@@ -1,25 +1,27 @@
 /**
- * VozPE Design Tokens
- * Fuente de verdad visual — nacidos del logo (azul + verde)
+ * VozPE Design Tokens — fuente de verdad visual
+ * Todos los colores, sombras, radios y espaciados nacen del logo (azul + verde).
+ * Importar siempre como:  import { T } from '../theme/tokens';
  */
 
 export const T = {
   // ── Brand ─────────────────────────────────────────────────────────────────
-  blue:        '#1F6FE5',   // azul principal vivo
-  blueDeep:    '#1557C8',   // azul profundo (hover, activo)
+  blue:        '#1F6FE5',   // azul principal (marca dominante)
+  blueDeep:    '#1557C8',   // azul profundo — hover, pressed
+  blueSoft:    '#EAF3FB',   // azul muy suave — superficies, chips inactivos
+  blueLight:   '#DBEEFF',   // azul extra suave — fondos tinted
   green:       '#2DBE60',   // verde complementario del logo
-  greenDeep:   '#1FA451',   // verde profundo
+  greenDeep:   '#1FA451',   // verde profundo — hover, pressed
+  greenSoft:   '#EDF8F2',   // verde muy suave — superficies mint
 
   // ── Fondos ────────────────────────────────────────────────────────────────
-  appBg:       '#F4F9FD',   // fondo app — casi blanco, tinte azul muy suave
+  appBg:       '#F4F9FD',   // fondo app — blanco con matiz celeste mínimo
   headerBg:    '#EAF4FC',   // header — celeste suave
-  cardBg:      '#FFFFFF',   // cards blancas
-  softBlueBg:  '#EAF3FB',   // superficies blue-tinted
-  softMintBg:  '#EDF8F2',   // superficies green-tinted
-  inputBg:     '#F2F7FC',
+  cardBg:      '#FFFFFF',   // cards y superficies principales
+  inputBg:     '#F2F7FC',   // input fields
 
   // ── Bordes ────────────────────────────────────────────────────────────────
-  strokeSoft:  '#D5E8F5',   // bordes cards
+  strokeSoft:  '#D5E8F5',   // bordes cards — celeste muy suave
   strokeBlue:  '#BDD8F0',   // bordes con acento azul
   strokeGreen: '#B8E8CB',   // bordes con acento verde
 
@@ -29,44 +31,78 @@ export const T = {
   textMuted:     '#7C8B98',
   textInverse:   '#FFFFFF',
 
-  // ── Orbs decorativos (opacidades bajas) ────────────────────────────────────
-  orbBlue:     '#1F6FE514',  // azul 8%
-  orbBlueM:    '#1F6FE522',  // azul 13%
-  orbGreen:    '#2DBE6014',  // verde 8%
-  orbGreenM:   '#2DBE6022',  // verde 13%
+  // ── Estados ───────────────────────────────────────────────────────────────
+  success:    '#22A861',
+  warning:    '#D97706',
+  warningBg:  '#FFF7E6',
+  error:      '#DC2626',
+  errorBg:    '#FFF1F1',
 
-  // ── Estado ────────────────────────────────────────────────────────────────
-  warning:     '#F59E0B',
-  warningBg:   '#FFF8E6',
-  error:       '#EF4444',
+  // ── Orbs decorativos ──────────────────────────────────────────────────────
+  orbBlue:    '#1F6FE510',  // azul 6%
+  orbBlueM:   '#1F6FE51A',  // azul 10%
+  orbGreen:   '#2DBE6010',  // verde 6%
+  orbGreenM:  '#2DBE601A',  // verde 10%
 
   // ── Radios ────────────────────────────────────────────────────────────────
-  rCard:    20,
-  rCardLg:  24,
-  rBtn:     999,
-  rChip:    999,
-  rIcon:    12,
+  rSm:    8,
+  rMd:    12,
+  rCard:  18,
+  rCardLg:22,
+  rBtn:   999,   // píldora
+  rChip:  999,
+  rIcon:  10,
+
+  // ── Espaciado ─────────────────────────────────────────────────────────────
+  spXs:  6,
+  spSm: 10,
+  spMd: 16,
+  spLg: 24,
+
+  // ── Tipografía ────────────────────────────────────────────────────────────
+  // Sizes
+  fsXs:  11,
+  fsSm:  12,
+  fsMd:  14,
+  fsBase:15,
+  fsLg:  18,
+  fsXl:  22,
+  fs2xl: 26,
 
   // ── Sombras ───────────────────────────────────────────────────────────────
+  shadowXs: {
+    shadowColor: '#1F6FE5',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
+  },
   shadowCard: {
     shadowColor: '#1F6FE5',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.07,
-    shadowRadius: 12,
+    shadowRadius: 10,
     elevation: 3,
   },
   shadowBtn: {
     shadowColor: '#1F6FE5',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.28,
-    shadowRadius: 16,
-    elevation: 8,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.26,
+    shadowRadius: 14,
+    elevation: 7,
   },
   shadowFab: {
     shadowColor: '#1F6FE5',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.38,
+    shadowOpacity: 0.36,
     shadowRadius: 20,
     elevation: 12,
+  },
+  shadowModal: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 24,
   },
 } as const;

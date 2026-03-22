@@ -23,9 +23,9 @@ import {
 } from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
-import { COLORS } from '@vozpe/shared';
 import type { ParsedEntry, GroupMember } from '@vozpe/shared';
 import { parseQuickText } from '@vozpe/shared';
+import { T } from '../../theme/tokens';
 
 type ComposerMode = 'idle' | 'voice_recording' | 'voice_preview' | 'photo_preview' | 'text_input';
 
@@ -413,15 +413,14 @@ export function MultimodalComposer({
   return null;
 }
 
-const COMPOSER_BORDER_RADIUS = 0;
 const BOTTOM_EXTRA = Platform.OS === 'ios' ? 28 : 12;
 
 const styles = StyleSheet.create({
   // ── Idle bar ─────────────────────────────────────────────────
   idleContainer: {
-    backgroundColor: COLORS.bgSurface,
+    backgroundColor: T.cardBg,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderDefault,
+    borderTopColor: T.strokeSoft,
     paddingHorizontal: 24,
     paddingTop: 16,
     paddingBottom: BOTTOM_EXTRA + 4,
@@ -431,200 +430,150 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'space-around',
   },
-  actionCol: {
-    alignItems: 'center',
-    gap: 6,
-  },
+  actionCol: { alignItems: 'center', gap: 6 },
   secondaryBtn: {
-    width: 56, height: 56,
-    borderRadius: 18,
-    backgroundColor: `${COLORS.vozpe500}12`,
+    width: 58, height: 58,
+    borderRadius: T.rCard,
+    backgroundColor: T.blue + '10',
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1.5, borderColor: `${COLORS.vozpe500}28`,
+    borderWidth: 1.5, borderColor: T.blue + '25',
   },
   actionColLabel: {
-    color: COLORS.textTertiary,
-    fontSize: 11,
-    fontWeight: '500',
+    color: T.textMuted, fontSize: 11, fontWeight: '500',
   },
   heroBtn: {
     width: 72, height: 72,
     borderRadius: 36,
-    backgroundColor: COLORS.vozpe500,
+    backgroundColor: T.blue,
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: COLORS.vozpe500,
+    shadowColor: T.blue,
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.45,
-    shadowRadius: 16,
-    elevation: 12,
+    shadowOpacity: 0.42, shadowRadius: 18, elevation: 12,
   },
   heroBtnLabel: {
-    color: COLORS.vozpe500,
-    fontSize: 11,
-    fontWeight: '700',
+    color: T.blue, fontSize: 11, fontWeight: '700',
   },
 
   // ── Expanded container ────────────────────────────────────────
   expandedContainer: {
-    backgroundColor: COLORS.bgSurface,
+    backgroundColor: T.cardBg,
     borderTopWidth: 1,
-    borderTopColor: COLORS.borderDefault,
+    borderTopColor: T.strokeSoft,
     padding: 16,
     paddingBottom: BOTTOM_EXTRA,
     gap: 12,
   },
   expandedHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
   },
   closeBtn: {
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: COLORS.bgElevated,
+    backgroundColor: T.blueSoft,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: COLORS.borderDefault,
+    borderWidth: 1, borderColor: T.strokeSoft,
   },
 
   // ── Recording ────────────────────────────────────────────────
   recIndicator: { flexDirection: 'row', alignItems: 'center', gap: 7, flex: 1 },
-  recDot: {
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: COLORS.error,
-  },
-  recLabel: {
-    color: COLORS.error, fontSize: 11, fontWeight: '700', letterSpacing: 1.2,
-  },
-  duration: {
-    color: COLORS.textSecondary, fontSize: 14, fontFamily: 'monospace',
-    marginRight: 8,
-  },
-  durationWarning: {
-    color: COLORS.error, fontWeight: '700',
-  },
+  recDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: T.error },
+  recLabel: { color: T.error, fontSize: 11, fontWeight: '700', letterSpacing: 1.2 },
+  duration: { color: T.textSecondary, fontSize: 14, fontFamily: 'monospace', marginRight: 8 },
+  durationWarning: { color: T.error, fontWeight: '700' },
   waveform: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 3,
-    height: 56,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 3, height: 56,
   },
-  waveBar: {
-    width: 3.5,
-    borderRadius: 2,
-    backgroundColor: COLORS.vozpe400,
-  },
+  waveBar: { width: 3.5, borderRadius: 2, backgroundColor: T.blue },
   stopWrap: { alignSelf: 'center' },
   stopBtn: {
     width: 58, height: 58, borderRadius: 29,
-    backgroundColor: COLORS.vozpe500,
+    backgroundColor: T.blue,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: COLORS.vozpe300,
-    shadowColor: COLORS.vozpe500,
+    borderWidth: 2, borderColor: T.blueLight,
+    shadowColor: T.blue,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOpacity: 0.32, shadowRadius: 12, elevation: 8,
   },
-  stopHint: {
-    color: COLORS.textTertiary, fontSize: 11, textAlign: 'center',
-  },
+  stopHint: { color: T.textMuted, fontSize: 11, textAlign: 'center' },
 
-  // ── AI label ─────────────────────────────────────────────────
-  aiLabel: { flexDirection: 'row', alignItems: 'center', gap: 7, flex: 1 },
-  aiLabelText: { color: COLORS.ai, fontSize: 13, fontWeight: '600' },
+  // ── AI / processing ───────────────────────────────────────────
+  aiLabel:    { flexDirection: 'row', alignItems: 'center', gap: 7, flex: 1 },
+  aiLabelText:{ color: T.blue, fontSize: 13, fontWeight: '600' },
 
-  // ── Processing ────────────────────────────────────────────────
   processingRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8 },
-  processingDot: {
-    width: 8, height: 8, borderRadius: 4,
-    backgroundColor: COLORS.ai,
-  },
-  processingText: { color: COLORS.textSecondary, fontSize: 14 },
+  processingDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: T.blue },
+  processingText:{ color: T.textSecondary, fontSize: 14 },
 
   // ── Parsed card ───────────────────────────────────────────────
   parsedCard: {
-    backgroundColor: COLORS.aiMuted,
-    borderWidth: 1, borderColor: `${COLORS.ai}35`,
-    borderRadius: 14, padding: 14, gap: 4,
+    backgroundColor: T.blueSoft,
+    borderWidth: 1, borderColor: T.strokeBlue,
+    borderRadius: T.rCard, padding: 14, gap: 4,
   },
-  parsedDesc: { color: COLORS.textPrimary, fontSize: 16, fontWeight: '600' },
-  parsedMeta: {
-    color: COLORS.textSecondary, fontSize: 13, fontFamily: 'monospace',
-  },
-  pendingHint: { color: COLORS.warning, fontSize: 12, marginTop: 4 },
+  parsedDesc: { color: T.textPrimary, fontSize: 16, fontWeight: '600' },
+  parsedMeta: { color: T.textSecondary, fontSize: 13, fontFamily: 'monospace' },
+  pendingHint:{ color: T.warning, fontSize: 12, marginTop: 4 },
 
   // ── Error state ─────────────────────────────────────────────
   errorCard: {
-    backgroundColor: COLORS.errorMuted,
-    borderWidth: 1, borderColor: `${COLORS.error}30`,
-    borderRadius: 14, padding: 14, gap: 10,
+    backgroundColor: T.errorBg,
+    borderWidth: 1, borderColor: T.error + '30',
+    borderRadius: T.rCard, padding: 14, gap: 10,
     alignItems: 'center',
   },
-  errorText: { color: COLORS.error, fontSize: 14, textAlign: 'center' },
+  errorText: { color: T.error, fontSize: 14, textAlign: 'center' },
   retryBtn: {
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8,
-    borderWidth: 1, borderColor: COLORS.borderDefault,
+    backgroundColor: T.cardBg,
+    borderRadius: T.rMd, paddingHorizontal: 16, paddingVertical: 8,
+    borderWidth: 1, borderColor: T.strokeSoft,
   },
-  retryBtnText: { color: COLORS.textSecondary, fontSize: 13, fontWeight: '500' },
+  retryBtnText: { color: T.textSecondary, fontSize: 13, fontWeight: '500' },
 
   // ── Action row ────────────────────────────────────────────────
   actionRow: { flexDirection: 'row', gap: 10 },
   cancelBtn: {
     flex: 1, alignItems: 'center', justifyContent: 'center',
-    backgroundColor: COLORS.bgElevated,
-    borderRadius: 14, paddingVertical: 13,
-    borderWidth: 1, borderColor: COLORS.borderDefault,
+    backgroundColor: T.blueSoft,
+    borderRadius: T.rCard, paddingVertical: 13,
+    borderWidth: 1, borderColor: T.strokeSoft,
   },
-  cancelBtnText: { color: COLORS.textSecondary, fontSize: 14, fontWeight: '500' },
+  cancelBtnText: { color: T.textSecondary, fontSize: 14, fontWeight: '500' },
   confirmBtn: {
     flex: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: 7,
-    backgroundColor: COLORS.vozpe500,
-    borderRadius: 14, paddingVertical: 13,
-    shadowColor: COLORS.vozpe500,
+    backgroundColor: T.blue,
+    borderRadius: T.rCard, paddingVertical: 13,
+    shadowColor: T.blue,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35, shadowRadius: 8, elevation: 5,
+    shadowOpacity: 0.3, shadowRadius: 10, elevation: 6,
   },
-  confirmBtnText: { color: COLORS.white, fontSize: 14, fontWeight: '600' },
+  confirmBtnText: { color: '#fff', fontSize: 14, fontWeight: '700' },
 
   // ── Text input ────────────────────────────────────────────────
-  textTitle: { color: COLORS.textPrimary, fontSize: 15, fontWeight: '600', flex: 1 },
+  textTitle: { color: T.textPrimary, fontSize: 15, fontWeight: '600', flex: 1 },
   textInputWrap: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    backgroundColor: COLORS.bgInput,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: COLORS.borderDefault,
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    backgroundColor: T.inputBg,
+    borderRadius: T.rCard,
+    borderWidth: 1, borderColor: T.strokeSoft,
     paddingHorizontal: 14,
     paddingVertical: Platform.OS === 'ios' ? 12 : 8,
   },
-  textInput: {
-    flex: 1,
-    color: COLORS.textPrimary,
-    fontSize: 15,
-    fontFamily: 'monospace',
-  },
+  textInput: { flex: 1, color: T.textPrimary, fontSize: 15, fontFamily: 'monospace' },
   sendBtn: {
-    width: 34, height: 34, borderRadius: 11,
-    backgroundColor: COLORS.vozpe500,
+    width: 34, height: 34, borderRadius: T.rMd,
+    backgroundColor: T.blue,
     alignItems: 'center', justifyContent: 'center',
   },
   sendBtnDisabled: {
-    backgroundColor: COLORS.bgElevated,
-    borderWidth: 1, borderColor: COLORS.borderDefault,
+    backgroundColor: T.blueSoft,
+    borderWidth: 1, borderColor: T.strokeSoft,
   },
   livePreview: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-    backgroundColor: COLORS.bgElevated,
-    borderRadius: 10, padding: 10,
-    borderWidth: 1, borderColor: COLORS.borderAccent,
+    flexDirection: 'row', alignItems: 'center', gap: 7,
+    backgroundColor: T.blueSoft,
+    borderRadius: T.rMd, padding: 10,
+    borderWidth: 1, borderColor: T.strokeBlue,
   },
-  livePreviewText: {
-    color: COLORS.vozpe600, fontSize: 12, fontFamily: 'monospace', flex: 1,
-  },
+  livePreviewText: { color: T.blueDeep, fontSize: 12, fontFamily: 'monospace', flex: 1 },
 });

@@ -7,16 +7,15 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
+import Svg, { Path } from 'react-native-svg';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
-import { COLORS } from '@vozpe/shared';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../../components/common/Button';
 import { VozpeLogo } from '../../components/common/VozpeLogo';
+import { T } from '../../theme/tokens';
 
-function getRedirectUrl(): string {
-  // createURL genera exp://IP:PUERTO/ en dev y vozpe:// en producción.
-  // Agrega exp://* en Supabase → Auth → URL Configuration → Redirect URLs.
+function getRedirectUrl() {
   const url = Linking.createURL('/');
   console.log('[OAuth] redirectTo:', url);
   return url;
@@ -24,17 +23,39 @@ function getRedirectUrl(): string {
 
 type Mode = 'login' | 'signup';
 
+// ── Google G oficial 4 colores ────────────────────────────────────────────────
+function GoogleGIcon({ size = 20 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+      <Path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+      <Path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
+      <Path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+    </Svg>
+  );
+}
+
+function AppleIcon({ size = 20 }: { size?: number }) {
+  return (
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Text style={{ fontSize: size * 0.88, color: '#000', lineHeight: size * 1.05 }}>
+        {'\uF8FF'}
+      </Text>
+    </View>
+  );
+}
+
 export default function LoginScreen() {
-  const router  = useRouter();
-  const insets  = useSafeAreaInsets();
-  const [mode, setMode]                   = useState<Mode>('login');
-  const [email, setEmail]                 = useState('');
-  const [password, setPassword]           = useState('');
-  const [showPassword, setShowPassword]   = useState(false);
-  const [loading, setLoading]             = useState(false);
-  const [oauthLoading, setOauthLoading]   = useState<'google' | 'apple' | null>(null);
-  const [emailFocused, setEmailFocused]   = useState(false);
-  const [passFocused,  setPassFocused]    = useState(false);
+  const router = useRouter();
+  const insets = useSafeAreaInsets();
+  const [mode, setMode]                 = useState<Mode>('login');
+  const [email, setEmail]               = useState('');
+  const [password, setPassword]         = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading]           = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
+  const [emailFocused, setEmailFocused] = useState(false);
+  const [passFocused,  setPassFocused]  = useState(false);
 
   const handleSubmit = async () => {
     if (!email.trim() || !password) return;
@@ -46,14 +67,12 @@ export default function LoginScreen() {
     try {
       if (mode === 'login') {
         const { error } = await supabase.auth.signInWithPassword({
-          email: email.trim().toLowerCase(),
-          password,
+          email: email.trim().toLowerCase(), password,
         });
         if (error) Alert.alert('Error al iniciar sesión', error.message);
       } else {
         const { data, error } = await supabase.auth.signUp({
-          email: email.trim().toLowerCase(),
-          password,
+          email: email.trim().toLowerCase(), password,
         });
         if (error) {
           Alert.alert('Error', error.message);
@@ -85,35 +104,27 @@ export default function LoginScreen() {
       if (result.type !== 'success' || !result.url) return;
 
       const returnedUrl = result.url;
-
-      // PKCE flow: Supabase returns ?code= param, exchange it for a session
-      const queryString = returnedUrl.includes('?') ? returnedUrl.split('?')[1] : '';
-      const queryParams = Object.fromEntries(
-        queryString.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
+      const qs = returnedUrl.includes('?') ? returnedUrl.split('?')[1] : '';
+      const qp = Object.fromEntries(
+        qs.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
       );
-      if (queryParams['code']) {
-        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(queryParams['code']);
-        if (exchangeError) Alert.alert('Error', exchangeError.message);
+      if (qp['code']) {
+        const { error: ex } = await supabase.auth.exchangeCodeForSession(qp['code']);
+        if (ex) Alert.alert('Error', ex.message);
         return;
       }
-
-      // Implicit flow fallback: tokens in URL hash
-      const hashPart = returnedUrl.includes('#') ? returnedUrl.split('#')[1] : '';
-      const hashParams = Object.fromEntries(
-        hashPart.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
+      const hash = returnedUrl.includes('#') ? returnedUrl.split('#')[1] : '';
+      const hp = Object.fromEntries(
+        hash.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
       );
-      const at = hashParams['access_token'];
-      const rt = hashParams['refresh_token'];
-      if (at && rt) {
-        await supabase.auth.setSession({ access_token: at, refresh_token: rt });
+      if (hp['access_token'] && hp['refresh_token']) {
+        await supabase.auth.setSession({ access_token: hp['access_token'], refresh_token: hp['refresh_token'] });
       } else {
-        Alert.alert(
-          'Login con Google',
-          `No se pudo completar el inicio de sesión.\n\nAsegúrate de agregar esta URL en Supabase → Auth → Redirect URLs:\n${redirectTo}`,
-        );
+        Alert.alert('Login con Google',
+          `Agrega esta URL en Supabase → Auth → Redirect URLs:\n${redirectTo}`);
       }
     } catch (e: any) {
-      Alert.alert('Error', e?.message ?? 'Error al iniciar sesión con Google');
+      Alert.alert('Error', e?.message ?? 'Error al iniciar sesión');
     } finally {
       setOauthLoading(null);
     }
@@ -127,10 +138,7 @@ export default function LoginScreen() {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase());
       if (error) throw error;
-      Alert.alert(
-        'Correo enviado',
-        `Revisa tu bandeja en ${email.trim()} para restablecer tu contraseña.`,
-      );
+      Alert.alert('Correo enviado', `Revisa tu bandeja en ${email.trim()}.`);
     } catch (e: any) {
       Alert.alert('Error', e?.message ?? 'No se pudo enviar el correo.');
     }
@@ -143,19 +151,19 @@ export default function LoginScreen() {
       style={[styles.outer, { paddingTop: insets.top }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      {/* Orbs de fondo */}
-      <View style={styles.bgOrb} />
-      <View style={styles.bgOrb2} />
+      {/* Blobs decorativos — azul/verde muy suaves */}
+      <View style={styles.blob1} pointerEvents="none" />
+      <View style={styles.blob2} pointerEvents="none" />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Volver">
-          <ChevronLeft size={20} color={COLORS.textSecondary} />
+      {/* Back button */}
+      <View style={styles.topBar}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+          <ChevronLeft size={20} color={T.textSecondary} />
         </TouchableOpacity>
       </View>
 
       <ScrollView
-        contentContainerStyle={styles.scroll}
+        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 36 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
@@ -176,16 +184,16 @@ export default function LoginScreen() {
           </Text>
         </View>
 
-        {/* ── Formulario primero — es lo principal ── */}
+        {/* Formulario */}
         <View style={styles.formGroup}>
           <View style={[styles.inputWrap, emailFocused && styles.inputWrapFocused]}>
             <View style={styles.inputIconWrap}>
-              <Mail size={16} color={emailFocused ? COLORS.vozpe500 : COLORS.textTertiary} />
+              <Mail size={16} color={emailFocused ? T.blue : T.textMuted} />
             </View>
             <TextInput
               style={styles.input}
               placeholder="tu@correo.com"
-              placeholderTextColor={COLORS.textTertiary}
+              placeholderTextColor={T.textMuted}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -198,12 +206,12 @@ export default function LoginScreen() {
 
           <View style={[styles.inputWrap, passFocused && styles.inputWrapFocused]}>
             <View style={styles.inputIconWrap}>
-              <Lock size={16} color={passFocused ? COLORS.vozpe500 : COLORS.textTertiary} />
+              <Lock size={16} color={passFocused ? T.blue : T.textMuted} />
             </View>
             <TextInput
               style={styles.input}
               placeholder="Contraseña"
-              placeholderTextColor={COLORS.textTertiary}
+              placeholderTextColor={T.textMuted}
               value={password}
               onChangeText={setPassword}
               secureTextEntry={!showPassword}
@@ -215,13 +223,12 @@ export default function LoginScreen() {
             />
             <TouchableOpacity onPress={() => setShowPassword(v => !v)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
               {showPassword
-                ? <EyeOff size={18} color={COLORS.textTertiary} />
-                : <Eye    size={18} color={COLORS.textTertiary} />
+                ? <EyeOff size={18} color={T.textMuted} />
+                : <Eye    size={18} color={T.textMuted} />
               }
             </TouchableOpacity>
           </View>
 
-          {/* Forgot password — solo en login */}
           {isLogin && (
             <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotBtn}>
               <Text style={styles.forgotText}>Olvidé mi contraseña</Text>
@@ -246,52 +253,43 @@ export default function LoginScreen() {
           <View style={styles.dividerLine} />
         </View>
 
-        {/* ── Social Auth ── */}
-        <View style={styles.socialGroup}>
+        {/* Social auth */}
+        <View style={styles.socialRow}>
           <TouchableOpacity
             style={styles.btnSocial}
             onPress={() => handleOAuth('google')}
-            activeOpacity={0.80}
+            activeOpacity={0.78}
             disabled={!!oauthLoading}
-            accessibilityRole="button"
-            accessibilityLabel="Continuar con Google"
           >
-            {oauthLoading === 'google' ? (
-              <ActivityIndicator size="small" color={COLORS.textSecondary} />
-            ) : (
-              <View style={styles.btnSocialInner}>
-                <GoogleColorIcon size={20} />
-                <Text style={styles.btnSocialText}>Google</Text>
-              </View>
-            )}
+            {oauthLoading === 'google'
+              ? <ActivityIndicator size="small" color={T.textMuted} />
+              : <>
+                  <GoogleGIcon size={20} />
+                  <Text style={styles.btnSocialText}>Google</Text>
+                </>
+            }
           </TouchableOpacity>
 
           {Platform.OS === 'ios' && (
             <TouchableOpacity
               style={styles.btnSocial}
               onPress={() => handleOAuth('apple')}
-              activeOpacity={0.80}
+              activeOpacity={0.78}
               disabled={!!oauthLoading}
-              accessibilityRole="button"
-              accessibilityLabel="Continuar con Apple"
             >
-              {oauthLoading === 'apple' ? (
-                <ActivityIndicator size="small" color={COLORS.textSecondary} />
-              ) : (
-                <View style={styles.btnSocialInner}>
-                  <AppleIcon size={20} />
-                  <Text style={styles.btnSocialText}>Apple</Text>
-                </View>
-              )}
+              {oauthLoading === 'apple'
+                ? <ActivityIndicator size="small" color={T.textMuted} />
+                : <>
+                    <AppleIcon size={20} />
+                    <Text style={styles.btnSocialText}>Apple</Text>
+                  </>
+              }
             </TouchableOpacity>
           )}
         </View>
 
         {/* Cambio de modo */}
-        <TouchableOpacity
-          style={styles.switchBtn}
-          onPress={() => setMode(isLogin ? 'signup' : 'login')}
-        >
+        <TouchableOpacity style={styles.switchBtn} onPress={() => setMode(isLogin ? 'signup' : 'login')}>
           <Text style={styles.switchText}>
             {isLogin ? '¿Sin cuenta? ' : '¿Ya tienes cuenta? '}
             <Text style={styles.switchLink}>
@@ -311,141 +309,97 @@ export default function LoginScreen() {
   );
 }
 
-// ─── Ícono Google 4 colores reales ───────────────────────────────────────────
-function GoogleColorIcon({ size = 22 }: { size?: number }) {
-  const h = size / 2;
-  const innerR = size * 0.27;
-  const innerOffset = size * 0.5 - innerR;
-  return (
-    <View style={{ width: size, height: size, borderRadius: h, overflow: 'hidden' }}>
-      <View style={{ position: 'absolute', left: 0, top: 0, width: h, height: h, backgroundColor: '#4285F4' }} />
-      <View style={{ position: 'absolute', right: 0, top: 0, width: h, height: h, backgroundColor: '#EA4335' }} />
-      <View style={{ position: 'absolute', left: 0, bottom: 0, width: h, height: h, backgroundColor: '#34A853' }} />
-      <View style={{ position: 'absolute', right: 0, bottom: 0, width: h, height: h, backgroundColor: '#FBBC04' }} />
-      <View style={{
-        position: 'absolute',
-        left: innerOffset, top: innerOffset,
-        width: innerR * 2, height: innerR * 2,
-        borderRadius: innerR,
-        backgroundColor: '#fff',
-        alignItems: 'center', justifyContent: 'center',
-      }}>
-        <Text style={{ fontSize: innerR * 0.95, fontWeight: '700', color: '#4285F4', lineHeight: innerR * 1.1 }}>G</Text>
-      </View>
-    </View>
-  );
-}
-
-function AppleIcon({ size = 22 }: { size?: number }) {
-  return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: size * 0.88, color: '#000', lineHeight: size * 1.05 }}>
-        {'\uF8FF'}
-      </Text>
-    </View>
-  );
-}
-
-// ─── Estilos ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  outer: {
-    flex: 1, backgroundColor: '#DFF8F7',
-  },
-  bgOrb: {
+  outer: { flex: 1, backgroundColor: T.appBg },
+
+  // Blobs decorativos — azul/verde muy suave, no intrusivos
+  blob1: {
     position: 'absolute',
-    width: 340, height: 340, borderRadius: 170,
-    backgroundColor: 'rgba(72,202,193,0.22)',
-    top: -150, right: -110,
+    width: 300, height: 300, borderRadius: 150,
+    backgroundColor: T.blue + '0E',
+    top: -120, right: -90,
   },
-  bgOrb2: {
+  blob2: {
     position: 'absolute',
     width: 200, height: 200, borderRadius: 100,
-    backgroundColor: 'rgba(167,237,232,0.30)',
-    bottom: 40, left: -60,
+    backgroundColor: T.green + '0A',
+    bottom: 60, left: -70,
   },
 
-  // Header
-  header: {
+  topBar: {
     flexDirection: 'row', alignItems: 'center',
-    paddingHorizontal: 16, paddingVertical: 10,
+    paddingHorizontal: T.spMd, paddingVertical: 10,
   },
   backBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: COLORS.bgElevated,
+    backgroundColor: T.cardBg,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: COLORS.borderDefault,
+    borderWidth: 1, borderColor: T.strokeSoft,
+    ...T.shadowXs,
   },
 
-  // Logo — sin padding horizontal para que xxl use el ancho completo
-  logoWrap: { alignItems: 'center', paddingVertical: 20, marginBottom: 4, marginHorizontal: -22 },
-
-  // Scroll
-  scroll: {
-    paddingHorizontal: 22, paddingTop: 10, paddingBottom: 44, gap: 16,
+  logoWrap: {
+    alignItems: 'center',
+    marginHorizontal: -22,
+    marginTop: -30, marginBottom: -50,
   },
 
-  // Título
-  titleBlock: { gap: 4, marginBottom: 4 },
+  scroll: { paddingHorizontal: 22, paddingTop: 8, gap: 16 },
+
+  titleBlock: { gap: 4 },
   title: {
-    fontSize: 26, fontWeight: '800',
-    color: COLORS.textPrimary, letterSpacing: -0.7,
+    fontSize: T.fs2xl, fontWeight: '800',
+    color: T.textPrimary, letterSpacing: -0.6,
   },
-  subtitle: {
-    fontSize: 14, color: COLORS.textSecondary, lineHeight: 20,
-  },
+  subtitle: { fontSize: T.fsMd, color: T.textSecondary, lineHeight: 20 },
 
-  // Form — ahora es lo primero que se ve
+  // ── Form ──────────────────────────────────────────────────────────────────
   formGroup: { gap: 10 },
   inputWrap: {
     flexDirection: 'row', alignItems: 'center',
-    backgroundColor: COLORS.bgInput,
-    borderRadius: 14, borderWidth: 1, borderColor: COLORS.borderDefault,
-    paddingHorizontal: 14,
+    backgroundColor: T.cardBg,
+    borderRadius: T.rCard,
+    borderWidth: 1, borderColor: T.strokeSoft,
+    paddingHorizontal: T.spMd,
     paddingVertical: Platform.OS === 'ios' ? 14 : 10,
     gap: 10,
+    ...T.shadowXs,
   },
   inputWrapFocused: {
-    borderColor: '#48CAC1',
-    backgroundColor: 'rgba(72,202,193,0.06)',
+    borderColor: T.blue,
+    backgroundColor: T.blueSoft,
   },
   inputIconWrap: { width: 20, alignItems: 'center' },
-  input: { flex: 1, color: COLORS.textPrimary, fontSize: 15 },
+  input: { flex: 1, color: T.textPrimary, fontSize: T.fsBase },
 
-  // Forgot password
   forgotBtn: { alignSelf: 'flex-end', paddingVertical: 2 },
-  forgotText: { color: COLORS.vozpe400, fontSize: 13, fontWeight: '500' },
+  forgotText: { color: T.blue, fontSize: T.fsSm, fontWeight: '600' },
 
-  // Divider
-  divider: {
-    flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 2,
-  },
-  dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.borderSubtle },
-  dividerText: { color: COLORS.textTertiary, fontSize: 12, fontWeight: '500' },
+  // ── Divider ───────────────────────────────────────────────────────────────
+  divider: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: T.strokeSoft },
+  dividerText: { color: T.textMuted, fontSize: T.fsSm, fontWeight: '500' },
 
-  // Social — ahora son botones compactos en fila
-  socialGroup: {
-    flexDirection: 'row',
-    gap: 10,
-  },
+  // ── Social ────────────────────────────────────────────────────────────────
+  socialRow: { flexDirection: 'row', gap: 10 },
   btnSocial: {
     flex: 1,
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 14, paddingVertical: 13, paddingHorizontal: 16,
-    borderWidth: 1, borderColor: COLORS.borderDefault,
-    alignItems: 'center', justifyContent: 'center', minHeight: 48,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+    backgroundColor: T.cardBg,
+    borderRadius: T.rCard,
+    paddingVertical: 13, paddingHorizontal: 14,
+    borderWidth: 1, borderColor: T.strokeSoft,
+    alignItems: 'center', justifyContent: 'center',
+    minHeight: 48,
+    flexDirection: 'row', gap: 8,
+    ...T.shadowXs,
   },
-  btnSocialInner: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  btnSocialText: { color: COLORS.textPrimary, fontSize: 14, fontWeight: '500' },
+  btnSocialText: { color: T.textPrimary, fontSize: T.fsMd, fontWeight: '600' },
 
-  // Cambio de modo
+  // ── Switch / Legal ────────────────────────────────────────────────────────
   switchBtn: { alignItems: 'center', paddingVertical: 4 },
-  switchText: { color: COLORS.textTertiary, fontSize: 14, textAlign: 'center' },
-  switchLink: { color: COLORS.vozpe400, fontWeight: '600' },
+  switchText: { color: T.textMuted, fontSize: T.fsMd, textAlign: 'center' },
+  switchLink: { color: T.blue, fontWeight: '700' },
 
-  // Legal
-  legal: { color: COLORS.textTertiary, fontSize: 11, textAlign: 'center' },
-  legalLink: { color: COLORS.vozpe400 },
+  legal:     { color: T.textMuted, fontSize: T.fsXs, textAlign: 'center' },
+  legalLink: { color: T.blue, fontWeight: '600' },
 });

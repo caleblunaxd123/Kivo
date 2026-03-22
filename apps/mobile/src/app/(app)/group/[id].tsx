@@ -8,7 +8,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, MoreHorizontal, AlertTriangle, Users, Share2 } from 'lucide-react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { COLORS, formatCurrency } from '@vozpe/shared';
+import { formatCurrency } from '@vozpe/shared';
+import { T } from '../../../theme/tokens';
 import type { ParsedEntry } from '@vozpe/shared';
 import { useGroupStore } from '../../../stores/group.store';
 import { useAuthStore } from '../../../stores/auth.store';
@@ -191,7 +192,7 @@ export default function GroupScreen() {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.loading}>
-          <ActivityIndicator color={COLORS.vozpe500} />
+          <ActivityIndicator color={T.blue} />
           <Text style={styles.loadingText}>Cargando grupo…</Text>
         </View>
       </View>
@@ -362,29 +363,26 @@ export default function GroupScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bgBase },
-  loading: {
-    flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12,
-  },
-  loadingText: { color: COLORS.textSecondary, fontSize: 14 },
+  container: { flex: 1, backgroundColor: T.appBg },
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 12 },
+  loadingText: { color: T.textSecondary, fontSize: 14 },
 
-  // ── Header banner ────────────────────────────────────────────
+  // ── Header banner — azul brand ────────────────────────────────
   headerBanner: {
-    backgroundColor: COLORS.vozpe500,
+    backgroundColor: T.blue,
     paddingHorizontal: 16,
     paddingBottom: 20,
     gap: 14,
     overflow: 'hidden',
-    shadowColor: COLORS.vozpe600,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
+    shadowColor: T.blueDeep,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.28,
+    shadowRadius: 14,
     elevation: 8,
   },
   bannerOrb: {
-    position: 'absolute',
-    width: 280, height: 280, borderRadius: 140,
-    backgroundColor: 'rgba(255,255,255,0.07)',
+    position: 'absolute', width: 280, height: 280, borderRadius: 140,
+    backgroundColor: 'rgba(255,255,255,0.09)',
     top: -120, right: -80,
   },
   bannerTopRow: {
@@ -393,20 +391,20 @@ const styles = StyleSheet.create({
   },
   bannerIconBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center', justifyContent: 'center',
   },
   bannerRight: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   pendingBtnBanner: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: 'rgba(245,158,11,0.9)',
-    borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5,
+    backgroundColor: T.warning,
+    borderRadius: T.rChip, paddingHorizontal: 10, paddingVertical: 5,
   },
   pendingCountBanner: { color: '#fff', fontSize: 12, fontWeight: '700' },
   bannerIdentity: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   bannerEmojiWrap: {
-    width: 46, height: 46, borderRadius: 15,
-    backgroundColor: 'rgba(255,255,255,0.18)',
+    width: 46, height: 46, borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.2)',
     alignItems: 'center', justifyContent: 'center',
   },
   bannerEmoji: { fontSize: 24 },
@@ -417,12 +415,13 @@ const styles = StyleSheet.create({
   bannerMeta: { fontSize: 12, color: 'rgba(255,255,255,0.75)', fontWeight: '500' },
   bannerCards: { flexDirection: 'row', gap: 10 },
   bannerCard: {
-    flex: 1, backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 16, padding: 14, gap: 4,
-    borderWidth: 1, borderColor: 'rgba(255,255,255,0.2)',
+    flex: 1, backgroundColor: 'rgba(255,255,255,0.16)',
+    borderRadius: T.rCard, padding: 14, gap: 4,
+    borderWidth: 1, borderColor: 'rgba(255,255,255,0.22)',
   },
   bannerCardDark: {
-    backgroundColor: 'rgba(0,0,0,0.12)', borderColor: 'rgba(0,0,0,0.1)',
+    backgroundColor: T.green + '28',
+    borderColor: T.green + '30',
   },
   bannerCardLabel: {
     fontSize: 10, color: 'rgba(255,255,255,0.7)',
@@ -432,72 +431,69 @@ const styles = StyleSheet.create({
     fontSize: 20, fontWeight: '800',
     color: '#fff', fontFamily: 'monospace', letterSpacing: -0.6,
   },
-  bannerCardSub: { fontSize: 11, color: 'rgba(255,255,255,0.65)', fontWeight: '500' },
+  bannerCardSub: { fontSize: 11, color: 'rgba(255,255,255,0.68)', fontWeight: '500' },
 
   // ── Tab bar ──────────────────────────────────────────────────
   tabBar: {
     flexDirection: 'row',
-    backgroundColor: COLORS.bgSurface,
-    borderBottomWidth: 1, borderBottomColor: COLORS.borderSubtle,
+    backgroundColor: T.cardBg,
+    borderBottomWidth: 1, borderBottomColor: T.strokeSoft,
   },
   tab: {
-    flex: 1, paddingVertical: 12, alignItems: 'center',
+    flex: 1, paddingVertical: 13, alignItems: 'center',
     position: 'relative',
   },
   tabActive: {},
-  tabText: {
-    fontSize: 13, fontWeight: '500', color: COLORS.textTertiary,
-  },
-  tabTextActive: { color: COLORS.vozpe400, fontWeight: '700' },
+  tabText:       { fontSize: 13, fontWeight: '500', color: T.textMuted },
+  tabTextActive: { color: T.blue, fontWeight: '700' },
   tabIndicator: {
     position: 'absolute', bottom: 0, left: '20%', right: '20%',
-    height: 2, borderRadius: 1,
-    backgroundColor: COLORS.vozpe500,
+    height: 2.5, borderRadius: 2,
+    backgroundColor: T.blue,
   },
 
   content: { flex: 1 },
 
   // ── Menu modal ───────────────────────────────────────────────
   menuOverlay: {
-    flex: 1, backgroundColor: 'rgba(0,0,0,0.6)',
+    flex: 1, backgroundColor: 'rgba(15,23,42,0.5)',
     justifyContent: 'flex-end',
   },
   menuSheet: {
-    backgroundColor: COLORS.bgSurface,
-    borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    backgroundColor: T.cardBg,
+    borderTopLeftRadius: 26, borderTopRightRadius: 26,
     paddingTop: 12, paddingHorizontal: 16, gap: 8,
-    borderTopWidth: 1, borderColor: COLORS.borderDefault,
+    ...T.shadowModal,
   },
   menuHandle: {
     width: 36, height: 4, borderRadius: 2,
-    backgroundColor: COLORS.borderStrong,
+    backgroundColor: T.strokeSoft,
     alignSelf: 'center', marginBottom: 12,
   },
   menuGroupName: {
-    fontSize: 15, fontWeight: '600', color: COLORS.textSecondary,
+    fontSize: 15, fontWeight: '600', color: T.textSecondary,
     textAlign: 'center', marginBottom: 8,
   },
   menuItemExport: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: 10,
-    paddingVertical: 15, borderRadius: 14,
-    backgroundColor: `${COLORS.vozpe500}10`,
-    borderWidth: 1, borderColor: `${COLORS.vozpe500}30`,
+    gap: 10, paddingVertical: 15, borderRadius: T.rCard,
+    backgroundColor: T.blue + '0E',
+    borderWidth: 1, borderColor: T.blue + '28',
     marginBottom: 4,
   },
-  menuItemExportText: { color: COLORS.vozpe500, fontSize: 15, fontWeight: '600' },
+  menuItemExportText: { color: T.blue, fontSize: 15, fontWeight: '600' },
   menuItemDanger: {
-    paddingVertical: 15, borderRadius: 14,
-    backgroundColor: COLORS.errorMuted,
-    borderWidth: 1, borderColor: `${COLORS.error}30`,
+    paddingVertical: 15, borderRadius: T.rCard,
+    backgroundColor: T.error + '10',
+    borderWidth: 1, borderColor: T.error + '30',
     alignItems: 'center', marginBottom: 4,
   },
-  menuItemDangerText: { color: COLORS.error, fontSize: 15, fontWeight: '600' },
+  menuItemDangerText: { color: T.error, fontSize: 15, fontWeight: '600' },
   menuItemCancel: {
-    paddingVertical: 14, borderRadius: 14,
-    backgroundColor: COLORS.bgElevated,
-    borderWidth: 1, borderColor: COLORS.borderDefault,
+    paddingVertical: 14, borderRadius: T.rCard,
+    backgroundColor: T.blueSoft,
+    borderWidth: 1, borderColor: T.strokeSoft,
     alignItems: 'center', marginBottom: 4,
   },
-  menuItemCancelText: { color: COLORS.textSecondary, fontSize: 15, fontWeight: '500' },
+  menuItemCancelText: { color: T.textSecondary, fontSize: 15, fontWeight: '500' },
 });
