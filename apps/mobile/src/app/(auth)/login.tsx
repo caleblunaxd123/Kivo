@@ -21,6 +21,39 @@ function getRedirectUrl() {
   return url;
 }
 
+async function handleOAuthUrl(url: string): Promise<void> {
+  console.log('[OAuth] handling URL:', url);
+
+  const parsed = Linking.parse(url);
+  const code = parsed.queryParams?.['code'] as string | undefined;
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (error) Alert.alert('Error al iniciar sesión', error.message);
+    return;
+  }
+
+  const fragment = url.includes('#') ? url.split('#')[1] : '';
+  const hashParams: Record<string, string> = {};
+  fragment.split('&').filter(Boolean).forEach(p => {
+    const idx = p.indexOf('=');
+    if (idx > 0) hashParams[decodeURIComponent(p.slice(0, idx))] = decodeURIComponent(p.slice(idx + 1));
+  });
+  if (hashParams['access_token'] && hashParams['refresh_token']) {
+    const { error } = await supabase.auth.setSession({
+      access_token:  hashParams['access_token'],
+      refresh_token: hashParams['refresh_token'],
+    });
+    if (error) Alert.alert('Error al iniciar sesión', error.message);
+    return;
+  }
+
+  Alert.alert(
+    'Configuración requerida',
+    `Agrega esta URL en Supabase → Auth → Redirect URLs:\n\n${getRedirectUrl()}`,
+    [{ text: 'OK' }],
+  );
+}
+
 type Mode = 'login' | 'signup';
 
 // ── Google G oficial 4 colores ────────────────────────────────────────────────
@@ -107,28 +140,12 @@ export default function LoginScreen() {
       if (!data?.url) return;
 
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+      console.log('[OAuth] result:', JSON.stringify(result));
+
+      if (result.type === 'cancel' || result.type === 'dismiss') return;
       if (result.type !== 'success' || !result.url) return;
 
-      const returnedUrl = result.url;
-      const qs = returnedUrl.includes('?') ? returnedUrl.split('?')[1] : '';
-      const qp = Object.fromEntries(
-        qs.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
-      );
-      if (qp['code']) {
-        const { error: ex } = await supabase.auth.exchangeCodeForSession(qp['code']);
-        if (ex) Alert.alert('Error', ex.message);
-        return;
-      }
-      const hash = returnedUrl.includes('#') ? returnedUrl.split('#')[1] : '';
-      const hp = Object.fromEntries(
-        hash.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
-      );
-      if (hp['access_token'] && hp['refresh_token']) {
-        await supabase.auth.setSession({ access_token: hp['access_token'], refresh_token: hp['refresh_token'] });
-      } else {
-        Alert.alert('Login con Google',
-          `Agrega esta URL en Supabase → Auth → Redirect URLs:\n${redirectTo}`);
-      }
+      await handleOAuthUrl(result.url);
     } catch (e: any) {
       Alert.alert('Error', e?.message ?? 'Error al iniciar sesión');
     } finally {
