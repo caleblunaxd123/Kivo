@@ -141,7 +141,7 @@ export default function LoginScreen() {
       >
         {/* Logo */}
         <View style={styles.logoWrap}>
-          <VozpeLogo size="lg" />
+          <VozpeLogo size="xl" />
         </View>
 
         {/* Título */}
@@ -356,7 +356,7 @@ const styles = StyleSheet.create({
   },
 
   // Logo
-  logoWrap: { alignItems: 'center', paddingBottom: 4 },
+  logoWrap: { alignItems: 'center', paddingVertical: 10 },
 
   // Scroll
   scroll: {
