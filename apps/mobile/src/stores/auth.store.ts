@@ -113,7 +113,8 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session) {
+      console.log('[Auth] onAuthStateChange:', event, session?.user?.id ?? 'no session');
+      if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED')) {
         const sessionUserId = session.user.id;
         const userProfile = await upsertProfile(
           sessionUserId,
@@ -122,7 +123,7 @@ export const useAuthStore = create<AuthState>((set) => ({
           session.user.app_metadata?.provider,
         );
         set({ session, sessionUserId, user: userProfile, isAuthenticated: true });
-      } else if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
+      } else if (!session || event === 'SIGNED_OUT') {
         set({ session: null, sessionUserId: null, user: null, isAuthenticated: false });
       }
     });

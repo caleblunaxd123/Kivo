@@ -24,30 +24,41 @@ function getRedirectUrl() {
 
 /** Extrae el code/tokens de la URL de retorno OAuth y los intercambia con Supabase */
 async function handleOAuthUrl(url: string): Promise<void> {
-  console.log('[OAuth] handling URL:', url);
+  console.log('[OAuth] handling URL:', url.substring(0, 80) + '...');
 
   // PKCE: code en query params
   const parsed = Linking.parse(url);
   const code = parsed.queryParams?.['code'] as string | undefined;
   if (code) {
+    console.log('[OAuth] PKCE flow — exchangeCodeForSession');
     const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) Alert.alert('Error al iniciar sesión', error.message);
+    if (error) {
+      console.error('[OAuth] exchangeCodeForSession error:', error.message);
+      Alert.alert('Error al iniciar sesión', error.message);
+    }
     return;
   }
 
-  // Implicit flow fallback: tokens en el fragmento #
+  // Implicit flow: tokens en el fragmento #
   const fragment = url.includes('#') ? url.split('#')[1] : '';
   const hashParams: Record<string, string> = {};
   fragment.split('&').filter(Boolean).forEach(p => {
     const idx = p.indexOf('=');
     if (idx > 0) hashParams[decodeURIComponent(p.slice(0, idx))] = decodeURIComponent(p.slice(idx + 1));
   });
+
   if (hashParams['access_token'] && hashParams['refresh_token']) {
-    const { error } = await supabase.auth.setSession({
+    console.log('[OAuth] Implicit flow — setSession');
+    const { error, data } = await supabase.auth.setSession({
       access_token:  hashParams['access_token'],
       refresh_token: hashParams['refresh_token'],
     });
-    if (error) Alert.alert('Error al iniciar sesión', error.message);
+    if (error) {
+      console.error('[OAuth] setSession error:', error.message);
+      Alert.alert('Error al iniciar sesión', error.message);
+    } else {
+      console.log('[OAuth] setSession OK — user:', data.session?.user?.email);
+    }
     return;
   }
 
