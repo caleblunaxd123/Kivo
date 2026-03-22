@@ -61,8 +61,10 @@ export function formatCurrencySymbol(currency: string): string {
   return symbols[currency] ?? currency;
 }
 
-export function formatDate(date: string | Date, locale = 'es-PE'): string {
+export function formatDate(date: string | Date | undefined | null, locale = 'es-PE'): string {
+  if (!date) return '—';
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '—';
   return new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'short',
@@ -70,8 +72,10 @@ export function formatDate(date: string | Date, locale = 'es-PE'): string {
   }).format(d);
 }
 
-export function formatRelativeTime(date: string | Date, locale = 'es-PE'): string {
+export function formatRelativeTime(date: string | Date | undefined | null, locale = 'es-PE'): string {
+  if (!date) return '—';
   const d = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(d.getTime())) return '—';
   const now = new Date();
   const diffMs = now.getTime() - d.getTime();
   const diffMins = Math.floor(diffMs / 60_000);
