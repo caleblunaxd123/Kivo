@@ -6,13 +6,22 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { ChevronLeft, Mail, Lock } from 'lucide-react-native';
+import { ChevronLeft, Mail, Lock, Eye, EyeOff } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import Constants from 'expo-constants';
 import { COLORS } from '@vozpe/shared';
 import { supabase } from '../../lib/supabase';
 import { Button } from '../../components/common/Button';
 import { VozpeLogo } from '../../components/common/VozpeLogo';
+
+function getRedirectUrl(): string {
+  if (__DEV__) {
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+    if (projectId) return `exp://u.expo.dev/${projectId}`;
+  }
+  return Linking.createURL('/');
+}
 
 type Mode = 'login' | 'signup';
 
@@ -22,6 +31,7 @@ export default function LoginScreen() {
   const [mode, setMode]                   = useState<Mode>('login');
   const [email, setEmail]                 = useState('');
   const [password, setPassword]           = useState('');
+  const [showPassword, setShowPassword]   = useState(false);
   const [loading, setLoading]             = useState(false);
   const [oauthLoading, setOauthLoading]   = useState<'google' | 'apple' | null>(null);
   const [emailFocused, setEmailFocused]   = useState(false);
@@ -64,7 +74,7 @@ export default function LoginScreen() {
   const handleOAuth = async (provider: 'google' | 'apple') => {
     setOauthLoading(provider);
     try {
-      const redirectTo = Linking.createURL('/');
+      const redirectTo = getRedirectUrl();
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo, skipBrowserRedirect: true },
@@ -72,8 +82,6 @@ export default function LoginScreen() {
       if (error) { Alert.alert('Error', error.message); return; }
       if (!data?.url) return;
 
-      // openAuthSessionAsync cierra el browser automáticamente cuando detecta
-      // el redirect de vuelta al scheme vozpe://
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
       if (result.type === 'success' && result.url) {
         const hashPart = result.url.includes('#')
@@ -91,6 +99,23 @@ export default function LoginScreen() {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      Alert.alert('Ingresa tu correo', 'Escribe tu correo arriba y luego toca "Olvidé mi contraseña".');
+      return;
+    }
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase());
+      if (error) throw error;
+      Alert.alert(
+        'Correo enviado',
+        `Revisa tu bandeja en ${email.trim()} para restablecer tu contraseña.`,
+      );
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ?? 'No se pudo enviar el correo.');
+    }
+  };
+
   const isLogin = mode === 'login';
 
   return (
@@ -98,13 +123,13 @@ export default function LoginScreen() {
       style={[styles.outer, { paddingTop: insets.top }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      {/* Orb de fondo */}
+      {/* Orbs de fondo */}
       <View style={styles.bgOrb} />
       <View style={styles.bgOrb2} />
 
-      {/* Header — solo botón volver */}
+      {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()} accessibilityRole="button" accessibilityLabel="Volver">
           <ChevronLeft size={20} color={COLORS.textSecondary} />
         </TouchableOpacity>
       </View>
@@ -114,9 +139,9 @@ export default function LoginScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Logo prominente */}
+        {/* Logo */}
         <View style={styles.logoWrap}>
-          <VozpeLogo size="lg" />
+          <VozpeLogo size="xl" />
         </View>
 
         {/* Título */}
@@ -126,60 +151,16 @@ export default function LoginScreen() {
           </Text>
           <Text style={styles.subtitle}>
             {isLogin
-              ? 'Continúa donde lo dejaste'
-              : 'Empieza a organizar gastos en grupo hoy'}
+              ? 'Inicia sesión con tu cuenta'
+              : 'Empieza a organizar gastos en grupo'}
           </Text>
         </View>
 
-        {/* ── Social Auth ── */}
-        <View style={styles.socialGroup}>
-          <TouchableOpacity
-            style={styles.btnSocial}
-            onPress={() => handleOAuth('google')}
-            activeOpacity={0.80}
-            disabled={!!oauthLoading}
-          >
-            {oauthLoading === 'google' ? (
-              <ActivityIndicator size="small" color={COLORS.textSecondary} />
-            ) : (
-              <View style={styles.btnSocialInner}>
-                <GoogleColorIcon size={22} />
-                <Text style={styles.btnSocialText}>Continuar con Google</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-
-          {Platform.OS === 'ios' && (
-            <TouchableOpacity
-              style={styles.btnSocial}
-              onPress={() => handleOAuth('apple')}
-              activeOpacity={0.80}
-              disabled={!!oauthLoading}
-            >
-              {oauthLoading === 'apple' ? (
-                <ActivityIndicator size="small" color={COLORS.textSecondary} />
-              ) : (
-                <View style={styles.btnSocialInner}>
-                  <AppleIcon size={22} />
-                  <Text style={styles.btnSocialText}>Continuar con Apple</Text>
-                </View>
-              )}
-            </TouchableOpacity>
-          )}
-        </View>
-
-        {/* Separador */}
-        <View style={styles.divider}>
-          <View style={styles.dividerLine} />
-          <Text style={styles.dividerText}>o con correo</Text>
-          <View style={styles.dividerLine} />
-        </View>
-
-        {/* ── Formulario ── */}
+        {/* ── Formulario primero — es lo principal ── */}
         <View style={styles.formGroup}>
           <View style={[styles.inputWrap, emailFocused && styles.inputWrapFocused]}>
             <View style={styles.inputIconWrap}>
-              <Mail size={15} color={emailFocused ? COLORS.vozpe500 : COLORS.textTertiary} />
+              <Mail size={16} color={emailFocused ? COLORS.vozpe500 : COLORS.textTertiary} />
             </View>
             <TextInput
               style={styles.input}
@@ -197,7 +178,7 @@ export default function LoginScreen() {
 
           <View style={[styles.inputWrap, passFocused && styles.inputWrapFocused]}>
             <View style={styles.inputIconWrap}>
-              <Lock size={15} color={passFocused ? COLORS.vozpe500 : COLORS.textTertiary} />
+              <Lock size={16} color={passFocused ? COLORS.vozpe500 : COLORS.textTertiary} />
             </View>
             <TextInput
               style={styles.input}
@@ -205,14 +186,27 @@ export default function LoginScreen() {
               placeholderTextColor={COLORS.textTertiary}
               value={password}
               onChangeText={setPassword}
-              secureTextEntry
+              secureTextEntry={!showPassword}
               autoCapitalize="none"
               returnKeyType="send"
               onSubmitEditing={handleSubmit}
               onFocus={() => setPassFocused(true)}
               onBlur={() => setPassFocused(false)}
             />
+            <TouchableOpacity onPress={() => setShowPassword(v => !v)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              {showPassword
+                ? <EyeOff size={18} color={COLORS.textTertiary} />
+                : <Eye    size={18} color={COLORS.textTertiary} />
+              }
+            </TouchableOpacity>
           </View>
+
+          {/* Forgot password — solo en login */}
+          {isLogin && (
+            <TouchableOpacity onPress={handleForgotPassword} style={styles.forgotBtn}>
+              <Text style={styles.forgotText}>Olvidé mi contraseña</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         {/* CTA principal */}
@@ -224,6 +218,54 @@ export default function LoginScreen() {
           fullWidth
           size="lg"
         />
+
+        {/* Separador */}
+        <View style={styles.divider}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>o continúa con</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        {/* ── Social Auth ── */}
+        <View style={styles.socialGroup}>
+          <TouchableOpacity
+            style={styles.btnSocial}
+            onPress={() => handleOAuth('google')}
+            activeOpacity={0.80}
+            disabled={!!oauthLoading}
+            accessibilityRole="button"
+            accessibilityLabel="Continuar con Google"
+          >
+            {oauthLoading === 'google' ? (
+              <ActivityIndicator size="small" color={COLORS.textSecondary} />
+            ) : (
+              <View style={styles.btnSocialInner}>
+                <GoogleColorIcon size={20} />
+                <Text style={styles.btnSocialText}>Google</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+
+          {Platform.OS === 'ios' && (
+            <TouchableOpacity
+              style={styles.btnSocial}
+              onPress={() => handleOAuth('apple')}
+              activeOpacity={0.80}
+              disabled={!!oauthLoading}
+              accessibilityRole="button"
+              accessibilityLabel="Continuar con Apple"
+            >
+              {oauthLoading === 'apple' ? (
+                <ActivityIndicator size="small" color={COLORS.textSecondary} />
+              ) : (
+                <View style={styles.btnSocialInner}>
+                  <AppleIcon size={20} />
+                  <Text style={styles.btnSocialText}>Apple</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
 
         {/* Cambio de modo */}
         <TouchableOpacity
@@ -277,7 +319,8 @@ function GoogleColorIcon({ size = 22 }: { size?: number }) {
 function AppleIcon({ size = 22 }: { size?: number }) {
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: size * 0.82, color: '#000', lineHeight: size }}>
+      <Text style={{ fontSize: size * 0.88, color: '#000', lineHeight: size * 1.05 }}>
+        {'\uF8FF'}
       </Text>
     </View>
   );
@@ -314,15 +357,15 @@ const styles = StyleSheet.create({
   },
 
   // Logo
-  logoWrap: { alignItems: 'center', paddingBottom: 4 },
+  logoWrap: { alignItems: 'center', paddingVertical: 10 },
 
   // Scroll
   scroll: {
-    paddingHorizontal: 22, paddingTop: 14, paddingBottom: 44, gap: 14,
+    paddingHorizontal: 22, paddingTop: 10, paddingBottom: 44, gap: 16,
   },
 
   // Título
-  titleBlock: { gap: 5, marginBottom: 2 },
+  titleBlock: { gap: 4, marginBottom: 4 },
   title: {
     fontSize: 26, fontWeight: '800',
     color: COLORS.textPrimary, letterSpacing: -0.7,
@@ -331,28 +374,7 @@ const styles = StyleSheet.create({
     fontSize: 14, color: COLORS.textSecondary, lineHeight: 20,
   },
 
-  // Social
-  socialGroup: { gap: 10 },
-  btnSocial: {
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 15, paddingVertical: 14, paddingHorizontal: 20,
-    borderWidth: 1, borderColor: COLORS.borderDefault,
-    alignItems: 'center', justifyContent: 'center', minHeight: 52,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
-  },
-  btnSocialInner: { flexDirection: 'row', alignItems: 'center', gap: 11 },
-  btnSocialText: { color: COLORS.textPrimary, fontSize: 15, fontWeight: '500' },
-
-  // Divider
-  divider: {
-    flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 2,
-  },
-  dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.borderSubtle },
-  dividerText: { color: COLORS.textTertiary, fontSize: 11, fontWeight: '500' },
-
-  // Form
+  // Form — ahora es lo primero que se ve
   formGroup: { gap: 10 },
   inputWrap: {
     flexDirection: 'row', alignItems: 'center',
@@ -366,11 +388,40 @@ const styles = StyleSheet.create({
     borderColor: COLORS.vozpe500,
     backgroundColor: `${COLORS.vozpe500}07`,
   },
-  inputIconWrap: { width: 18, alignItems: 'center' },
+  inputIconWrap: { width: 20, alignItems: 'center' },
   input: { flex: 1, color: COLORS.textPrimary, fontSize: 15 },
 
+  // Forgot password
+  forgotBtn: { alignSelf: 'flex-end', paddingVertical: 2 },
+  forgotText: { color: COLORS.vozpe400, fontSize: 13, fontWeight: '500' },
+
+  // Divider
+  divider: {
+    flexDirection: 'row', alignItems: 'center', gap: 10, marginVertical: 2,
+  },
+  dividerLine: { flex: 1, height: 1, backgroundColor: COLORS.borderSubtle },
+  dividerText: { color: COLORS.textTertiary, fontSize: 12, fontWeight: '500' },
+
+  // Social — ahora son botones compactos en fila
+  socialGroup: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  btnSocial: {
+    flex: 1,
+    backgroundColor: COLORS.bgSurface,
+    borderRadius: 14, paddingVertical: 13, paddingHorizontal: 16,
+    borderWidth: 1, borderColor: COLORS.borderDefault,
+    alignItems: 'center', justifyContent: 'center', minHeight: 48,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04, shadowRadius: 4, elevation: 1,
+  },
+  btnSocialInner: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  btnSocialText: { color: COLORS.textPrimary, fontSize: 14, fontWeight: '500' },
+
   // Cambio de modo
-  switchBtn: { alignItems: 'center', paddingVertical: 3 },
+  switchBtn: { alignItems: 'center', paddingVertical: 4 },
   switchText: { color: COLORS.textTertiary, fontSize: 14, textAlign: 'center' },
   switchLink: { color: COLORS.vozpe400, fontWeight: '600' },
 

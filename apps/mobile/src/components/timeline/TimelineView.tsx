@@ -21,8 +21,8 @@ export function TimelineView({ entries, members, onEntryPress }: TimelineViewPro
     return (
       <EmptyState
         emoji="⚡"
-        title="Nada por aquí todavía"
-        subtitle="Usa el compositor para agregar la primera entrada al grupo."
+        title="Aún no hay entradas"
+        subtitle="Toca 'Agregar entrada' para registrar el primer gasto por voz, foto o texto."
       />
     );
   }
@@ -129,8 +129,8 @@ function TimelineCard({
 }
 
 const styles = StyleSheet.create({
-  list: { padding: 16, paddingBottom: 32 },
-  separator: { height: 4 },
+  list: { padding: 16, paddingBottom: 120 },
+  separator: { height: 8 },
 
   card: {
     flexDirection: 'row',

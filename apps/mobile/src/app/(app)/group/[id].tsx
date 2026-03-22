@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View, Text, StyleSheet, TouchableOpacity, Platform, Alert, Modal,
   Pressable, ActivityIndicator,
@@ -38,7 +38,7 @@ export default function GroupScreen() {
     archiveGroup, leaveGroup,
   } = useGroupStore();
 
-  const [tab,         setTab]         = useState<ActiveTab>('sheet');
+  const [tab,         setTab]         = useState<ActiveTab>('timeline');
   const [menuVisible, setMenuVisible] = useState(false);
   const [isActioning, setIsActioning] = useState(false);
 
@@ -49,9 +49,12 @@ export default function GroupScreen() {
 
   const group   = activeGroup;
   const isOwner = group?.ownerId === user?.id;
-  const totalAmount = entries
-    .filter(e => e.status === 'confirmed')
-    .reduce((sum, e) => sum + (e.amountInBase ?? e.amount), 0);
+  const totalAmount = useMemo(() =>
+    entries
+      .filter(e => e.status !== 'archived')
+      .reduce((sum, e) => sum + (e.amountInBase ?? e.amount), 0),
+    [entries]
+  );
 
   const handleEntryConfirmed = useCallback(async (parsed: Partial<ParsedEntry>, rawInput: string) => {
     if (!id || !user) return;
@@ -76,9 +79,10 @@ export default function GroupScreen() {
     const tempId = addEntryOptimistic(entryData);
     try {
       await saveEntry(entryData);
-    } catch (e) {
+    } catch (e: any) {
       console.error('saveEntry failed:', e);
       removeEntry(tempId);
+      Alert.alert('Error al guardar', e?.message ?? 'No se pudo guardar la entrada. Intenta de nuevo.');
     }
   }, [id, user, group, addEntryOptimistic]);
 
@@ -90,7 +94,10 @@ export default function GroupScreen() {
         defaultCurrency: group?.baseCurrency ?? 'USD',
         createdBy: user.id,
       });
-    } catch (e) { console.error('Photo upload failed:', e); }
+    } catch (e: any) {
+      console.error('Photo upload failed:', e);
+      Alert.alert('Error con la foto', e?.message ?? 'No se pudo procesar la imagen. Intenta de nuevo.');
+    }
   }, [id, user, group, members]);
 
   const handleArchiveGroup = useCallback(() => {
@@ -200,7 +207,7 @@ export default function GroupScreen() {
         <View style={styles.bannerCards}>
           <View style={styles.bannerCard}>
             <Text style={styles.bannerCardLabel}>Total del grupo</Text>
-            <Text style={styles.bannerCardAmount}>
+            <Text style={styles.bannerCardAmount} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
               {formatCurrency(totalAmount, group.baseCurrency)}
             </Text>
             <AvatarGroup

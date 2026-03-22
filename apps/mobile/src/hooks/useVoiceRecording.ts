@@ -6,7 +6,7 @@ import {
   setAudioModeAsync,
   RecordingPresets,
 } from 'expo-audio';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 
 type RecordingState = 'idle' | 'recording' | 'processing';
 

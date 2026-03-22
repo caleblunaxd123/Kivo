@@ -70,7 +70,9 @@ export function SheetView({
   const stats = useMemo(() => {
     const confirmed = filtered.filter(e => e.status === 'confirmed');
     const pending   = filtered.filter(e => e.status === 'pending_review');
-    const total     = confirmed.reduce((s, e) => s + (e.amountInBase ?? e.amount), 0);
+    const total     = filtered
+      .filter(e => e.status !== 'archived')
+      .reduce((s, e) => s + (e.amountInBase ?? e.amount), 0);
     return { confirmed: confirmed.length, pending: pending.length, total };
   }, [filtered]);
 
@@ -185,13 +187,12 @@ export function SheetView({
         </View>
       </ScrollView>
 
-      {/* ── Footer totals ── */}
+      {/* ── Footer ── */}
       <View style={styles.footer}>
-        <Text style={styles.footerLabel}>{sorted.length} fila{sorted.length !== 1 ? 's' : ''}</Text>
-        <View style={styles.footerRight}>
-          <Text style={styles.footerTotalLabel}>TOTAL CONFIRMADO</Text>
-          <Text style={styles.footerTotal}>{formatCurrency(stats.total, baseCurrency)}</Text>
-        </View>
+        <Text style={styles.footerLabel}>
+          {sorted.length} entrada{sorted.length !== 1 ? 's' : ''}
+          {filter !== 'all' ? ` · filtro: ${filter === 'confirmed' ? 'confirmadas' : 'pendientes'}` : ''}
+        </Text>
       </View>
     </View>
   );
@@ -240,7 +241,7 @@ function SheetRow({
         </View>
 
         {/* Categoría */}
-        <View style={[styles.dCell, styles.colCat]}>
+        <View style={[styles.dCell, styles.colCat, { overflow: 'hidden' }]}>
           <View style={[styles.catChip, { backgroundColor: `${cat.color}20` }]}>
             <Text style={styles.catEmoji}>{cat.emoji}</Text>
             <Text style={[styles.catLabel, { color: cat.color }]} numberOfLines={1}>
@@ -416,12 +417,13 @@ const styles = StyleSheet.create({
 
   // Category chip
   catChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    borderRadius: 6, paddingHorizontal: 6, paddingVertical: 3,
+    flexDirection: 'row', alignItems: 'center', gap: 3,
+    borderRadius: 6, paddingHorizontal: 5, paddingVertical: 3,
     alignSelf: 'flex-start',
+    maxWidth: '100%',
   },
-  catEmoji: { fontSize: 12 },
-  catLabel: { fontSize: 10, fontWeight: '600' },
+  catEmoji: { fontSize: 11, flexShrink: 0 },
+  catLabel: { fontSize: 10, fontWeight: '600', flexShrink: 1 },
 
   // Status chips
   chipConfirmed: {
@@ -453,20 +455,11 @@ const styles = StyleSheet.create({
 
   // Footer
   footer: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingVertical: 10,
+    paddingHorizontal: 16, paddingVertical: 8,
     backgroundColor: XL.totalBg,
-    borderTopWidth: 2, borderTopColor: XL.headerBg,
+    borderTopWidth: 1, borderTopColor: XL.border,
   },
-  footerLabel: { color: XL.textSub, fontSize: 12, fontWeight: '500' },
-  footerRight: { alignItems: 'flex-end', gap: 2 },
-  footerTotalLabel: {
-    fontSize: 9, fontWeight: '700', color: XL.headerBg, letterSpacing: 0.8,
-  },
-  footerTotal: {
-    fontSize: 20, fontWeight: '800',
-    color: XL.headerBg, fontFamily: 'monospace', letterSpacing: -0.5,
-  },
+  footerLabel: { color: XL.textMuted, fontSize: 11, fontWeight: '500' },
 
   // Column width definitions
   colN:      { width: COL.n },

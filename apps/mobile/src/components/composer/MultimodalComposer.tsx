@@ -22,7 +22,7 @@ import {
   RecordingPresets,
 } from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
+import * as FileSystem from 'expo-file-system/legacy';
 import { COLORS } from '@vozpe/shared';
 import type { ParsedEntry, GroupMember } from '@vozpe/shared';
 import { parseQuickText } from '@vozpe/shared';
@@ -50,6 +50,7 @@ export function MultimodalComposer({
   const [recordingDuration, setRecordingDuration] = useState(0);
   const [parsedPreview, setParsedPreview] = useState<Partial<ParsedEntry> | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const durationInterval = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -57,6 +58,8 @@ export function MultimodalComposer({
   const pulseLoop = useRef<Animated.CompositeAnimation | null>(null);
 
   // ─── Voice Recording ───────────────────────────────────────────────────────
+
+  const MAX_RECORDING_SECONDS = 30;
 
   const startVoiceRecording = useCallback(async () => {
     const { granted } = await requestRecordingPermissionsAsync();
@@ -68,8 +71,14 @@ export function MultimodalComposer({
     setMode('voice_recording');
     setRecordingDuration(0);
 
+    let elapsed = 0;
     durationInterval.current = setInterval(() => {
-      setRecordingDuration(d => d + 1);
+      elapsed += 1;
+      setRecordingDuration(elapsed);
+      if (elapsed >= MAX_RECORDING_SECONDS) {
+        // Auto-stop: se llama fuera del interval para evitar problemas
+        setTimeout(() => stopVoiceRecording(), 0);
+      }
     }, 1000);
 
     pulseLoop.current = Animated.loop(
@@ -88,6 +97,7 @@ export function MultimodalComposer({
     pulseAnim.setValue(1);
 
     setIsProcessing(true);
+    setError(null);
     setMode('voice_preview');
 
     try {
@@ -102,25 +112,31 @@ export function MultimodalComposer({
         await FileSystem.deleteAsync(uri, { idempotent: true });
 
         const { supabase } = await import('../../lib/supabase');
-        const { data, error } = await supabase.functions.invoke('parse-entry', {
+        const { data, error: fnError } = await supabase.functions.invoke('parse-entry', {
           body: { mode: 'transcribe', audioBase64, audioFormat: 'm4a' },
         });
 
-        const result = error ? null : (data?.transcription as string | null);
+        if (fnError) throw new Error('No se pudo transcribir el audio');
+
+        const result = (data?.transcription as string | null);
         const textToUse = result ?? '';
         setTranscription(textToUse);
 
-        if (textToUse) {
-          const { parsed } = parseQuickText(
-            textToUse,
-            members.map(m => ({ id: m.id, name: m.displayName })),
-            defaultCurrency
-          );
-          setParsedPreview(parsed);
+        if (!textToUse) {
+          setError('No se detectó voz. Intenta de nuevo.');
+          return;
         }
+
+        const { parsed } = parseQuickText(
+          textToUse,
+          members.map(m => ({ id: m.id, name: m.displayName })),
+          defaultCurrency
+        );
+        setParsedPreview(parsed);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('[stopVoiceRecording] error:', err);
+      setError(err?.message ?? 'Error al procesar el audio. Intenta de nuevo.');
     } finally {
       setIsProcessing(false);
     }
@@ -175,6 +191,7 @@ export function MultimodalComposer({
     setText('');
     setTranscription('');
     setParsedPreview(null);
+    setError(null);
     setMode('idle');
   }, [recorder, pulseAnim]);
 
@@ -187,23 +204,37 @@ export function MultimodalComposer({
     return (
       <View style={styles.idleContainer}>
         <View style={styles.idleRow}>
-          {/* Action buttons */}
-          <TouchableOpacity style={styles.actionBtn} onPress={startVoiceRecording}>
-            <Mic size={20} color={COLORS.vozpe400} strokeWidth={1.8} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={openCamera}>
-            <Camera size={20} color={COLORS.vozpe400} strokeWidth={1.8} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => setMode('text_input')}>
-            <PenLine size={20} color={COLORS.vozpe400} strokeWidth={1.8} />
-          </TouchableOpacity>
+          {/* Secondary action buttons — Voz + Foto */}
+          <View style={styles.secondaryBtns}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={startVoiceRecording}
+              accessibilityRole="button"
+              accessibilityLabel="Grabar con voz"
+            >
+              <Mic size={19} color={COLORS.vozpe500} strokeWidth={1.8} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={openCamera}
+              accessibilityRole="button"
+              accessibilityLabel="Tomar foto de ticket"
+            >
+              <Camera size={19} color={COLORS.vozpe500} strokeWidth={1.8} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Divider */}
+          <View style={styles.idleDivider} />
 
           {/* Primary CTA */}
           <TouchableOpacity
             style={styles.primaryBtn}
             onPress={() => setMode('text_input')}
+            accessibilityRole="button"
+            accessibilityLabel="Agregar entrada"
           >
-            <Plus size={18} color={COLORS.white} strokeWidth={2.5} />
+            <Plus size={17} color={COLORS.white} strokeWidth={2.5} />
             <Text style={styles.primaryBtnText}>Agregar entrada</Text>
           </TouchableOpacity>
         </View>
@@ -222,7 +253,12 @@ export function MultimodalComposer({
             <View style={styles.recDot} />
             <Text style={styles.recLabel}>GRABANDO</Text>
           </View>
-          <Text style={styles.duration}>{formatDuration(recordingDuration)}</Text>
+          <Text style={[
+            styles.duration,
+            recordingDuration >= MAX_RECORDING_SECONDS - 5 && styles.durationWarning,
+          ]}>
+            {formatDuration(recordingDuration)} / {formatDuration(MAX_RECORDING_SECONDS)}
+          </Text>
           <TouchableOpacity onPress={cancel} style={styles.closeBtn}>
             <X size={16} color={COLORS.textSecondary} />
           </TouchableOpacity>
@@ -246,7 +282,7 @@ export function MultimodalComposer({
 
         {/* Stop button */}
         <Animated.View style={[styles.stopWrap, { transform: [{ scale: pulseAnim }] }]}>
-          <TouchableOpacity style={styles.stopBtn} onPress={stopVoiceRecording}>
+          <TouchableOpacity style={styles.stopBtn} onPress={stopVoiceRecording} accessibilityRole="button" accessibilityLabel="Detener grabación">
             <Square size={18} color={COLORS.white} fill={COLORS.white} />
           </TouchableOpacity>
         </Animated.View>
@@ -274,6 +310,13 @@ export function MultimodalComposer({
           <View style={styles.processingRow}>
             <View style={styles.processingDot} />
             <Text style={styles.processingText}>Procesando audio…</Text>
+          </View>
+        ) : error ? (
+          <View style={styles.errorCard}>
+            <Text style={styles.errorText}>{error}</Text>
+            <TouchableOpacity style={styles.retryBtn} onPress={() => { setError(null); cancel(); }}>
+              <Text style={styles.retryBtnText}>Intentar de nuevo</Text>
+            </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.parsedCard}>
@@ -371,14 +414,22 @@ const styles = StyleSheet.create({
   idleRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
+  },
+  secondaryBtns: {
+    flexDirection: 'row',
     gap: 8,
   },
   actionBtn: {
     width: 44, height: 44,
-    borderRadius: 14,
-    backgroundColor: COLORS.bgElevated,
+    borderRadius: 13,
+    backgroundColor: `${COLORS.vozpe500}10`,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: COLORS.borderDefault,
+    borderWidth: 1, borderColor: `${COLORS.vozpe500}25`,
+  },
+  idleDivider: {
+    width: 1, height: 28,
+    backgroundColor: COLORS.borderDefault,
   },
   primaryBtn: {
     flex: 1,
@@ -387,11 +438,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 7,
     backgroundColor: COLORS.vozpe500,
-    borderRadius: 14,
+    borderRadius: 13,
     paddingVertical: 12,
     shadowColor: COLORS.vozpe500,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.35,
     shadowRadius: 10,
     elevation: 6,
   },
@@ -435,6 +486,9 @@ const styles = StyleSheet.create({
   duration: {
     color: COLORS.textSecondary, fontSize: 14, fontFamily: 'monospace',
     marginRight: 8,
+  },
+  durationWarning: {
+    color: COLORS.error, fontWeight: '700',
   },
   waveform: {
     flexDirection: 'row',
@@ -487,6 +541,21 @@ const styles = StyleSheet.create({
     color: COLORS.textSecondary, fontSize: 13, fontFamily: 'monospace',
   },
   pendingHint: { color: COLORS.warning, fontSize: 12, marginTop: 4 },
+
+  // ── Error state ─────────────────────────────────────────────
+  errorCard: {
+    backgroundColor: COLORS.errorMuted,
+    borderWidth: 1, borderColor: `${COLORS.error}30`,
+    borderRadius: 14, padding: 14, gap: 10,
+    alignItems: 'center',
+  },
+  errorText: { color: COLORS.error, fontSize: 14, textAlign: 'center' },
+  retryBtn: {
+    backgroundColor: COLORS.bgSurface,
+    borderRadius: 10, paddingHorizontal: 16, paddingVertical: 8,
+    borderWidth: 1, borderColor: COLORS.borderDefault,
+  },
+  retryBtnText: { color: COLORS.textSecondary, fontSize: 13, fontWeight: '500' },
 
   // ── Action row ────────────────────────────────────────────────
   actionRow: { flexDirection: 'row', gap: 10 },

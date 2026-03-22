@@ -11,11 +11,11 @@ const logoAsset = require('../../../assets/logo-vozpe.png');
 
 // Dimensiones por tamaño (ratio ~3.8:1 basado en el logo horizontal)
 const SIZES = {
-  xs:  { height: 22,  width: 84  },
-  sm:  { height: 30,  width: 114 },
-  md:  { height: 40,  width: 152 },
-  lg:  { height: 52,  width: 198 },
-  xl:  { height: 66,  width: 251 },
+  xs:  { height: 28,  width: 106 },
+  sm:  { height: 38,  width: 144 },
+  md:  { height: 50,  width: 190 },
+  lg:  { height: 70,  width: 266 },
+  xl:  { height: 90,  width: 342 },
 };
 
 interface VozpeLogoProps {

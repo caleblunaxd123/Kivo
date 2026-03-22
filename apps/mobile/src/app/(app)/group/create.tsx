@@ -88,7 +88,12 @@ export default function CreateGroupScreen() {
 
   // ── Voice ──────────────────────────────────────────────────────────────────
   const startVoice = async () => {
-    await startRecording();
+    try {
+      await startRecording();
+    } catch (e: any) {
+      Alert.alert('Micrófono', e?.message ?? 'No se pudo acceder al micrófono.');
+      return;
+    }
     pulseRef.current = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, { toValue: 1.2, duration: 600, useNativeDriver: true }),
@@ -101,12 +106,18 @@ export default function CreateGroupScreen() {
   const stopVoice = async () => {
     pulseRef.current?.stop();
     pulseAnim.setValue(1);
-    const transcription = await stopAndTranscribe();
-    if (transcription) {
-      const parsed = parseGroupFromVoice(transcription);
-      if (parsed.name) setName(parsed.name);
-      handleTypeSelect(parsed.type);
-      setCurrency(parsed.currency);
+    try {
+      const transcription = await stopAndTranscribe();
+      if (transcription) {
+        const parsed = parseGroupFromVoice(transcription);
+        if (parsed.name) setName(parsed.name);
+        handleTypeSelect(parsed.type);
+        setCurrency(parsed.currency);
+      } else {
+        Alert.alert('Sin voz detectada', 'No se pudo transcribir. Intenta hablar más claro.');
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ?? 'Error al procesar la grabación.');
     }
   };
 
@@ -227,7 +238,7 @@ export default function CreateGroupScreen() {
                 activeOpacity={0.7}
               >
                 <Text style={styles.typeEmoji}>{cfg.emoji}</Text>
-                <Text style={[styles.typeLabel, type === t && styles.typeLabelActive]}>
+                <Text style={[styles.typeLabel, type === t && styles.typeLabelActive]} numberOfLines={1}>
                   {cfg.label}
                 </Text>
               </TouchableOpacity>
@@ -261,7 +272,7 @@ export default function CreateGroupScreen() {
           label="Crear grupo"
           onPress={handleCreate}
           loading={loading}
-          disabled={!name.trim() || isRecording || isTranscribing}
+          disabled={!name.trim() || isRecording || isTranscribing || loading}
           fullWidth
           size="lg"
         />
@@ -338,7 +349,8 @@ const styles = StyleSheet.create({
 
   typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   typeCard: {
-    width: '22%', aspectRatio: 1,
+    flexBasis: '22%', flexGrow: 1, maxWidth: '30%',
+    aspectRatio: 1,
     backgroundColor: COLORS.bgSurface,
     borderRadius: 14, borderWidth: 1, borderColor: COLORS.borderDefault,
     alignItems: 'center', justifyContent: 'center', gap: 4,
@@ -348,7 +360,10 @@ const styles = StyleSheet.create({
     backgroundColor: `${COLORS.vozpe500}15`,
   },
   typeEmoji: { fontSize: 22 },
-  typeLabel: { fontSize: 10, color: COLORS.textSecondary, fontWeight: '500', textAlign: 'center' },
+  typeLabel: {
+    fontSize: 10, color: COLORS.textSecondary, fontWeight: '500',
+    textAlign: 'center', paddingHorizontal: 2,
+  },
   typeLabelActive: { color: COLORS.vozpe400 },
 
   currencyRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },

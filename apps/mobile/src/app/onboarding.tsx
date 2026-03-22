@@ -12,10 +12,19 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Camera, PenLine, Sparkles, Mic } from 'lucide-react-native';
+import { Camera, PenLine, Sparkles, Mic, Mail } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
+import Constants from 'expo-constants';
 import { COLORS } from '@vozpe/shared';
+
+function getRedirectUrl(): string {
+  if (__DEV__) {
+    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
+    if (projectId) return `exp://u.expo.dev/${projectId}`;
+  }
+  return Linking.createURL('/');
+}
 import { supabase } from '../lib/supabase';
 import { VozpeLogo } from '../components/common/VozpeLogo';
 
@@ -55,7 +64,7 @@ export default function OnboardingScreen() {
   const handleOAuth = async (provider: 'google' | 'apple') => {
     setOauthLoading(provider);
     try {
-      const redirectTo = Linking.createURL('/');
+      const redirectTo = getRedirectUrl();
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo, skipBrowserRedirect: true },
@@ -91,7 +100,7 @@ export default function OnboardingScreen() {
 
       {/* ── Logo ── */}
       <Animated.View style={[styles.logoWrap, { opacity: logoOpacity }]}>
-        <VozpeLogo size="lg" />
+        <VozpeLogo size="xl" />
       </Animated.View>
 
       {/* ── Hero ── */}
@@ -206,15 +215,13 @@ export default function OnboardingScreen() {
           </TouchableOpacity>
         )}
 
-        {/* Separador */}
-        <View style={styles.separator} />
-
-        {/* Correo — acción secundaria limpia, sin divider redundante */}
+        {/* Correo — botón visible, no escondido */}
         <TouchableOpacity
           style={styles.btnEmail}
           onPress={() => router.push('/(auth)/login')}
-          activeOpacity={0.70}
+          activeOpacity={0.75}
         >
+          <Mail size={16} color={COLORS.textSecondary} />
           <Text style={styles.btnEmailText}>Acceder con correo electrónico</Text>
         </TouchableOpacity>
 
@@ -264,8 +271,8 @@ function GoogleColorIcon({ size = 22 }: { size?: number }) {
 function AppleIcon({ size = 22 }: { size?: number }) {
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: size * 0.82, color: '#000', lineHeight: size }}>
-
+      <Text style={{ fontSize: size * 0.88, color: '#000', lineHeight: size * 1.05 }}>
+        {'\uF8FF'}
       </Text>
     </View>
   );
@@ -476,19 +483,18 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary, fontSize: 15, fontWeight: '500',
   },
 
-  // Separador sin texto — un simple línea fina
-  separator: {
-    width: '100%', height: 1,
-    backgroundColor: COLORS.borderSubtle,
-    marginVertical: 1,
-  },
-
-  // Email: acción secundaria como texto — sin botón lleno, sin divider redundante
+  // Email: botón visible con borde
   btnEmail: {
-    paddingVertical: 6, paddingHorizontal: 12,
+    width: '100%',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 13, paddingHorizontal: 20,
+    borderRadius: 16,
+    borderWidth: 1, borderColor: COLORS.borderDefault,
+    backgroundColor: 'transparent',
   },
   btnEmailText: {
-    color: COLORS.textTertiary, fontSize: 13.5, fontWeight: '500',
+    color: COLORS.textSecondary, fontSize: 14, fontWeight: '500',
   },
 
   legal: {
