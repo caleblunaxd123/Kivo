@@ -14,7 +14,7 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
-import { Mic, Camera, PenLine, Plus, Square, X, Sparkles, Check, ArrowRight } from 'lucide-react-native';
+import { Mic, Camera, PenLine, Square, X, Sparkles, Check, ArrowRight } from 'lucide-react-native';
 import {
   useAudioRecorder,
   requestRecordingPermissionsAsync,
@@ -213,40 +213,45 @@ export function MultimodalComposer({
   if (mode === 'idle') {
     return (
       <View style={styles.idleContainer}>
-        <View style={styles.idleRow}>
-          {/* Secondary action buttons — Voz + Foto */}
-          <View style={styles.secondaryBtns}>
+        <View style={styles.actionsRow}>
+          {/* Camera — secondary */}
+          <View style={styles.actionCol}>
             <TouchableOpacity
-              style={styles.actionBtn}
-              onPress={startVoiceRecording}
-              accessibilityRole="button"
-              accessibilityLabel="Grabar con voz"
-            >
-              <Mic size={19} color={COLORS.vozpe500} strokeWidth={1.8} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.actionBtn}
+              style={styles.secondaryBtn}
               onPress={openCamera}
               accessibilityRole="button"
               accessibilityLabel="Tomar foto de ticket"
             >
-              <Camera size={19} color={COLORS.vozpe500} strokeWidth={1.8} />
+              <Camera size={22} color={COLORS.vozpe500} strokeWidth={1.8} />
             </TouchableOpacity>
+            <Text style={styles.actionColLabel}>Foto</Text>
           </View>
 
-          {/* Divider */}
-          <View style={styles.idleDivider} />
+          {/* Mic — HERO */}
+          <View style={styles.actionCol}>
+            <TouchableOpacity
+              style={styles.heroBtn}
+              onPress={startVoiceRecording}
+              accessibilityRole="button"
+              accessibilityLabel="Grabar con voz"
+            >
+              <Mic size={30} color={COLORS.white} strokeWidth={1.8} />
+            </TouchableOpacity>
+            <Text style={styles.heroBtnLabel}>Grabar</Text>
+          </View>
 
-          {/* Primary CTA */}
-          <TouchableOpacity
-            style={styles.primaryBtn}
-            onPress={() => setMode('text_input')}
-            accessibilityRole="button"
-            accessibilityLabel="Agregar entrada"
-          >
-            <Plus size={17} color={COLORS.white} strokeWidth={2.5} />
-            <Text style={styles.primaryBtnText}>Agregar entrada</Text>
-          </TouchableOpacity>
+          {/* Text — tertiary */}
+          <View style={styles.actionCol}>
+            <TouchableOpacity
+              style={styles.secondaryBtn}
+              onPress={() => setMode('text_input')}
+              accessibilityRole="button"
+              accessibilityLabel="Escribir manualmente"
+            >
+              <PenLine size={22} color={COLORS.vozpe500} strokeWidth={1.8} />
+            </TouchableOpacity>
+            <Text style={styles.actionColLabel}>Texto</Text>
+          </View>
         </View>
       </View>
     );
@@ -417,50 +422,46 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.bgSurface,
     borderTopWidth: 1,
     borderTopColor: COLORS.borderDefault,
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: BOTTOM_EXTRA,
+    paddingHorizontal: 24,
+    paddingTop: 16,
+    paddingBottom: BOTTOM_EXTRA + 4,
   },
-  idleRow: {
+  actionsRow: {
     flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-around',
+  },
+  actionCol: {
     alignItems: 'center',
-    gap: 10,
+    gap: 6,
   },
-  secondaryBtns: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  actionBtn: {
-    width: 44, height: 44,
-    borderRadius: 13,
-    backgroundColor: `${COLORS.vozpe500}10`,
+  secondaryBtn: {
+    width: 56, height: 56,
+    borderRadius: 18,
+    backgroundColor: `${COLORS.vozpe500}12`,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: `${COLORS.vozpe500}25`,
+    borderWidth: 1.5, borderColor: `${COLORS.vozpe500}28`,
   },
-  idleDivider: {
-    width: 1, height: 28,
-    backgroundColor: COLORS.borderDefault,
+  actionColLabel: {
+    color: COLORS.textTertiary,
+    fontSize: 11,
+    fontWeight: '500',
   },
-  primaryBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 7,
+  heroBtn: {
+    width: 72, height: 72,
+    borderRadius: 36,
     backgroundColor: COLORS.vozpe500,
-    borderRadius: 13,
-    paddingVertical: 12,
+    alignItems: 'center', justifyContent: 'center',
     shadowColor: COLORS.vozpe500,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 10,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.45,
+    shadowRadius: 16,
+    elevation: 12,
   },
-  primaryBtnText: {
-    color: COLORS.white,
-    fontSize: 14,
-    fontWeight: '600',
-    letterSpacing: -0.2,
+  heroBtnLabel: {
+    color: COLORS.vozpe500,
+    fontSize: 11,
+    fontWeight: '700',
   },
 
   // ── Expanded container ────────────────────────────────────────
