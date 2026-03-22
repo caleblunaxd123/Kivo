@@ -59,6 +59,8 @@ export function MultimodalComposer({
 
   // ─── Voice Recording ───────────────────────────────────────────────────────
 
+  const MAX_RECORDING_SECONDS = 30;
+
   const startVoiceRecording = useCallback(async () => {
     const { granted } = await requestRecordingPermissionsAsync();
     if (!granted) return;
@@ -69,8 +71,14 @@ export function MultimodalComposer({
     setMode('voice_recording');
     setRecordingDuration(0);
 
+    let elapsed = 0;
     durationInterval.current = setInterval(() => {
-      setRecordingDuration(d => d + 1);
+      elapsed += 1;
+      setRecordingDuration(elapsed);
+      if (elapsed >= MAX_RECORDING_SECONDS) {
+        // Auto-stop: se llama fuera del interval para evitar problemas
+        setTimeout(() => stopVoiceRecording(), 0);
+      }
     }, 1000);
 
     pulseLoop.current = Animated.loop(
@@ -231,7 +239,12 @@ export function MultimodalComposer({
             <View style={styles.recDot} />
             <Text style={styles.recLabel}>GRABANDO</Text>
           </View>
-          <Text style={styles.duration}>{formatDuration(recordingDuration)}</Text>
+          <Text style={[
+            styles.duration,
+            recordingDuration >= MAX_RECORDING_SECONDS - 5 && styles.durationWarning,
+          ]}>
+            {formatDuration(recordingDuration)} / {formatDuration(MAX_RECORDING_SECONDS)}
+          </Text>
           <TouchableOpacity onPress={cancel} style={styles.closeBtn}>
             <X size={16} color={COLORS.textSecondary} />
           </TouchableOpacity>
@@ -451,6 +464,9 @@ const styles = StyleSheet.create({
   duration: {
     color: COLORS.textSecondary, fontSize: 14, fontFamily: 'monospace',
     marginRight: 8,
+  },
+  durationWarning: {
+    color: COLORS.error, fontWeight: '700',
   },
   waveform: {
     flexDirection: 'row',
