@@ -1,75 +1,72 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
-  View,
-  Text,
-  StyleSheet,
-  Animated,
-  Dimensions,
-  TouchableOpacity,
-  Alert,
-  ActivityIndicator,
-  ScrollView,
+  View, Text, StyleSheet, Animated, Dimensions,
+  TouchableOpacity, Alert, ActivityIndicator, ScrollView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Camera, PenLine, Mic, Mail, Sparkles } from 'lucide-react-native';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
+import Svg, { Path } from 'react-native-svg';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { supabase } from '../lib/supabase';
 import { VozpeLogo } from '../components/common/VozpeLogo';
+import { T } from '../theme/tokens';
 
 const { width: SW } = Dimensions.get('window');
 
-// ── Paleta — igual que el logo VozPE (cyan-teal brilloso) ─────────────────────
-const BG_BASE    = '#C2E9E7';   // fondo base — teal saturado claro
-const TEAL       = '#29B8B3';   // teal primario (botones, pills)
-const TEAL_VIVID = '#1ECFC9';   // teal brilloso (orbs principales)
-const TEAL_SOFT  = '#7DD8D5';   // teal suave (orbs secundarios)
-const TEAL_DARK  = '#1A9B96';   // teal oscuro (textos)
-const TEAL_LIGHT = '#A8ECEB';   // teal muy suave (orbs borde)
-const PURPLE     = '#9575CD';
-const GREEN_CHI  = '#2ECC71';
-
-function getRedirectUrl(): string {
+function getRedirectUrl() {
   const url = Linking.createURL('/');
   console.log('[OAuth] redirectTo:', url);
   return url;
 }
 
+// ── Google G oficial (4 colores, SVG) ────────────────────────────────────────
+function GoogleGIcon({ size = 22 }: { size?: number }) {
+  return (
+    <Svg width={size} height={size} viewBox="0 0 24 24">
+      <Path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+      <Path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+      <Path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
+      <Path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+    </Svg>
+  );
+}
+
 export default function OnboardingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [oauthLoading, setOauthLoading] = useState<'google' | null>(null);
+  const [oauthLoading, setOauthLoading] = useState(false);
 
+  // Animaciones
   const logoAnim = useRef(new Animated.Value(0)).current;
-  const heroAnim = useRef(new Animated.Value(0)).current;
-  const heroY    = useRef(new Animated.Value(24)).current;
-  const ctaAnim  = useRef(new Animated.Value(0)).current;
-  const ctaY     = useRef(new Animated.Value(14)).current;
-  const card1S   = useRef(new Animated.Value(0.92)).current;
-  const card2S   = useRef(new Animated.Value(0.92)).current;
+  const contentAnim = useRef(new Animated.Value(0)).current;
+  const contentY    = useRef(new Animated.Value(20)).current;
+  const ctaAnim     = useRef(new Animated.Value(0)).current;
+  const ctaY        = useRef(new Animated.Value(12)).current;
+  const card1S      = useRef(new Animated.Value(0.94)).current;
+  const card2S      = useRef(new Animated.Value(0.94)).current;
 
   useEffect(() => {
     Animated.sequence([
-      Animated.timing(logoAnim, { toValue: 1, duration: 450, useNativeDriver: true }),
+      Animated.timing(logoAnim, { toValue: 1, duration: 500, useNativeDriver: true }),
+      Animated.delay(40),
+      Animated.parallel([
+        Animated.timing(contentAnim, { toValue: 1, duration: 480, useNativeDriver: true }),
+        Animated.timing(contentY,    { toValue: 0, duration: 480, useNativeDriver: true }),
+        Animated.spring(card1S,      { toValue: 1, useNativeDriver: true }),
+        Animated.spring(card2S,      { toValue: 1, damping: 10, useNativeDriver: true }),
+      ]),
       Animated.delay(60),
       Animated.parallel([
-        Animated.timing(heroAnim, { toValue: 1, duration: 520, useNativeDriver: true }),
-        Animated.timing(heroY,    { toValue: 0, duration: 520, useNativeDriver: true }),
-        Animated.timing(card1S,   { toValue: 1, duration: 600, useNativeDriver: true }),
-        Animated.timing(card2S,   { toValue: 1, duration: 700, useNativeDriver: true }),
-      ]),
-      Animated.delay(80),
-      Animated.parallel([
-        Animated.timing(ctaAnim, { toValue: 1, duration: 380, useNativeDriver: true }),
-        Animated.timing(ctaY,    { toValue: 0, duration: 380, useNativeDriver: true }),
+        Animated.timing(ctaAnim, { toValue: 1, duration: 360, useNativeDriver: true }),
+        Animated.timing(ctaY,    { toValue: 0, duration: 360, useNativeDriver: true }),
       ]),
     ]).start();
   }, []);
 
   const handleOAuth = async () => {
-    setOauthLoading('google');
+    setOauthLoading(true);
     try {
       const redirectTo = getRedirectUrl();
       const { data, error } = await supabase.auth.signInWithOAuth({
@@ -83,8 +80,6 @@ export default function OnboardingScreen() {
       if (result.type !== 'success' || !result.url) return;
 
       const returnedUrl = result.url;
-
-      // PKCE flow
       const qs = returnedUrl.includes('?') ? returnedUrl.split('?')[1] : '';
       const qp = Object.fromEntries(
         qs.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
@@ -94,10 +89,8 @@ export default function OnboardingScreen() {
         if (ex) Alert.alert('Error', ex.message);
         return;
       }
-
-      // Implicit fallback
       const hash = returnedUrl.includes('#') ? returnedUrl.split('#')[1] : '';
-      const hp   = Object.fromEntries(
+      const hp = Object.fromEntries(
         hash.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
       );
       if (hp['access_token'] && hp['refresh_token']) {
@@ -106,59 +99,62 @@ export default function OnboardingScreen() {
           refresh_token: hp['refresh_token'],
         });
       } else {
-        Alert.alert(
-          'Configuración requerida',
-          `Agrega esta URL en Supabase → Auth → Redirect URLs:\n\n${redirectTo}`,
-        );
+        Alert.alert('Configuración requerida',
+          `Agrega esta URL en Supabase → Auth → Redirect URLs:\n\n${redirectTo}`);
       }
     } catch (e: any) {
       Alert.alert('Error', e?.message ?? 'Error al iniciar sesión');
     } finally {
-      setOauthLoading(null);
+      setOauthLoading(false);
     }
   };
 
   return (
     <View style={[styles.root, { paddingTop: insets.top }]}>
 
-      {/* ── Orbs de fondo — teal vívido ────────────────────────── */}
+      {/* ── Blobs decorativos ─────────────────────────────────────── */}
       <View style={StyleSheet.absoluteFill} pointerEvents="none">
-        <View style={styles.orb1} />
-        <View style={styles.orb2} />
-        <View style={styles.orb3} />
-        <View style={styles.orb4} />
-        <View style={styles.orb5} />
+        <View style={styles.blob1} />
+        <View style={styles.blob2} />
+        <View style={styles.blob3} />
+        <View style={styles.blob4} />
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 28 }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 32 }]}
         showsVerticalScrollIndicator={false}
         bounces={false}
       >
-
-        {/* ── Logo grande ─────────────────────────────────────── */}
+        {/* ── Logo ─────────────────────────────────────────────────── */}
+        {/* PNG 1536×1024 ratio 1.5 → height>262 → renders width-constrained en SW×262 */}
         <Animated.View style={[styles.logoWrap, { opacity: logoAnim }]}>
           <VozpeLogo size="xxl" />
         </Animated.View>
 
-        {/* ── Demo card ──────────────────────────────────────── */}
+        {/* ── Demo hero card ────────────────────────────────────────── */}
         <Animated.View
-          style={[styles.demoCard, { opacity: heroAnim, transform: [{ translateY: heroY }] }]}
+          style={[styles.heroCard, {
+            opacity: contentAnim,
+            transform: [{ translateY: contentY }],
+          }]}
         >
-          {/* Pill voz */}
+          {/* Voz input pill */}
           <Animated.View style={[styles.voicePill, { transform: [{ scale: card1S }] }]}>
             <View style={styles.voiceMicBadge}>
-              <Mic size={14} color="#fff" strokeWidth={2.2} />
+              <Mic size={15} color="#fff" strokeWidth={2.2} />
             </View>
             <Text style={styles.voicePillText}>"Taxi 40 dólares, entre 4"</Text>
-            <View style={styles.voiceSparkle}>
+            <View style={styles.sparkleWrap}>
               <Sparkles size={13} color="rgba(255,255,255,0.9)" />
             </View>
           </Animated.View>
 
-          {/* Resultado */}
+          {/* Label interpretación */}
+          <Text style={styles.vozpeUnderstandsLabel}>Vozpe entiende</Text>
+
+          {/* Parsed result */}
           <Animated.View style={[styles.parsedRow, { transform: [{ scale: card2S }] }]}>
-            <View style={styles.parsedIcon}>
+            <View style={styles.parsedIconBox}>
               <Text style={styles.parsedEmoji}>🚗</Text>
             </View>
             <View style={styles.parsedInfo}>
@@ -167,65 +163,66 @@ export default function OnboardingScreen() {
             </View>
             <View style={styles.parsedRight}>
               <Text style={styles.parsedAmount}>$40,00</Text>
-              <View style={styles.perPersonBadge}>
+              <View style={styles.perPersonChip}>
                 <Text style={styles.perPersonText}>$10 c/u</Text>
               </View>
             </View>
           </Animated.View>
         </Animated.View>
 
-        {/* ── Method chips ───────────────────────────────────── */}
-        <Animated.View style={[styles.chipsRow, { opacity: heroAnim }]}>
+        {/* ── Method chips ──────────────────────────────────────────── */}
+        <Animated.View style={[styles.chipsRow, { opacity: contentAnim }]}>
           {[
-            { icon: Mic,     label: 'Voz',   bg: 'rgba(29,207,201,0.18)', border: 'rgba(29,207,201,0.45)', ic: TEAL       },
-            { icon: Camera,  label: 'Foto',  bg: 'rgba(149,117,205,0.18)',border: 'rgba(149,117,205,0.45)',ic: PURPLE     },
-            { icon: PenLine, label: 'Texto', bg: 'rgba(46,204,113,0.18)', border: 'rgba(46,204,113,0.45)', ic: GREEN_CHI  },
-          ].map(({ icon: Icon, label, bg, border, ic }) => (
+            { Icon: Mic,     label: 'Voz',   bg: T.softBlueBg, border: T.strokeBlue,  iconBg: T.blue + '18',  ic: T.blue  },
+            { Icon: Camera,  label: 'Foto',  bg: '#EDF4FF',    border: '#C5D8F8',     iconBg: T.blue + '12',  ic: '#3B82F6' },
+            { Icon: PenLine, label: 'Texto', bg: T.softMintBg, border: T.strokeGreen, iconBg: T.green + '18', ic: T.green },
+          ].map(({ Icon, label, bg, border, iconBg, ic }) => (
             <View key={label} style={[styles.chip, { backgroundColor: bg, borderColor: border }]}>
-              <View style={[styles.chipIconWrap, { backgroundColor: ic + '30' }]}>
-                <Icon size={15} color={ic} strokeWidth={2} />
+              <View style={[styles.chipIconWrap, { backgroundColor: iconBg }]}>
+                <Icon size={14} color={ic} strokeWidth={2.1} />
               </View>
               <Text style={[styles.chipLabel, { color: ic }]}>{label}</Text>
             </View>
           ))}
         </Animated.View>
 
-        {/* ── Tagline ─────────────────────────────────────────── */}
-        <Animated.View style={[styles.taglineWrap, { opacity: heroAnim }]}>
+        {/* ── Tagline ───────────────────────────────────────────────── */}
+        <Animated.View style={[styles.taglineWrap, { opacity: contentAnim }]}>
           <Text style={styles.tagline}>Anota ahora, ordena después.</Text>
           <Text style={styles.taglineSub}>
             Sin formularios, sin caos.{'\n'}Solo tú y tu grupo.
           </Text>
         </Animated.View>
 
-        {/* ── Auth botones ────────────────────────────────────── */}
-        <Animated.View
-          style={[styles.authWrap, { opacity: ctaAnim, transform: [{ translateY: ctaY }] }]}
-        >
-          {/* Google — estilo oficial */}
+        {/* ── Auth buttons ─────────────────────────────────────────── */}
+        <Animated.View style={[styles.authWrap, {
+          opacity: ctaAnim,
+          transform: [{ translateY: ctaY }],
+        }]}>
+
+          {/* Google */}
           <TouchableOpacity
             style={styles.btnGoogle}
             onPress={handleOAuth}
-            activeOpacity={0.82}
-            disabled={!!oauthLoading}
+            activeOpacity={0.8}
+            disabled={oauthLoading}
           >
-            {oauthLoading === 'google' ? (
-              <ActivityIndicator size="small" color="#5F6368" />
-            ) : (
-              <>
-                <MaterialCommunityIcons name="google" size={22} color="#4285F4" />
-                <Text style={styles.btnGoogleText}>Iniciar sesión con Google</Text>
-              </>
-            )}
+            {oauthLoading
+              ? <ActivityIndicator size="small" color="#5F6368" />
+              : <>
+                  <GoogleGIcon size={22} />
+                  <Text style={styles.btnGoogleText}>Iniciar sesión con Google</Text>
+                </>
+            }
           </TouchableOpacity>
 
-          {/* Correo */}
+          {/* Email */}
           <TouchableOpacity
             style={styles.btnEmail}
             onPress={() => router.replace('/(auth)/login')}
-            activeOpacity={0.80}
+            activeOpacity={0.82}
           >
-            <Mail size={18} color="#fff" strokeWidth={2} />
+            <Mail size={17} color="#fff" strokeWidth={2} />
             <Text style={styles.btnEmailText}>Acceder con correo electrónico</Text>
           </TouchableOpacity>
 
@@ -236,183 +233,175 @@ export default function OnboardingScreen() {
             <Text style={styles.legalLink}>Privacidad</Text>.
           </Text>
         </Animated.View>
-
       </ScrollView>
     </View>
   );
 }
 
-// ─── Estilos ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: BG_BASE,
-  },
+  root: { flex: 1, backgroundColor: T.appBg },
 
-  // ── Orbs ──────────────────────────────────────────────────────
-  orb1: {
-    position: 'absolute', width: 360, height: 360, borderRadius: 180,
-    backgroundColor: TEAL_VIVID + '50',
-    top: -140, right: -90,
+  // ── Blobs ─────────────────────────────────────────────────────────────────
+  blob1: {
+    position: 'absolute', width: 340, height: 340, borderRadius: 170,
+    backgroundColor: T.blue + '12',
+    top: -130, right: -90,
   },
-  orb2: {
-    position: 'absolute', width: 280, height: 280, borderRadius: 140,
-    backgroundColor: TEAL_SOFT + '60',
-    top: 60, left: -110,
+  blob2: {
+    position: 'absolute', width: 260, height: 260, borderRadius: 130,
+    backgroundColor: T.green + '0E',
+    top: 80, left: -100,
   },
-  orb3: {
+  blob3: {
     position: 'absolute', width: 200, height: 200, borderRadius: 100,
-    backgroundColor: TEAL_VIVID + '35',
-    bottom: 260, right: -60,
+    backgroundColor: T.blue + '0C',
+    bottom: 200, right: -60,
   },
-  orb4: {
+  blob4: {
     position: 'absolute', width: 240, height: 240, borderRadius: 120,
-    backgroundColor: TEAL_LIGHT + '70',
-    bottom: 80, left: -70,
-  },
-  orb5: {
-    position: 'absolute', width: 160, height: 160, borderRadius: 80,
-    backgroundColor: TEAL_SOFT + '40',
-    bottom: 160, right: 20,
+    backgroundColor: T.green + '0A',
+    bottom: 40, left: -80,
   },
 
-  // ── Scroll ────────────────────────────────────────────────────
+  // ── Scroll ────────────────────────────────────────────────────────────────
   scroll: {
     alignItems: 'center',
-    paddingHorizontal: 22,
-    paddingTop: 4,
+    paddingHorizontal: 20,
     gap: 16,
   },
 
-  // ── Logo ──────────────────────────────────────────────────────
+  // ── Logo ──────────────────────────────────────────────────────────────────
+  // PNG 1536×1024 (ratio 1.5) — height:300 > SW/1.5≈262 → image renders width-constrained
+  // a SW×262. Márgenes negativos recortan espacio transparente del PNG.
   logoWrap: {
+    width: SW,
     alignItems: 'center',
-    marginHorizontal: -22,
+    marginHorizontal: -20,
+    marginTop: -50,
+    marginBottom: -60,
   },
 
-  // ── Demo card ─────────────────────────────────────────────────
-  demoCard: {
+  // ── Hero demo card ────────────────────────────────────────────────────────
+  heroCard: {
     width: '100%',
-    backgroundColor: 'rgba(255,255,255,0.78)',
-    borderRadius: 22,
-    padding: 14,
+    backgroundColor: T.cardBg,
+    borderRadius: T.rCardLg,
+    padding: 16,
     gap: 10,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.95)',
-    shadowColor: TEAL,
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.22,
-    shadowRadius: 22,
-    elevation: 10,
+    borderColor: T.strokeSoft,
+    ...T.shadowCard,
   },
 
   voicePill: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: TEAL,
-    borderRadius: 999,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    flexDirection: 'row', alignItems: 'center', gap: 10,
+    backgroundColor: T.blue,
+    borderRadius: T.rChip,
+    paddingHorizontal: 14, paddingVertical: 13,
   },
   voiceMicBadge: {
     width: 30, height: 30, borderRadius: 15,
-    backgroundColor: 'rgba(255,255,255,0.28)',
+    backgroundColor: 'rgba(255,255,255,0.22)',
     alignItems: 'center', justifyContent: 'center',
   },
   voicePillText: {
-    flex: 1, color: '#fff',
-    fontSize: 14, fontStyle: 'italic', fontWeight: '500',
+    flex: 1, color: '#fff', fontSize: 14, fontStyle: 'italic', fontWeight: '500',
+    letterSpacing: 0.1,
   },
-  voiceSparkle: {
+  sparkleWrap: {
     width: 28, height: 28, borderRadius: 14,
-    backgroundColor: 'rgba(255,255,255,0.22)',
+    backgroundColor: 'rgba(255,255,255,0.18)',
     alignItems: 'center', justifyContent: 'center',
+  },
+
+  vozpeUnderstandsLabel: {
+    textAlign: 'center',
+    fontSize: 11, fontWeight: '600',
+    color: T.textMuted, letterSpacing: 0.4,
+    textTransform: 'uppercase',
   },
 
   parsedRow: {
     flexDirection: 'row', alignItems: 'center', gap: 12,
-    backgroundColor: 'rgba(255,255,255,0.96)',
-    borderRadius: 14, padding: 12,
+    backgroundColor: T.softMintBg,
+    borderRadius: T.rCard,
+    padding: 13,
     borderWidth: 1, borderLeftWidth: 3,
-    borderColor: GREEN_CHI + '30',
-    borderLeftColor: GREEN_CHI,
+    borderColor: T.strokeGreen,
+    borderLeftColor: T.green,
   },
-  parsedIcon: {
-    width: 42, height: 42, borderRadius: 13,
-    backgroundColor: '#F0FFFC',
+  parsedIconBox: {
+    width: 44, height: 44, borderRadius: T.rIcon,
+    backgroundColor: '#fff',
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: '#D5F5F0',
+    borderWidth: 1, borderColor: T.strokeGreen,
   },
   parsedEmoji:  { fontSize: 22 },
-  parsedInfo:   { flex: 1, gap: 2 },
-  parsedTitle:  { color: '#1A2A2A', fontSize: 15, fontWeight: '700' },
-  parsedSub:    { color: '#5A7A78', fontSize: 11 },
-  parsedRight:  { alignItems: 'flex-end', gap: 5 },
+  parsedInfo:   { flex: 1, gap: 3 },
+  parsedTitle:  { color: T.textPrimary, fontSize: 15, fontWeight: '700' },
+  parsedSub:    { color: T.textSecondary, fontSize: 11.5 },
+  parsedRight:  { alignItems: 'flex-end', gap: 6 },
   parsedAmount: {
-    color: '#1A2A2A', fontSize: 20, fontWeight: '800',
+    color: T.textPrimary, fontSize: 20, fontWeight: '800',
     fontFamily: 'monospace', letterSpacing: -0.5,
   },
-  perPersonBadge: {
-    backgroundColor: TEAL + '22',
-    borderRadius: 999, paddingHorizontal: 9, paddingVertical: 3,
-    borderWidth: 1, borderColor: TEAL + '44',
+  perPersonChip: {
+    backgroundColor: T.green + '1A',
+    borderRadius: T.rChip, paddingHorizontal: 8, paddingVertical: 3,
+    borderWidth: 1, borderColor: T.green + '40',
   },
-  perPersonText: { color: TEAL_DARK, fontSize: 10, fontWeight: '700' },
+  perPersonText: { color: T.greenDeep, fontSize: 10.5, fontWeight: '700' },
 
-  // ── Chips ─────────────────────────────────────────────────────
-  chipsRow: {
-    flexDirection: 'row', gap: 8, width: '100%',
-  },
+  // ── Method chips ──────────────────────────────────────────────────────────
+  chipsRow: { flexDirection: 'row', gap: 8, width: '100%' },
   chip: {
-    flex: 1, flexDirection: 'row', alignItems: 'center',
-    justifyContent: 'center', gap: 6,
-    borderRadius: 999, paddingVertical: 10, borderWidth: 1.5,
+    flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 6, borderRadius: T.rChip, paddingVertical: 11,
+    borderWidth: 1.5,
   },
   chipIconWrap: {
-    width: 24, height: 24, borderRadius: 8,
+    width: 22, height: 22, borderRadius: 7,
     alignItems: 'center', justifyContent: 'center',
   },
   chipLabel: { fontSize: 13, fontWeight: '700' },
 
-  // ── Tagline ───────────────────────────────────────────────────
-  taglineWrap: { alignItems: 'center', gap: 5 },
+  // ── Tagline ───────────────────────────────────────────────────────────────
+  taglineWrap: { alignItems: 'center', gap: 6 },
   tagline: {
     fontSize: 22, fontWeight: '800',
-    color: '#0D3535',
-    textAlign: 'center', letterSpacing: -0.5,
+    color: T.textPrimary, textAlign: 'center', letterSpacing: -0.5,
   },
   taglineSub: {
-    fontSize: 13.5, color: '#2A6060',
-    textAlign: 'center', lineHeight: 20,
+    fontSize: 13.5, color: T.textSecondary,
+    textAlign: 'center', lineHeight: 21,
   },
 
-  // ── Auth ──────────────────────────────────────────────────────
-  authWrap: { width: '100%', alignItems: 'center', gap: 11 },
+  // ── Auth ──────────────────────────────────────────────────────────────────
+  authWrap: { width: '100%', gap: 10, alignItems: 'center' },
 
   btnGoogle: {
     width: '100%', height: 54,
     backgroundColor: '#fff',
-    borderRadius: 999,
+    borderRadius: T.rBtn,
     borderWidth: 1.5, borderColor: '#DADCE0',
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1, shadowRadius: 6, elevation: 3,
+    shadowOpacity: 0.08, shadowRadius: 8, elevation: 3,
   },
   btnGoogleText: { color: '#3C4043', fontSize: 15, fontWeight: '600' },
 
   btnEmail: {
     width: '100%', height: 54,
-    backgroundColor: TEAL,
-    borderRadius: 999,
+    backgroundColor: T.green,
+    borderRadius: T.rBtn,
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
-    shadowColor: TEAL,
+    shadowColor: T.green,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.5, shadowRadius: 14, elevation: 6,
+    shadowOpacity: 0.36, shadowRadius: 16, elevation: 7,
   },
   btnEmailText: { color: '#fff', fontSize: 15, fontWeight: '700' },
 
-  legal:     { color: '#2A6060', fontSize: 11, textAlign: 'center' },
-  legalLink: { color: TEAL_DARK, fontWeight: '700' },
+  legal:     { color: T.textMuted, fontSize: 11.5, textAlign: 'center' },
+  legalLink: { color: T.blue, fontWeight: '700' },
 });

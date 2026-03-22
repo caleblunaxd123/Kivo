@@ -19,7 +19,8 @@ const SIZES = {
   lg:  { height: 70,  width: 266 },
   xl:  { height: 90,  width: 342 },
   // xxl: ocupa el ancho disponible de pantalla sin padding lateral
-  xxl: { height: 150, width: SW },
+  // xxl: height > SW/1.5 (=262) fuerza render width-constrained → logo usa ancho completo
+  xxl: { height: 300, width: SW },
 };
 
 interface VozpeLogoProps {
