@@ -295,10 +295,20 @@ export const useGroupStore = create<GroupState>((set, get) => ({
       console.error('[updateEntry] error:', error);
       throw new Error(error.message);
     }
-    // Recalculate pendingCount
-    set(state => ({
-      pendingCount: state.entries.filter(e => e.status === 'pending_review').length,
-    }));
+    // Recalculate pendingCount AND groups[].totalAmount / pendingCount
+    const groupId = get().activeGroupId;
+    set(state => {
+      const pendingCount = state.entries.filter(e => e.status === 'pending_review').length;
+      const totalAmount  = state.entries
+        .filter(e => e.status === 'confirmed')
+        .reduce((s, e) => s + (e.amountInBase ?? e.amount), 0);
+      return {
+        pendingCount,
+        groups: groupId
+          ? state.groups.map(g => g.id === groupId ? { ...g, totalAmount, pendingCount } : g)
+          : state.groups,
+      };
+    });
   },
 
   deleteEntry: async (entryId) => {
@@ -309,6 +319,19 @@ export const useGroupStore = create<GroupState>((set, get) => ({
     if (error) {
       console.error('[deleteEntry] error:', error);
       throw new Error(error.message);
+    }
+    // Recalculate groups[].totalAmount after confirmed delete
+    const groupId = get().activeGroupId;
+    if (groupId) {
+      set(state => {
+        const totalAmount = state.entries
+          .filter(e => e.status === 'confirmed')
+          .reduce((s, e) => s + (e.amountInBase ?? e.amount), 0);
+        const pendingCount = state.entries.filter(e => e.status === 'pending_review').length;
+        return {
+          groups: state.groups.map(g => g.id === groupId ? { ...g, totalAmount, pendingCount } : g),
+        };
+      });
     }
   },
 

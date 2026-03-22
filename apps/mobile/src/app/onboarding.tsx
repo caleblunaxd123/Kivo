@@ -218,7 +218,7 @@ export default function OnboardingScreen() {
         {/* Correo — botón visible, no escondido */}
         <TouchableOpacity
           style={styles.btnEmail}
-          onPress={() => router.push('/(auth)/login')}
+          onPress={() => router.replace('/(auth)/login')}
           activeOpacity={0.75}
         >
           <Mail size={16} color={COLORS.textSecondary} />

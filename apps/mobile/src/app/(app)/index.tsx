@@ -23,9 +23,11 @@ export default function GroupsHomeScreen() {
 
   const onRefresh = useCallback(() => { fetchGroups(); }, []);
 
-  const totalAcrossGroups = groups.reduce(
-    (sum, g) => sum + (g.totalAmount ?? 0), 0
-  );
+  const uniqueCurrencies = [...new Set(groups.map(g => g.baseCurrency))];
+  const singleCurrency   = uniqueCurrencies.length === 1 ? uniqueCurrencies[0] : null;
+  const totalAcrossGroups = singleCurrency
+    ? groups.reduce((sum, g) => sum + (g.totalAmount ?? 0), 0)
+    : 0;
 
   const firstName    = user?.displayName?.split(' ')[0] ?? 'ahí';
   const initials     = generateInitials(user?.displayName ?? 'K');
@@ -78,7 +80,9 @@ export default function GroupsHomeScreen() {
               </View>
               <View>
                 <Text style={styles.statValueAccent} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-                  {formatCurrency(totalAcrossGroups, user?.preferredCurrency ?? 'USD')}
+                  {singleCurrency
+                    ? formatCurrency(totalAcrossGroups, singleCurrency)
+                    : 'Multi-moneda'}
                 </Text>
                 <Text style={styles.statLabelAccent}>total registrado</Text>
               </View>
