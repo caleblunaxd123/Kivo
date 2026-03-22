@@ -1,12 +1,20 @@
+import { useEffect, useState } from 'react';
 import { Redirect } from 'expo-router';
 import { useAuthStore } from '../stores/auth.store';
 import { SplashLoader } from '../components/common/SplashLoader';
 
-// Root redirect — decides where to go on app launch
+const SPLASH_MIN_MS = 1400; // mínimo para que el splash sea visible y elegante
+
 export default function Index() {
   const { isAuthenticated, isLoading } = useAuthStore();
+  const [minTimeElapsed, setMinTimeElapsed] = useState(false);
 
-  if (isLoading) {
+  useEffect(() => {
+    const t = setTimeout(() => setMinTimeElapsed(true), SPLASH_MIN_MS);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (isLoading || !minTimeElapsed) {
     return <SplashLoader />;
   }
 

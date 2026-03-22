@@ -104,6 +104,29 @@ export default function OnboardingScreen() {
     ]).start();
   }, []);
 
+  // ── Android OAuth fix: Linking listener captura el redirect aunque
+  //    openAuthSessionAsync devuelva 'cancel' (comportamiento normal en Android
+  //    con Chrome Custom Tabs — la URL llega por el sistema de deep links) ──
+  useEffect(() => {
+    const sub = Linking.addEventListener('url', async ({ url }) => {
+      console.log('[OAuth] Linking event URL:', url);
+      if (url.includes('code=') || url.includes('access_token=')) {
+        await handleOAuthUrl(url);
+        setOauthLoading(false);
+      }
+    });
+
+    // App abierta directamente desde el redirect OAuth (cold start)
+    Linking.getInitialURL().then(url => {
+      if (url && (url.includes('code=') || url.includes('access_token='))) {
+        console.log('[OAuth] initial URL:', url);
+        handleOAuthUrl(url).then(() => setOauthLoading(false));
+      }
+    });
+
+    return () => sub.remove();
+  }, []);
+
   // ── Guard de auth — DESPUÉS de todos los hooks ──────────────────────────
   if (isAuthenticated) return <Redirect href="/(app)" />;
 
@@ -120,16 +143,20 @@ export default function OnboardingScreen() {
       if (!data?.url) { Alert.alert('Error', 'No se pudo obtener la URL de autenticación.'); return; }
 
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-      console.log('[OAuth] result:', JSON.stringify(result));
+      console.log('[OAuth] openAuthSessionAsync result:', JSON.stringify(result));
 
-      // Usuario canceló o cerró el browser sin completar
-      if (result.type === 'cancel' || result.type === 'dismiss') return;
-      if (result.type !== 'success' || !result.url) return;
-
-      await handleOAuthUrl(result.url);
+      if (result.type === 'success' && result.url) {
+        // iOS: devuelve la URL directamente — procesar aquí
+        await handleOAuthUrl(result.url);
+        return;
+      }
+      // Android: 'cancel' es normal — el Linking listener de arriba ya lo captura
+      // Solo limpiar loading si fue un cancel real (usuario cerró el browser)
+      if (result.type === 'cancel' || result.type === 'dismiss') {
+        setOauthLoading(false);
+      }
     } catch (e: any) {
       Alert.alert('Error', e?.message ?? 'Error al iniciar sesión con Google.');
-    } finally {
       setOauthLoading(false);
     }
   };
