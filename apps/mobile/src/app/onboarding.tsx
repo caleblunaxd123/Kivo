@@ -26,6 +26,7 @@ const { width: SW } = Dimensions.get('window');
 const TEAL      = '#48CAC1';
 const TEAL_MID  = '#64D4CC';
 const TEAL_SOFT = '#A7EDE8';
+const TEAL_DARK = '#2EA89F';
 const BG_BASE   = '#DFF8F7';   // fondo principal — teal muy suave
 const PURPLE    = '#9575CD';
 const GREEN_CHI = '#48C878';
