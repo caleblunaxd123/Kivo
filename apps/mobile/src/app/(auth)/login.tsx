@@ -349,18 +349,18 @@ function AppleIcon({ size = 22 }: { size?: number }) {
 // ─── Estilos ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   outer: {
-    flex: 1, backgroundColor: COLORS.bgBase,
+    flex: 1, backgroundColor: '#DFF8F7',
   },
   bgOrb: {
     position: 'absolute',
     width: 340, height: 340, borderRadius: 170,
-    backgroundColor: `${COLORS.vozpe500}12`,
+    backgroundColor: 'rgba(72,202,193,0.22)',
     top: -150, right: -110,
   },
   bgOrb2: {
     position: 'absolute',
     width: 200, height: 200, borderRadius: 100,
-    backgroundColor: `${COLORS.ai}0A`,
+    backgroundColor: 'rgba(167,237,232,0.30)',
     bottom: 40, left: -60,
   },
 
@@ -405,8 +405,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   inputWrapFocused: {
-    borderColor: COLORS.vozpe500,
-    backgroundColor: `${COLORS.vozpe500}07`,
+    borderColor: '#48CAC1',
+    backgroundColor: 'rgba(72,202,193,0.06)',
   },
   inputIconWrap: { width: 20, alignItems: 'center' },
   input: { flex: 1, color: COLORS.textPrimary, fontSize: 15 },
