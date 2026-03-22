@@ -1,5 +1,5 @@
 /**
- * MultimodalComposer — El compositor multimodal de Kivo
+ * MultimodalComposer — El compositor multimodal de Vozpe
  * El componente más importante de la app.
  * Permite captura por voz, foto y texto.
  */
@@ -23,9 +23,9 @@ import {
 } from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-import { COLORS } from '@kivo/shared';
-import type { ParsedEntry, GroupMember } from '@kivo/shared';
-import { parseQuickText } from '@kivo/shared';
+import { COLORS } from '@vozpe/shared';
+import type { ParsedEntry, GroupMember } from '@vozpe/shared';
+import { parseQuickText } from '@vozpe/shared';
 
 type ComposerMode = 'idle' | 'voice_recording' | 'voice_preview' | 'photo_preview' | 'text_input';
 
@@ -189,13 +189,13 @@ export function MultimodalComposer({
         <View style={styles.idleRow}>
           {/* Action buttons */}
           <TouchableOpacity style={styles.actionBtn} onPress={startVoiceRecording}>
-            <Mic size={20} color={COLORS.kivo400} strokeWidth={1.8} />
+            <Mic size={20} color={COLORS.vozpe400} strokeWidth={1.8} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={openCamera}>
-            <Camera size={20} color={COLORS.kivo400} strokeWidth={1.8} />
+            <Camera size={20} color={COLORS.vozpe400} strokeWidth={1.8} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.actionBtn} onPress={() => setMode('text_input')}>
-            <PenLine size={20} color={COLORS.kivo400} strokeWidth={1.8} />
+            <PenLine size={20} color={COLORS.vozpe400} strokeWidth={1.8} />
           </TouchableOpacity>
 
           {/* Primary CTA */}
@@ -263,7 +263,7 @@ export function MultimodalComposer({
         <View style={styles.expandedHeader}>
           <View style={styles.aiLabel}>
             <Sparkles size={14} color={COLORS.ai} />
-            <Text style={styles.aiLabelText}>Kivo interpreta</Text>
+            <Text style={styles.aiLabelText}>Vozpe interpreta</Text>
           </View>
           <TouchableOpacity onPress={cancel} style={styles.closeBtn}>
             <X size={16} color={COLORS.textSecondary} />
@@ -386,10 +386,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: 7,
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
     borderRadius: 14,
     paddingVertical: 12,
-    shadowColor: COLORS.kivo500,
+    shadowColor: COLORS.vozpe500,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.4,
     shadowRadius: 10,
@@ -446,15 +446,15 @@ const styles = StyleSheet.create({
   waveBar: {
     width: 3.5,
     borderRadius: 2,
-    backgroundColor: COLORS.kivo400,
+    backgroundColor: COLORS.vozpe400,
   },
   stopWrap: { alignSelf: 'center' },
   stopBtn: {
     width: 58, height: 58, borderRadius: 29,
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: COLORS.kivo300,
-    shadowColor: COLORS.kivo500,
+    borderWidth: 2, borderColor: COLORS.vozpe300,
+    shadowColor: COLORS.vozpe500,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.35,
     shadowRadius: 12,
@@ -500,9 +500,9 @@ const styles = StyleSheet.create({
   confirmBtn: {
     flex: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
     gap: 7,
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
     borderRadius: 14, paddingVertical: 13,
-    shadowColor: COLORS.kivo500,
+    shadowColor: COLORS.vozpe500,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.35, shadowRadius: 8, elevation: 5,
   },
@@ -529,7 +529,7 @@ const styles = StyleSheet.create({
   },
   sendBtn: {
     width: 34, height: 34, borderRadius: 11,
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
     alignItems: 'center', justifyContent: 'center',
   },
   sendBtnDisabled: {
@@ -545,6 +545,6 @@ const styles = StyleSheet.create({
     borderWidth: 1, borderColor: COLORS.borderAccent,
   },
   livePreviewText: {
-    color: COLORS.kivo600, fontSize: 12, fontFamily: 'monospace', flex: 1,
+    color: COLORS.vozpe600, fontSize: 12, fontFamily: 'monospace', flex: 1,
   },
 });

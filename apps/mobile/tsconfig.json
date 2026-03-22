@@ -4,8 +4,8 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@kivo/shared": ["../../packages/shared/src"],
-      "@kivo/shared/*": ["../../packages/shared/src/*"],
+      "@vozpe/shared": ["../../packages/shared/src"],
+      "@vozpe/shared/*": ["../../packages/shared/src/*"],
       "@/*": ["./src/*"]
     }
   },

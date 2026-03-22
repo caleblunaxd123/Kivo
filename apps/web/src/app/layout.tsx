@@ -15,7 +15,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Kivo — Anota ahora, ordena después',
+  title: 'Vozpe — Anota ahora, ordena después',
   description: 'Workspace colaborativo para tracking de gastos por voz, foto y texto.',
   icons: {
     icon: '/favicon.ico',
@@ -28,7 +28,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="es" className="dark">
+    <html lang="es">
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans bg-bg-base text-text-primary antialiased`}>
         {children}
       </body>

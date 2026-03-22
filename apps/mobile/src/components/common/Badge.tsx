@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '@kivo/shared';
+import { COLORS } from '@vozpe/shared';
 
 type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'ai' | 'default';
 

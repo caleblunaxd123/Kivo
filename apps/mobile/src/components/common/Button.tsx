@@ -7,7 +7,7 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { COLORS } from '@kivo/shared';
+import { COLORS } from '@vozpe/shared';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'ai';
 type Size = 'sm' | 'md' | 'lg';
@@ -58,7 +58,7 @@ export function Button({
       {loading ? (
         <ActivityIndicator
           size="small"
-          color={variant === 'primary' ? '#fff' : COLORS.kivo500}
+          color={variant === 'primary' ? '#fff' : COLORS.vozpe500}
         />
       ) : (
         <>
@@ -94,7 +94,7 @@ const styles = StyleSheet.create({
   disabled: { opacity: 0.4 },
 
   // Variants
-  variant_primary: { backgroundColor: COLORS.kivo500 },
+  variant_primary: { backgroundColor: COLORS.vozpe500 },
   variant_secondary: {
     backgroundColor: 'transparent',
     borderColor: COLORS.borderDefault,

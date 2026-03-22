@@ -1,4 +1,4 @@
-// ─── Core Types for Kivo ─────────────────────────────────────────────────────
+// ─── Core Types for Vozpe ────────────────────────────────────────────────────
 
 export type EntryType = 'expense' | 'income' | 'discount' | 'adjustment' | 'transfer' | 'note';
 export type EntryStatus = 'draft' | 'parsed' | 'pending_review' | 'confirmed' | 'archived';

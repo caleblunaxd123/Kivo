@@ -5,7 +5,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Kivo Design System
+        // Vozpe Design System
         'bg-base':     '#0A0A0F',
         'bg-surface':  '#111118',
         'bg-elevated': '#1A1A26',
@@ -18,7 +18,7 @@ module.exports = {
         'text-primary':   '#F0F0FF',
         'text-secondary': '#9090B8',
         'text-tertiary':  '#5A5A80',
-        kivo: {
+        vozpe: {
           400: '#818CF8',
           500: '#6366F1',
           600: '#4F46E5',

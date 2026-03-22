@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const QUEUE_KEY = 'kivo:offline_queue';
+const QUEUE_KEY = 'vozpe:offline_queue';
 
 interface QueuedOperation {
   id: string;

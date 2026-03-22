@@ -2,32 +2,46 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   content: ['./src/**/*.{js,ts,jsx,tsx,mdx}'],
-  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        'bg-base':        '#0A0A0F',
-        'bg-surface':     '#111118',
-        'bg-elevated':    '#1A1A26',
-        'bg-input':       '#1E1E2E',
-        'bg-hover':       '#252538',
-        'bg-selected':    '#2A2A45',
-        'border-subtle':  '#1E1E2E',
-        'border-default': '#2A2A45',
-        'border-strong':  '#3A3A5C',
-        'text-primary':   '#F0F0FF',
-        'text-secondary': '#9090B8',
-        'text-tertiary':  '#5A5A80',
-        kivo: {
-          400: '#818CF8',
-          500: '#6366F1',
-          600: '#4F46E5',
-          700: '#4338CA',
+        // ── Fondos — light, tinte cyan muy suave (igual que la app móvil) ──
+        'bg-base':        '#F4FAFB',
+        'bg-surface':     '#FFFFFF',
+        'bg-elevated':    '#ECFEFF',
+        'bg-input':       '#F4FAFB',
+        'bg-hover':       '#CFFAFE',
+        // ── Bordes ──────────────────────────────────────────────────────────
+        'border-subtle':  '#E0F7FA',
+        'border-default': '#BAE6FD',
+        'border-strong':  '#7DD3FC',
+        // ── Texto ───────────────────────────────────────────────────────────
+        'text-primary':   '#0C1A2E',
+        'text-secondary': '#374E6B',
+        'text-tertiary':  '#6B8FA8',
+        // ── Brand — Vozpe Teal (igual que COLORS del paquete shared) ────────
+        vozpe: {
+          300: '#67E8F9',
+          400: '#22D3EE',
+          500: '#0891B2',   // primario — botones, acentos
+          600: '#0E7490',   // hover
+          700: '#155E75',
         },
-        success: '#22C55E',
-        warning: '#F97316',
-        danger:  '#EF4444',
-        ai:      '#A78BFA',
+        // ── Navy (color de "Voz" en el logo) ────────────────────────────────
+        navy: {
+          DEFAULT: '#1E3A8A',
+          light:   '#EFF6FF',
+        },
+        // ── Green (color de "PE" en el logo) ────────────────────────────────
+        brand: {
+          green:  '#65A30D',
+          bright: '#84CC16',
+        },
+        // ── Semantic ─────────────────────────────────────────────────────────
+        success: '#059669',
+        warning: '#D97706',
+        danger:  '#DC2626',
+        ai:      '#7C3AED',
       },
       fontFamily: {
         sans: ['Inter', 'var(--font-inter)', 'system-ui', 'sans-serif'],
@@ -40,28 +54,9 @@ const config: Config = {
         'xl':  '16px',
         '2xl': '24px',
       },
-      animation: {
-        'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
-        'slide-up': 'slide-up 0.25s ease-out',
-        'fade-in': 'fade-in 0.2s ease-out',
-        'count-up': 'count-up 0.6s ease-out',
-      },
-      keyframes: {
-        'pulse-glow': {
-          '0%, 100%': { boxShadow: '0 0 8px rgba(99,102,241,0.3)' },
-          '50%':       { boxShadow: '0 0 24px rgba(99,102,241,0.6)' },
-        },
-        'slide-up': {
-          from: { transform: 'translateY(8px)', opacity: '0' },
-          to:   { transform: 'translateY(0)',   opacity: '1' },
-        },
-        'fade-in': {
-          from: { opacity: '0' },
-          to:   { opacity: '1' },
-        },
-      },
-      backdropBlur: {
-        'xs': '4px',
+      boxShadow: {
+        'card': '0 1px 4px rgba(8,145,178,0.06), 0 2px 12px rgba(8,145,178,0.04)',
+        'btn':  '0 4px 12px rgba(8,145,178,0.30)',
       },
     },
   },

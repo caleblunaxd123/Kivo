@@ -1,74 +1,22 @@
-import { useEffect, useRef } from 'react';
-import { supabase } from '../lib/supabase';
-import { useGroupStore } from '../stores/group.store';
-import type { Entry, EntryCategory, EntryType, SplitRule } from '@kivo/shared';
-
 /**
- * Subscribes to realtime changes for a group and keeps the store in sync.
- * Handles entry inserts, updates (including status changes), and deletes.
+ * useGroupRealtime — thin wrapper around the group store's subscribeToGroup.
+ * The store manages the actual Supabase channel; this hook is kept for
+ * components that want to trigger realtime subscription declaratively.
+ *
+ * NOTE: GroupScreen uses setActiveGroup() which already calls subscribeToGroup
+ * internally, so this hook is only needed in non-group-screen contexts.
  */
+import { useEffect } from 'react';
+import { useGroupStore } from '../stores/group.store';
+
 export function useGroupRealtime(groupId: string | null) {
-  const { addEntryOptimistic, updateEntryOptimistic, removeEntry } = useGroupStore();
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const subscribeToGroup   = useGroupStore(s => s.subscribeToGroup);
+  const unsubscribeFromGroup = useGroupStore(s => s.unsubscribeFromGroup);
 
   useEffect(() => {
     if (!groupId) return;
-
-    // Unsubscribe previous channel
-    if (channelRef.current) {
-      supabase.removeChannel(channelRef.current);
-    }
-
-    const channel = supabase
-      .channel(`group:${groupId}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'entries',
-          filter: `group_id=eq.${groupId}`,
-        },
-        (payload) => {
-          const entry = mapPayloadToEntry(payload.new);
-          // addEntryOptimistic will de-dupe by id
-          addEntryOptimistic(entry);
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'entries',
-          filter: `group_id=eq.${groupId}`,
-        },
-        (payload) => {
-          const entry = mapPayloadToEntry(payload.new);
-          updateEntryOptimistic(entry.id, entry);
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'DELETE',
-          schema: 'public',
-          table: 'entries',
-          filter: `group_id=eq.${groupId}`,
-        },
-        (payload) => {
-          if (payload.old?.id) {
-            removeEntry(payload.old.id as string);
-          }
-        }
-      )
-      .subscribe();
-
-    channelRef.current = channel;
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    subscribeToGroup(groupId);
+    return () => { unsubscribeFromGroup(); };
   }, [groupId]);
 }
 

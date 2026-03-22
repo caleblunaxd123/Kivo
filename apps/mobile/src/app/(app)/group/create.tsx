@@ -1,16 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
-  StyleSheet, ScrollView, Alert,
+  StyleSheet, ScrollView, Alert, Animated,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { X } from 'lucide-react-native';
-import { COLORS, GROUP_TYPE_CONFIG } from '@kivo/shared';
-import type { GroupType } from '@kivo/shared';
+import { X, Mic, Square, Loader } from 'lucide-react-native';
+import { COLORS, GROUP_TYPE_CONFIG } from '@vozpe/shared';
+import type { GroupType } from '@vozpe/shared';
 import { supabase } from '../../../lib/supabase';
 import { useAuthStore } from '../../../stores/auth.store';
 import { useGroupStore } from '../../../stores/group.store';
+import { useVoiceRecording } from '../../../hooks/useVoiceRecording';
 import { Button } from '../../../components/common/Button';
 
 const GROUP_TYPES = Object.entries(GROUP_TYPE_CONFIG) as [GroupType, { label: string; emoji: string }][];
@@ -22,9 +23,48 @@ const CURRENCIES = [
   { code: 'CLP', label: 'CLP · Peso CL' },
 ];
 
+// ─── Voice parser — extracts group fields from a transcription ────────────────
+function parseGroupFromVoice(text: string): {
+  name: string;
+  type: GroupType;
+  currency: string;
+} {
+  const lower = text.toLowerCase();
+
+  // Detect type
+  let type: GroupType = 'travel';
+  if (/\b(casa|hogar|roomie|cuarto|depa|apartamento|piso|alquiler)\b/.test(lower)) type = 'home';
+  else if (/\b(evento|fiesta|cumplea|boda|celebraci|graduaci|reunión|reunion)\b/.test(lower)) type = 'event';
+  else if (/\b(pareja|novio|novia|esposo|esposa|amor|romantico|cita)\b/.test(lower)) type = 'couple';
+  else if (/\b(trabajo|oficina|empresa|laboral|equipo|proyecto)\b/.test(lower)) type = 'work';
+  else if (/\b(viaje|trip|vac|tour|paseo|excursion)\b/.test(lower)) type = 'travel';
+
+  // Detect currency
+  let currency = 'USD';
+  if (/\b(sol|soles|pen)\b/.test(lower)) currency = 'PEN';
+  else if (/\b(euro|euros|eur)\b/.test(lower)) currency = 'EUR';
+  else if (/\b(peso|pesos|clp|cop|mxn|ars)\b/.test(lower)) {
+    if (/\b(chile|clp)\b/.test(lower)) currency = 'CLP';
+    else currency = 'USD'; // ambiguous, default
+  }
+  else if (/\b(d[oó]lar|d[oó]lares|usd)\b/.test(lower)) currency = 'USD';
+
+  // Extract name: remove currency/type keywords and clean up
+  const stopWords = [
+    'crear', 'grupo', 'para', 'de', 'del', 'el', 'la', 'los', 'las', 'un', 'una',
+    'viaje', 'casa', 'evento', 'pareja', 'trabajo', 'hogar', 'fiesta',
+    'sol', 'soles', 'dólar', 'dólares', 'euro', 'euros', 'peso', 'pesos',
+    'en', 'con', 'por', 'y', 'a', 'que',
+  ];
+  const words = text.split(/\s+/).filter(w => !stopWords.includes(w.toLowerCase()));
+  const name = words.join(' ').replace(/[.,!?]+$/, '').trim();
+
+  return { name: name || text.trim(), type, currency };
+}
+
 export default function CreateGroupScreen() {
-  const router   = useRouter();
-  const insets   = useSafeAreaInsets();
+  const router        = useRouter();
+  const insets        = useSafeAreaInsets();
   const user          = useAuthStore(s => s.user);
   const sessionUserId = useAuthStore(s => s.sessionUserId);
   const fetchGroups   = useGroupStore(s => s.fetchGroups);
@@ -35,14 +75,48 @@ export default function CreateGroupScreen() {
   const [emoji, setEmoji]       = useState('✈️');
   const [loading, setLoading]   = useState(false);
 
+  const { state: voiceState, startRecording, stopAndTranscribe, cancelRecording } = useVoiceRecording();
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const pulseRef  = useRef<Animated.CompositeAnimation | null>(null);
+
   const typeConfig = GROUP_TYPE_CONFIG[type];
 
-  // Update emoji when type changes
   const handleTypeSelect = (t: GroupType) => {
     setType(t);
     setEmoji(GROUP_TYPE_CONFIG[t].emoji);
   };
 
+  // ── Voice ──────────────────────────────────────────────────────────────────
+  const startVoice = async () => {
+    await startRecording();
+    pulseRef.current = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, { toValue: 1.2, duration: 600, useNativeDriver: true }),
+        Animated.timing(pulseAnim, { toValue: 1,   duration: 600, useNativeDriver: true }),
+      ])
+    );
+    pulseRef.current.start();
+  };
+
+  const stopVoice = async () => {
+    pulseRef.current?.stop();
+    pulseAnim.setValue(1);
+    const transcription = await stopAndTranscribe();
+    if (transcription) {
+      const parsed = parseGroupFromVoice(transcription);
+      if (parsed.name) setName(parsed.name);
+      handleTypeSelect(parsed.type);
+      setCurrency(parsed.currency);
+    }
+  };
+
+  const cancelVoice = async () => {
+    pulseRef.current?.stop();
+    pulseAnim.setValue(1);
+    await cancelRecording();
+  };
+
+  // ── Create ─────────────────────────────────────────────────────────────────
   const handleCreate = async () => {
     const ownerId = user?.id ?? sessionUserId;
     if (!name.trim() || !ownerId) return;
@@ -58,7 +132,6 @@ export default function CreateGroupScreen() {
       if (error) throw error;
 
       const groupId = (data as any)?.id as string | undefined;
-      console.log('[create] rpc data:', JSON.stringify(data), '→ groupId:', groupId);
       if (!groupId) throw new Error('No se obtuvo el ID del grupo creado');
 
       await fetchGroups();
@@ -69,6 +142,9 @@ export default function CreateGroupScreen() {
       setLoading(false);
     }
   };
+
+  const isRecording   = voiceState === 'recording';
+  const isTranscribing = voiceState === 'processing';
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -94,6 +170,37 @@ export default function CreateGroupScreen() {
           <Text style={styles.coverHint}>Toca para cambiar</Text>
         </View>
 
+        {/* Voice banner */}
+        <View style={styles.voiceBanner}>
+          {isTranscribing ? (
+            <View style={styles.voiceRow}>
+              <Loader size={16} color={COLORS.vozpe500} />
+              <Text style={styles.voiceHint}>Transcribiendo…</Text>
+            </View>
+          ) : isRecording ? (
+            <View style={styles.voiceRow}>
+              <Animated.View style={[styles.voiceDot, { transform: [{ scale: pulseAnim }] }]} />
+              <Text style={styles.voiceHint}>Di el nombre y tipo del grupo…</Text>
+              <TouchableOpacity style={styles.voiceStopBtn} onPress={stopVoice}>
+                <Square size={14} color={COLORS.bgSurface} fill={COLORS.bgSurface} />
+              </TouchableOpacity>
+              <TouchableOpacity onPress={cancelVoice}>
+                <Text style={styles.voiceCancelText}>Cancelar</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity style={styles.voiceRow} onPress={startVoice} activeOpacity={0.7}>
+              <View style={styles.voiceMicBtn}>
+                <Mic size={15} color={COLORS.vozpe500} />
+              </View>
+              <Text style={styles.voiceHint}>
+                <Text style={styles.voiceHintBold}>Crea con voz</Text>
+                {' '}— di "Viaje a Lima en soles"
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
         {/* Name */}
         <View style={styles.field}>
           <Text style={styles.fieldLabel}>Nombre del grupo</Text>
@@ -103,7 +210,7 @@ export default function CreateGroupScreen() {
             placeholderTextColor={COLORS.textTertiary}
             value={name}
             onChangeText={setName}
-            autoFocus
+            autoFocus={false}
             maxLength={60}
           />
         </View>
@@ -154,7 +261,7 @@ export default function CreateGroupScreen() {
           label="Crear grupo"
           onPress={handleCreate}
           loading={loading}
-          disabled={!name.trim()}
+          disabled={!name.trim() || isRecording || isTranscribing}
           fullWidth
           size="lg"
         />
@@ -189,6 +296,34 @@ const styles = StyleSheet.create({
   coverEmoji: { fontSize: 40 },
   coverHint: { color: COLORS.textTertiary, fontSize: 13 },
 
+  // Voice banner
+  voiceBanner: {
+    backgroundColor: `${COLORS.vozpe500}0D`,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: `${COLORS.vozpe500}30`,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  voiceRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  voiceDot: {
+    width: 10, height: 10, borderRadius: 5,
+    backgroundColor: '#EF4444',
+  },
+  voiceMicBtn: {
+    width: 30, height: 30, borderRadius: 15,
+    backgroundColor: `${COLORS.vozpe500}20`,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  voiceStopBtn: {
+    width: 24, height: 24, borderRadius: 6,
+    backgroundColor: COLORS.vozpe500,
+    alignItems: 'center', justifyContent: 'center',
+  },
+  voiceHint: { flex: 1, color: COLORS.textSecondary, fontSize: 13 },
+  voiceHintBold: { color: COLORS.vozpe500, fontWeight: '600' },
+  voiceCancelText: { color: COLORS.textTertiary, fontSize: 12 },
+
   field: { gap: 10 },
   fieldLabel: {
     fontSize: 13, fontWeight: '600', color: COLORS.textSecondary,
@@ -201,9 +336,7 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary, fontSize: 16,
   },
 
-  typeGrid: {
-    flexDirection: 'row', flexWrap: 'wrap', gap: 8,
-  },
+  typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   typeCard: {
     width: '22%', aspectRatio: 1,
     backgroundColor: COLORS.bgSurface,
@@ -211,12 +344,12 @@ const styles = StyleSheet.create({
     alignItems: 'center', justifyContent: 'center', gap: 4,
   },
   typeCardActive: {
-    borderColor: COLORS.kivo500,
-    backgroundColor: `${COLORS.kivo500}15`,
+    borderColor: COLORS.vozpe500,
+    backgroundColor: `${COLORS.vozpe500}15`,
   },
   typeEmoji: { fontSize: 22 },
   typeLabel: { fontSize: 10, color: COLORS.textSecondary, fontWeight: '500', textAlign: 'center' },
-  typeLabelActive: { color: COLORS.kivo400 },
+  typeLabelActive: { color: COLORS.vozpe400 },
 
   currencyRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   currencyChip: {
@@ -225,11 +358,11 @@ const styles = StyleSheet.create({
     borderRadius: 999, borderWidth: 1, borderColor: COLORS.borderDefault,
   },
   currencyChipActive: {
-    borderColor: COLORS.kivo500,
-    backgroundColor: `${COLORS.kivo500}15`,
+    borderColor: COLORS.vozpe500,
+    backgroundColor: `${COLORS.vozpe500}15`,
   },
   currencyText: { color: COLORS.textSecondary, fontSize: 13, fontWeight: '500' },
-  currencyTextActive: { color: COLORS.kivo400 },
+  currencyTextActive: { color: COLORS.vozpe400 },
 
   footer: {
     paddingHorizontal: 20, paddingTop: 12,

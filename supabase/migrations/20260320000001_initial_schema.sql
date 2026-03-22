@@ -1,5 +1,5 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- KIVO — Safe idempotent migration (run this if 001_initial_schema.sql fails)
+-- VOZPE — Safe idempotent migration (run this if 001_initial_schema.sql fails)
 -- ─────────────────────────────────────────────────────────────────────────────
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";

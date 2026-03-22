@@ -6,8 +6,8 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, MoreHorizontal, AlertTriangle, Users } from 'lucide-react-native';
-import { COLORS, formatCurrency } from '@kivo/shared';
-import type { ParsedEntry } from '@kivo/shared';
+import { COLORS, formatCurrency } from '@vozpe/shared';
+import type { ParsedEntry } from '@vozpe/shared';
 import { useGroupStore } from '../../../stores/group.store';
 import { useAuthStore } from '../../../stores/auth.store';
 import { MultimodalComposer } from '../../../components/composer/MultimodalComposer';
@@ -141,7 +141,7 @@ export default function GroupScreen() {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <View style={styles.loading}>
-          <ActivityIndicator color={COLORS.kivo500} />
+          <ActivityIndicator color={COLORS.vozpe500} />
           <Text style={styles.loadingText}>Cargando grupo…</Text>
         </View>
       </View>
@@ -302,12 +302,12 @@ const styles = StyleSheet.create({
 
   // ── Header banner ────────────────────────────────────────────
   headerBanner: {
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
     paddingHorizontal: 16,
     paddingBottom: 20,
     gap: 14,
     overflow: 'hidden',
-    shadowColor: COLORS.kivo600,
+    shadowColor: COLORS.vozpe600,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 12,
@@ -380,11 +380,11 @@ const styles = StyleSheet.create({
   tabText: {
     fontSize: 13, fontWeight: '500', color: COLORS.textTertiary,
   },
-  tabTextActive: { color: COLORS.kivo400, fontWeight: '700' },
+  tabTextActive: { color: COLORS.vozpe400, fontWeight: '700' },
   tabIndicator: {
     position: 'absolute', bottom: 0, left: '20%', right: '20%',
     height: 2, borderRadius: 1,
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
   },
 
   content: { flex: 1 },

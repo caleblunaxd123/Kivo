@@ -2,10 +2,14 @@ import { Tabs, Redirect } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Users, Activity, User } from 'lucide-react-native';
 import { useAuthStore } from '../../stores/auth.store';
-import { COLORS } from '@kivo/shared';
+import { useOfflineQueue } from '../../hooks/useOfflineQueue';
+import { COLORS } from '@vozpe/shared';
 
 export default function AppLayout() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+  // Procesa la cola offline automáticamente al activar la app
+  useOfflineQueue();
+
   if (!isAuthenticated) return <Redirect href="/onboarding" />;
 
   return (
@@ -13,7 +17,7 @@ export default function AppLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: styles.tabBar,
-        tabBarActiveTintColor: COLORS.kivo400,
+        tabBarActiveTintColor: COLORS.vozpe400,
         tabBarInactiveTintColor: COLORS.textTertiary,
         tabBarLabelStyle: styles.tabLabel,
         tabBarBackground: () => <View style={styles.tabBarBg} />,

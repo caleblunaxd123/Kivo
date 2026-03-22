@@ -1,5 +1,5 @@
 /**
- * KIVO — Edge Function: parse-entry
+ * VOZPE — Edge Function: parse-entry
  * Procesa entradas por voz, texto u OCR y las convierte en datos estructurados.
  * Ver Fase 6 para los prompt patterns completos.
  */
@@ -247,7 +247,7 @@ function buildSystemPrompt(
   const currency = context.baseCurrency;
   const isOcr = inputType === 'ocr';
 
-  return `Eres el motor de parsing de Kivo, una app de gastos colaborativa. Tu tarea es interpretar entradas en lenguaje natural y convertirlas en datos estructurados.
+  return `Eres el motor de parsing de Vozpe, una app de gastos colaborativa. Tu tarea es interpretar entradas en lenguaje natural y convertirlas en datos estructurados.
 
 CONTEXTO DEL GRUPO:
 - Miembros: ${memberList}

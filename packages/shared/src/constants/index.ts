@@ -1,4 +1,4 @@
-// ─── Kivo Constants ───────────────────────────────────────────────────────────
+// ─── Vozpe Constants ──────────────────────────────────────────────────────────
 
 export const CURRENCIES = [
   { code: 'USD', symbol: '$', name: 'Dólar estadounidense', flag: '🇺🇸' },

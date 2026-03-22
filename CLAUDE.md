@@ -1,7 +1,7 @@
-# Kivo — Contexto para Claude
+# Vozpe — Contexto para Claude
 
 ## Qué es esto
-Kivo es un producto digital premium: app móvil colaborativa para registrar gastos, compras y listas de forma rápida mediante voz, foto o texto. El caos se convierte en una tabla viva organizada.
+Vozpe es un producto digital premium: app móvil colaborativa para registrar gastos, compras y listas de forma rápida mediante voz, foto o texto. El caos se convierte en una tabla viva organizada.
 
 ## Stack
 - Mobile: React Native + Expo (apps/mobile)
@@ -12,7 +12,7 @@ Kivo es un producto digital premium: app móvil colaborativa para registrar gast
 
 ## Arquitectura importante
 - Monorepo con yarn workspaces + Turbo
-- `@kivo/shared` exporta todos los tipos TypeScript, calculadores de reparto, y el parser de texto rápido
+- `@vozpe/shared` exporta todos los tipos TypeScript, calculadores de reparto, y el parser de texto rápido
 - El parser tiene dos capas: local (determinístico) → IA (Claude Haiku via Edge Function)
 - Offline-first: MMKV para cache local, cola de sincronización en SyncQueue
 - Realtime: Supabase channels por grupo (`group:{groupId}`)
@@ -25,8 +25,8 @@ Kivo es un producto digital premium: app móvil colaborativa para registrar gast
 - Formularios con React Hook Form + Zod
 
 ## Decisiones de diseño
-- Dark mode por defecto (bg: #0A0A0F)
-- Color de acento: Indigo (#6366F1) — kivo brand
+- Light mode (bg: #F4F6FB)
+- Color de acento: Indigo (#6366F1) — vozpe brand
 - Tipografía: Inter (UI) + JetBrains Mono (montos/datos)
 - Componentes premium, no genéricos. Ver phase-3-design-system.md
 

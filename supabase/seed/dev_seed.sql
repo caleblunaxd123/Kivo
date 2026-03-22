@@ -1,20 +1,20 @@
--- Kivo Dev Seed Data
+-- Vozpe Dev Seed Data
 -- Run with: supabase db reset (includes migrations + seed)
 
 -- Test users (passwords are 'password123' in Supabase Auth)
 INSERT INTO auth.users (id, email, created_at, updated_at, email_confirmed_at)
 VALUES
-  ('00000000-0000-0000-0000-000000000001', 'ana@kivo.app', now(), now(), now()),
-  ('00000000-0000-0000-0000-000000000002', 'bob@kivo.app', now(), now(), now()),
-  ('00000000-0000-0000-0000-000000000003', 'carlos@kivo.app', now(), now(), now())
+  ('00000000-0000-0000-0000-000000000001', 'ana@vozpe.app', now(), now(), now()),
+  ('00000000-0000-0000-0000-000000000002', 'bob@vozpe.app', now(), now(), now()),
+  ('00000000-0000-0000-0000-000000000003', 'carlos@vozpe.app', now(), now(), now())
 ON CONFLICT (id) DO NOTHING;
 
 -- User profiles
 INSERT INTO public.users (id, email, display_name, avatar_url, color_hex)
 VALUES
-  ('00000000-0000-0000-0000-000000000001', 'ana@kivo.app', 'Ana García', null, '#6366F1'),
-  ('00000000-0000-0000-0000-000000000002', 'bob@kivo.app', 'Bob Martínez', null, '#EC4899'),
-  ('00000000-0000-0000-0000-000000000003', 'carlos@kivo.app', 'Carlos López', null, '#10B981')
+  ('00000000-0000-0000-0000-000000000001', 'ana@vozpe.app', 'Ana García', null, '#6366F1'),
+  ('00000000-0000-0000-0000-000000000002', 'bob@vozpe.app', 'Bob Martínez', null, '#EC4899'),
+  ('00000000-0000-0000-0000-000000000003', 'carlos@vozpe.app', 'Carlos López', null, '#10B981')
 ON CONFLICT (id) DO NOTHING;
 
 -- Test group

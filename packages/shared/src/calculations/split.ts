@@ -91,7 +91,7 @@ function calculateFixedSplit(
 ): SplitResult {
   const splits = activeIds.map(memberId => {
     const custom = customSplits.find(s => s.memberId === memberId);
-    return { memberId, amount: custom?.value ?? 0, percentage: custom ? (custom.value / amount) * 100 : 0 };
+    return { memberId, amount: custom?.value ?? 0, percentage: (custom && amount > 0) ? (custom.value / amount) * 100 : 0 };
   });
   const totalAllocated = splits.reduce((s, r) => s + r.amount, 0);
   return { splits, totalAllocated, remainderCents: Math.round((amount - totalAllocated) * 100) };

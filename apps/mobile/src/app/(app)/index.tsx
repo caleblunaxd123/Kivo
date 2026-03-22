@@ -6,8 +6,8 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Plus, Bell, TrendingUp, Layers } from 'lucide-react-native';
-import { COLORS, formatCurrency, GROUP_TYPE_CONFIG, generateInitials } from '@kivo/shared';
-import type { Group } from '@kivo/shared';
+import { COLORS, formatCurrency, GROUP_TYPE_CONFIG, generateInitials } from '@vozpe/shared';
+import type { Group } from '@vozpe/shared';
 import { useGroupStore } from '../../stores/group.store';
 import { useAuthStore } from '../../stores/auth.store';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -29,7 +29,7 @@ export default function GroupsHomeScreen() {
 
   const firstName    = user?.displayName?.split(' ')[0] ?? 'ahí';
   const initials     = generateInitials(user?.displayName ?? 'K');
-  const avatarColor  = user?.colorHex ?? COLORS.kivo500;
+  const avatarColor  = user?.colorHex ?? COLORS.vozpe500;
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -61,7 +61,7 @@ export default function GroupsHomeScreen() {
           <View style={styles.statsRow}>
             <View style={styles.statCard}>
               <View style={styles.statIconWrap}>
-                <Layers size={14} color={COLORS.kivo400} />
+                <Layers size={14} color={COLORS.vozpe400} />
               </View>
               <View>
                 <Text style={styles.statValue}>{groups.length}</Text>
@@ -98,7 +98,7 @@ export default function GroupsHomeScreen() {
           <RefreshControl
             refreshing={isLoadingGroups}
             onRefresh={onRefresh}
-            tintColor={COLORS.kivo500}
+            tintColor={COLORS.vozpe500}
           />
         }
         ListEmptyComponent={
@@ -216,7 +216,7 @@ const styles = StyleSheet.create({
   headerOrb: {
     position: 'absolute',
     width: 220, height: 220, borderRadius: 110,
-    backgroundColor: `${COLORS.kivo500}18`,
+    backgroundColor: `${COLORS.vozpe500}18`,
     top: -80, right: -60,
   },
   headerTop: {
@@ -274,11 +274,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: COLORS.kivo600,
+    backgroundColor: COLORS.vozpe600,
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 11,
-    shadowColor: COLORS.kivo500,
+    shadowColor: COLORS.vozpe500,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
     shadowRadius: 8,
@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   },
   statIconWrap: {
     width: 30, height: 30, borderRadius: 9,
-    backgroundColor: `${COLORS.kivo500}20`,
+    backgroundColor: `${COLORS.vozpe500}20`,
     alignItems: 'center', justifyContent: 'center',
   },
   statIconWrapAccent: {
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   cardAccentBar: {
     width: 3,
     alignSelf: 'stretch',
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
     opacity: 0.7,
   },
   cardEmojiCol: {
@@ -412,9 +412,9 @@ const styles = StyleSheet.create({
     right: 20,
     width: 54, height: 54,
     borderRadius: 27,
-    backgroundColor: COLORS.kivo500,
+    backgroundColor: COLORS.vozpe500,
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: COLORS.kivo500,
+    shadowColor: COLORS.vozpe500,
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.5,
     shadowRadius: 16,

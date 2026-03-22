@@ -10,9 +10,7 @@ async function getUser() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        get(name: string) {
-          return cookieStore.get(name)?.value;
-        },
+        get(name: string) { return cookieStore.get(name)?.value; },
         set() {},
         remove() {},
       },
@@ -26,41 +24,41 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const user = await getUser();
   if (!user) redirect('/auth/login');
 
+  const initials = user.email?.[0]?.toUpperCase() ?? 'U';
+
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-bg-base">
       {/* Sidebar */}
-      <aside className="w-60 flex-shrink-0 bg-[#111118] border-r border-[#1E1E2E] flex flex-col">
+      <aside className="w-60 flex-shrink-0 bg-bg-surface border-r border-border-subtle flex flex-col shadow-sm">
         {/* Logo */}
-        <div className="flex items-center gap-2 px-5 py-5 border-b border-[#1E1E2E]">
-          <div className="w-7 h-7 rounded-lg bg-kivo-500 flex items-center justify-center">
-            <span className="text-white font-bold text-xs">K</span>
-          </div>
-          <span className="text-[#F0F0FF] font-semibold">Kivo</span>
+        <div className="flex items-center px-5 py-4 border-b border-border-subtle">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-vozpe.png" alt="Vozpe" className="h-7" />
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 p-3 space-y-1">
+        <nav className="flex-1 p-3 space-y-0.5">
           <Link
             href="/app"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#9090B8] hover:text-[#F0F0FF] hover:bg-[#1A1A26] transition-colors text-sm"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-all text-sm font-medium"
           >
-            <span>🏠</span> Mis grupos
+            <span className="text-base">🏠</span> Mis grupos
           </Link>
           <Link
-            href="/app"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#9090B8] hover:text-[#F0F0FF] hover:bg-[#1A1A26] transition-colors text-sm"
+            href="/app/group/create"
+            className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-text-secondary hover:text-text-primary hover:bg-bg-elevated transition-all text-sm font-medium"
           >
-            <span>📋</span> Actividad
+            <span className="text-base">➕</span> Nuevo grupo
           </Link>
         </nav>
 
         {/* User */}
-        <div className="p-3 border-t border-[#1E1E2E]">
-          <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-[#9090B8] text-sm">
-            <div className="w-7 h-7 rounded-full bg-kivo-500 flex items-center justify-center text-white text-xs font-bold">
-              {user.email?.[0]?.toUpperCase() ?? 'U'}
+        <div className="p-3 border-t border-border-subtle">
+          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-bg-elevated border border-border-subtle">
+            <div className="w-7 h-7 rounded-full bg-vozpe-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+              {initials}
             </div>
-            <span className="truncate flex-1">{user.email}</span>
+            <span className="truncate flex-1 text-text-secondary text-xs">{user.email}</span>
           </div>
         </div>
       </aside>
