@@ -15,15 +15,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Camera, PenLine, Sparkles, Mic, Mail } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
-import Constants from 'expo-constants';
 import { COLORS } from '@vozpe/shared';
 
 function getRedirectUrl(): string {
-  if (__DEV__) {
-    const projectId = Constants.expoConfig?.extra?.eas?.projectId;
-    if (projectId) return `exp://u.expo.dev/${projectId}`;
-  }
-  return Linking.createURL('/');
+  const url = Linking.createURL('/');
+  if (__DEV__) console.log('[OAuth] redirectTo:', url);
+  return url;
 }
 import { supabase } from '../lib/supabase';
 import { VozpeLogo } from '../components/common/VozpeLogo';
@@ -73,17 +70,38 @@ export default function OnboardingScreen() {
       if (!data?.url) return;
 
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
-      if (result.type === 'success' && result.url) {
-        const hashPart = result.url.includes('#')
-          ? result.url.split('#')[1]
-          : (result.url.split('?')[1] ?? '');
-        const params = Object.fromEntries(
-          hashPart.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
-        );
-        const at = params['access_token'];
-        const rt = params['refresh_token'];
-        if (at && rt) await supabase.auth.setSession({ access_token: at, refresh_token: rt });
+      if (result.type !== 'success' || !result.url) return;
+
+      const returnedUrl = result.url;
+
+      // PKCE flow: exchange code for session
+      const queryString = returnedUrl.includes('?') ? returnedUrl.split('?')[1] : '';
+      const queryParams = Object.fromEntries(
+        queryString.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
+      );
+      if (queryParams['code']) {
+        const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(queryParams['code']);
+        if (exchangeError) Alert.alert('Error', exchangeError.message);
+        return;
       }
+
+      // Implicit flow fallback
+      const hashPart = returnedUrl.includes('#') ? returnedUrl.split('#')[1] : '';
+      const hashParams = Object.fromEntries(
+        hashPart.split('&').filter(Boolean).map(p => p.split('=').map(decodeURIComponent))
+      );
+      const at = hashParams['access_token'];
+      const rt = hashParams['refresh_token'];
+      if (at && rt) {
+        await supabase.auth.setSession({ access_token: at, refresh_token: rt });
+      } else {
+        Alert.alert(
+          'Login con Google',
+          `No se pudo completar.\n\nAgrega esta URL en Supabase → Auth → Redirect URLs:\n${redirectTo}`,
+        );
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ?? 'Error al iniciar sesión');
     } finally {
       setOauthLoading(null);
     }
@@ -320,7 +338,7 @@ const styles = StyleSheet.create({
   },
 
   // ── Logo ─────────────────────────────────────────────────────────
-  logoWrap: { alignItems: 'center', paddingVertical: 6 },
+  logoWrap: { alignItems: 'center', paddingVertical: 16 },
 
   // ── Hero ─────────────────────────────────────────────────────────
   heroContainer: {
