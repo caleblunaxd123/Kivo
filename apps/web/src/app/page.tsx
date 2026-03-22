@@ -60,7 +60,7 @@ export default function LandingPage() {
       <nav className="flex items-center justify-between px-6 md:px-10 py-4 border-b border-border-subtle bg-bg-surface shadow-xs sticky top-0 z-50">
         <div className="flex items-center gap-8">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-vozpe.png" alt="Vozpe" className="h-7" />
+          <img src="/logo-vozpe.png" alt="Vozpe" className="h-9" />
           <div className="hidden md:flex items-center gap-6 text-sm">
             <a href="#features" className="text-text-secondary hover:text-text-primary transition-colors font-medium">Funciones</a>
             <a href="#how"      className="text-text-secondary hover:text-text-primary transition-colors font-medium">Cómo funciona</a>
@@ -239,7 +239,7 @@ export default function LandingPage() {
       <footer className="px-6 md:px-10 py-8 border-t border-border-subtle bg-bg-surface">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-vozpe.png" alt="Vozpe" className="h-6 opacity-70" />
+          <img src="/logo-vozpe.png" alt="Vozpe" className="h-8 opacity-70" />
           <div className="flex items-center gap-6 text-sm text-text-tertiary">
             <Link href="/pricing"   className="hover:text-text-primary transition-colors">Precios</Link>
             <a href="mailto:soporte@vozpe.com" className="hover:text-text-primary transition-colors">Soporte</a>

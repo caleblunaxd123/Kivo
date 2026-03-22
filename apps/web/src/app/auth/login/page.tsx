@@ -12,8 +12,16 @@ function GoogleIcon() {
     <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden>
       <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/>
       <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
-      <path fill="#FBBC05" d="M3.964 10.706c-.18-.54-.282-1.117-.282-1.706s.102-1.166.282-1.706V4.962H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.038l3.007-2.332z"/>
+      <path fill="#FBBC05" d="M3.964 10.706c-.18-.54-.282-1.117-.282-1.706V4.962H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.038l3.007-2.332z"/>
       <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.962L3.964 6.294C4.672 4.167 6.656 3.58 9 3.58z"/>
+    </svg>
+  );
+}
+
+function AppleIcon() {
+  return (
+    <svg width="17" height="20" viewBox="0 0 814 1000" aria-hidden fill="currentColor">
+      <path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-37.5-155.5-101.9C115.4 784.6 68.2 688.1 68.2 597.5c0-174.2 113.4-266.4 224.9-266.4 59.1 0 108.3 38.9 145.2 38.9 35.2 0 90.5-41.3 154.5-41.3 25 0 108.2 2.6 168.6 76.8zm-97.2-183.8c28.5-34 48.1-81.4 48.1-128.7 0-6.5-.6-13-1.9-18.3-45.3 1.7-99.5 31.3-131.8 68-26.3 30.2-49.8 77.5-49.8 125.5 0 6.5 1.3 13 1.9 15.1 3.2.6 8.4 1.3 13.6 1.3 41 0 92.8-27.8 119.9-62.9z"/>
     </svg>
   );
 }
@@ -26,6 +34,7 @@ export default function LoginPage() {
   const [email,       setEmail]       = useState('');
   const [password,    setPassword]    = useState('');
   const [loading,     setLoading]     = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
   const [magicSent,   setMagicSent]   = useState(false);
   const [error,       setError]       = useState('');
   const [showPass,    setShowPass]    = useState(false);
@@ -33,12 +42,21 @@ export default function LoginPage() {
   const reset = () => { setError(''); setMagicSent(false); };
 
   async function handleGoogle() {
-    setLoading(true); setError('');
+    setOauthLoading('google'); setError('');
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: { redirectTo: `${window.location.origin}/auth/callback` },
     });
-    if (error) { setError(error.message); setLoading(false); }
+    if (error) { setError(error.message); setOauthLoading(null); }
+  }
+
+  async function handleApple() {
+    setOauthLoading('apple'); setError('');
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (error) { setError(error.message); setOauthLoading(null); }
   }
 
   async function handleMagicLink(e: React.FormEvent) {
@@ -113,21 +131,41 @@ export default function LoginPage() {
         {/* Logo + tagline */}
         <div className="text-center space-y-2 mb-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-vozpe.png" alt="Vozpe" className="h-12 mx-auto" />
+          <img src="/logo-vozpe.png" alt="Vozpe" className="h-20 mx-auto" />
           <p className="text-text-secondary text-sm">Anota ahora, ordena después.</p>
         </div>
 
         {/* Card */}
-        <div className="bg-bg-surface rounded-2xl border border-border-subtle shadow-card p-6 space-y-4">
+        <div className="bg-bg-surface rounded-2xl border border-border-subtle shadow-card p-6 space-y-3">
 
           {/* Google */}
           <button
             onClick={handleGoogle}
-            disabled={loading}
+            disabled={!!oauthLoading}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-bg-base border border-border-default hover:border-vozpe-500 hover:bg-vozpe-50 text-text-primary font-medium text-sm transition-all disabled:opacity-50"
           >
-            <GoogleIcon />
+            {oauthLoading === 'google' ? (
+              <svg className="animate-spin h-4 w-4 text-text-tertiary" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+              </svg>
+            ) : <GoogleIcon />}
             Continuar con Google
+          </button>
+
+          {/* Apple */}
+          <button
+            onClick={handleApple}
+            disabled={!!oauthLoading}
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-[#000] hover:bg-[#1a1a1a] text-white font-medium text-sm transition-all disabled:opacity-50"
+          >
+            {oauthLoading === 'apple' ? (
+              <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+              </svg>
+            ) : <AppleIcon />}
+            Continuar con Apple
           </button>
 
           {/* Divider */}

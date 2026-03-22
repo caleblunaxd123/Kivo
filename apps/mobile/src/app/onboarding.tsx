@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import {
   View, Text, StyleSheet, Animated, Dimensions,
-  TouchableOpacity, Alert, ActivityIndicator, ScrollView,
+  TouchableOpacity, Alert, ActivityIndicator, ScrollView, Platform,
 } from 'react-native';
 import { useRouter, Redirect } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -85,7 +85,7 @@ function GoogleGIcon({ size = 22 }: { size?: number }) {
 export default function OnboardingScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const [oauthLoading, setOauthLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
 
   // ── Animaciones — todos los refs ANTES de cualquier return condicional ──
@@ -123,7 +123,7 @@ export default function OnboardingScreen() {
       console.log('[OAuth] Linking event URL:', url);
       if (url.includes('code=') || url.includes('access_token=')) {
         await handleOAuthUrl(url);
-        setOauthLoading(false);
+        setOauthLoading(null);
       }
     });
 
@@ -131,7 +131,7 @@ export default function OnboardingScreen() {
     Linking.getInitialURL().then(url => {
       if (url && (url.includes('code=') || url.includes('access_token='))) {
         console.log('[OAuth] initial URL:', url);
-        handleOAuthUrl(url).then(() => setOauthLoading(false));
+        handleOAuthUrl(url).then(() => setOauthLoading(null));
       }
     });
 
@@ -142,12 +142,12 @@ export default function OnboardingScreen() {
   if (isAuthenticated) return <Redirect href="/(app)" />;
 
   // ── Handler OAuth ────────────────────────────────────────────────────────
-  const handleOAuth = async () => {
-    setOauthLoading(true);
+  const handleOAuth = async (provider: 'google' | 'apple') => {
+    setOauthLoading(provider);
     try {
       const redirectTo = getRedirectUrl();
       const { data, error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
+        provider,
         options: { redirectTo, skipBrowserRedirect: true },
       });
       if (error) { Alert.alert('Error al iniciar sesión', error.message); return; }
@@ -157,18 +157,15 @@ export default function OnboardingScreen() {
       console.log('[OAuth] openAuthSessionAsync result:', JSON.stringify(result));
 
       if (result.type === 'success' && result.url) {
-        // iOS: devuelve la URL directamente — procesar aquí
         await handleOAuthUrl(result.url);
         return;
       }
-      // Android: 'cancel' es normal — el Linking listener de arriba ya lo captura
-      // Solo limpiar loading si fue un cancel real (usuario cerró el browser)
       if (result.type === 'cancel' || result.type === 'dismiss') {
-        setOauthLoading(false);
+        setOauthLoading(null);
       }
     } catch (e: any) {
-      Alert.alert('Error', e?.message ?? 'Error al iniciar sesión con Google.');
-      setOauthLoading(false);
+      Alert.alert('Error', e?.message ?? `Error al iniciar sesión con ${provider}.`);
+      setOauthLoading(null);
     }
   };
 
@@ -266,24 +263,43 @@ export default function OnboardingScreen() {
           {/* Google */}
           <TouchableOpacity
             style={styles.btnGoogle}
-            onPress={handleOAuth}
+            onPress={() => handleOAuth('google')}
             activeOpacity={0.8}
-            disabled={oauthLoading}
+            disabled={!!oauthLoading}
           >
-            {oauthLoading
+            {oauthLoading === 'google'
               ? <ActivityIndicator size="small" color="#5F6368" />
               : <>
                   <GoogleGIcon size={22} />
-                  <Text style={styles.btnGoogleText}>Iniciar sesión con Google</Text>
+                  <Text style={styles.btnGoogleText}>Continuar con Google</Text>
                 </>
             }
           </TouchableOpacity>
+
+          {/* Apple — solo iOS */}
+          {Platform.OS === 'ios' && (
+            <TouchableOpacity
+              style={styles.btnApple}
+              onPress={() => handleOAuth('apple')}
+              activeOpacity={0.8}
+              disabled={!!oauthLoading}
+            >
+              {oauthLoading === 'apple'
+                ? <ActivityIndicator size="small" color="#fff" />
+                : <>
+                    <Text style={styles.btnAppleIcon}></Text>
+                    <Text style={styles.btnAppleText}>Continuar con Apple</Text>
+                  </>
+              }
+            </TouchableOpacity>
+          )}
 
           {/* Email */}
           <TouchableOpacity
             style={styles.btnEmail}
             onPress={() => router.replace('/(auth)/login')}
             activeOpacity={0.82}
+            disabled={!!oauthLoading}
           >
             <Mail size={17} color="#fff" strokeWidth={2} />
             <Text style={styles.btnEmailText}>Acceder con correo electrónico</Text>
@@ -453,6 +469,18 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08, shadowRadius: 8, elevation: 3,
   },
   btnGoogleText: { color: '#3C4043', fontSize: 15, fontWeight: '600' },
+
+  btnApple: {
+    width: '100%', height: 54,
+    backgroundColor: '#000',
+    borderRadius: T.rBtn,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25, shadowRadius: 10, elevation: 5,
+  },
+  btnAppleIcon: { fontSize: 20, color: '#fff', lineHeight: 26 },
+  btnAppleText: { color: '#fff', fontSize: 15, fontWeight: '600' },
 
   btnEmail: {
     width: '100%', height: 54,
