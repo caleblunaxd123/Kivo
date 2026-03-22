@@ -6,39 +6,39 @@ const config: Config = {
     extend: {
       colors: {
         // ── Fondos — coinciden exactamente con T.appBg / T.cardBg del móvil ──
-        'bg-base':        '#F4F9FD',   // T.appBg
+        'bg-base':        '#F4FAFB',   // T.appBg
         'bg-surface':     '#FFFFFF',   // T.cardBg
-        'bg-elevated':    '#EAF3FB',   // T.softBlueBg / T.blueSoft
-        'bg-input':       '#F2F7FC',   // T.inputBg
+        'bg-elevated':    '#ECFEFF',   // Elevado cyan
+        'bg-input':       '#F4FAFB',   // T.inputBg
         // ── Bordes — coinciden con tokens del móvil ──────────────────────────
-        'border-subtle':  '#D5E8F5',   // T.strokeSoft
-        'border-default': '#BDD8F0',   // T.strokeBlue
-        'border-strong':  '#93BAE0',
+        'border-subtle':  '#E0F7FA',   // borderSubtle
+        'border-default': '#BAE6FD',   // borderDefault
+        'border-strong':  '#7DD3FC',   // borderStrong
         // ── Texto — coinciden con T.textPrimary / Secondary / Muted ─────────
-        'text-primary':   '#0F172A',   // T.textPrimary
-        'text-secondary': '#4A6070',   // T.textSecondary
-        'text-tertiary':  '#7C8B98',   // T.textMuted
-        // ── Brand — azul Vozpe (mismo que T.blue en el móvil) ───────────────
+        'text-primary':   '#0C1A2E',   // textPrimary
+        'text-secondary': '#374E6B',   // textSecondary
+        'text-tertiary':  '#6B8FA8',   // textMuted
+        // ── Brand — azul Vozpe (mismo que T.blue en el móvil => vozpe500: #0891B2) ───────────────
         vozpe: {
-          50:  '#EAF3FB',   // T.softBlueBg
-          100: '#DBEEFF',   // T.blueLight
-          200: '#BFDBFE',
-          300: '#93C5FD',
-          400: '#60A5FA',
-          500: '#1F6FE5',   // T.blue  — primario (botones, acentos)
-          600: '#1557C8',   // T.blueDeep — hover / pressed
-          700: '#1043A0',
+          50:  '#ECFEFF',
+          100: '#CFFAFE',
+          200: '#A5F3FC',
+          300: '#67E8F9',
+          400: '#22D3EE',
+          500: '#0891B2',   // vozpe500 — primario (botones, acentos)
+          600: '#0E7490',   // hover / pressed
+          700: '#155E75',
         },
-        // ── Verde complementario (T.green del móvil) ────────────────────────
+        // ── Verde complementario (vozpeGreen del móvil => #65A30D) ────────────────────────
         brand: {
-          green:  '#2DBE60',   // T.green
-          deep:   '#1FA451',   // T.greenDeep
-          soft:   '#EDF8F2',   // T.softMintBg
+          green:  '#65A30D',   // vozpeGreen
+          deep:   '#4D7C0F',   
+          soft:   '#F7FEE7',   // vozpeGreenLight
         },
         // ── Semánticos ───────────────────────────────────────────────────────
-        success: '#22A861',   // T.success
-        warning: '#D97706',   // T.warning
-        danger:  '#DC2626',   // T.error
+        success: '#059669',   // success
+        warning: '#D97706',   // warning
+        danger:  '#DC2626',   // error
         ai:      '#7C3AED',
       },
       fontFamily: {

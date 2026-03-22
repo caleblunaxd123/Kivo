@@ -16,7 +16,7 @@ import { VozpeLogo } from '../../components/common/VozpeLogo';
 import { T } from '../../theme/tokens';
 
 function getRedirectUrl() {
-  const url = Linking.createURL('/');
+  const url = Linking.createURL('/(auth)/login');
   console.log('[OAuth] redirectTo:', url);
   return url;
 }
@@ -313,6 +313,7 @@ export default function LoginScreen() {
             }
           </TouchableOpacity>
 
+          {/* Apple button temporalmente oculto a petición del usuario
           {Platform.OS === 'ios' && (
             <TouchableOpacity
               style={styles.btnSocial}
@@ -328,7 +329,8 @@ export default function LoginScreen() {
                   </>
               }
             </TouchableOpacity>
-          )}
+          )} 
+          */}
         </View>
 
         {/* Cambio de modo */}
