@@ -3,12 +3,15 @@ import {
   View, Text, FlatList, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import { Mic, Camera, PenLine, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react-native';
-import {
-  COLORS, CATEGORY_CONFIG, formatCurrency, formatRelativeTime,
-} from '@vozpe/shared';
+import { CATEGORY_CONFIG, formatCurrency, formatRelativeTime } from '@vozpe/shared';
 import type { Entry, GroupMember } from '@vozpe/shared';
 import { Avatar } from '../common/Avatar';
 import { EmptyState } from '../common/EmptyState';
+import { T } from '../../theme/tokens';
+
+// Purple AI accent (no direct T equivalent)
+const AI_COLOR = '#7C3AED';
+const AI_MUTED = 'rgba(124,58,237,0.08)';
 
 interface TimelineViewProps {
   entries: Entry[];
@@ -22,7 +25,7 @@ export function TimelineView({ entries, members, onEntryPress }: TimelineViewPro
       <EmptyState
         emoji="⚡"
         title="Aún no hay entradas"
-        subtitle="Toca 'Agregar entrada' para registrar el primer gasto por voz, foto o texto."
+        subtitle="Usa voz, foto o texto en el compositor de abajo para registrar el primer gasto."
       />
     );
   }
@@ -85,12 +88,14 @@ function TimelineCard({
           {creator ? (
             <Avatar name={creator.displayName} size="xs" colorHex={creator.colorHex} />
           ) : (
-            <View style={styles.systemDot}><Sparkles size={10} color={COLORS.ai} /></View>
+            <View style={styles.systemDot}>
+              <Sparkles size={10} color={AI_COLOR} />
+            </View>
           )}
           <Text style={styles.creatorName} numberOfLines={1}>
             {creator?.displayName ?? 'Vozpe ✦'}
           </Text>
-          <OriginIcon size={12} color={COLORS.textTertiary} />
+          <OriginIcon size={12} color={T.textMuted} />
           <Text style={styles.timestamp}>{formatRelativeTime(entry.createdAt)}</Text>
         </View>
 
@@ -113,9 +118,9 @@ function TimelineCard({
             </View>
             <View style={styles.statusChip}>
               {isPending ? (
-                <AlertCircle size={12} color={COLORS.warning} />
+                <AlertCircle size={12} color={T.warning} />
               ) : (
-                <CheckCircle2 size={12} color={COLORS.success} />
+                <CheckCircle2 size={12} color={T.success} />
               )}
               <Text style={[styles.statusText, isPending && styles.statusTextPending]}>
                 {isPending ? 'Pendiente' : 'Confirmado'}
@@ -141,18 +146,18 @@ const styles = StyleSheet.create({
   dotCol: { alignItems: 'center', paddingTop: 16 },
   dot: {
     width: 10, height: 10, borderRadius: 5,
-    backgroundColor: COLORS.vozpe500,
-    borderWidth: 2, borderColor: COLORS.bgBase,
+    backgroundColor: T.blue,
+    borderWidth: 2, borderColor: T.appBg,
   },
-  dotPending: { backgroundColor: COLORS.warning },
+  dotPending: { backgroundColor: T.warning },
   line: {
     flex: 1, width: 1,
-    backgroundColor: COLORS.borderSubtle,
+    backgroundColor: T.strokeSoft,
     marginTop: 4,
   },
   systemDot: {
     width: 16, height: 16, borderRadius: 8,
-    backgroundColor: COLORS.aiMuted,
+    backgroundColor: AI_MUTED,
     alignItems: 'center', justifyContent: 'center',
   },
 
@@ -160,24 +165,25 @@ const styles = StyleSheet.create({
   cardHeader: {
     flexDirection: 'row', alignItems: 'center', gap: 6, paddingTop: 2,
   },
-  creatorName: { color: COLORS.textSecondary, fontSize: 12, fontWeight: '500', flex: 1 },
-  timestamp: { color: COLORS.textTertiary, fontSize: 11 },
+  creatorName: { color: T.textSecondary, fontSize: 12, fontWeight: '500', flex: 1 },
+  timestamp: { color: T.textMuted, fontSize: 11 },
 
   entryCard: {
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderSubtle,
+    backgroundColor: T.cardBg,
+    borderRadius: T.rCard, borderWidth: 1, borderColor: T.strokeSoft,
     padding: 12, gap: 8,
+    ...T.shadowXs,
   },
-  entryCardPending: { borderLeftWidth: 3, borderLeftColor: COLORS.warning },
+  entryCardPending: { borderLeftWidth: 3, borderLeftColor: T.warning },
 
   entryTop: { flexDirection: 'row', alignItems: 'flex-start', gap: 8 },
   entryEmoji: { fontSize: 18, marginTop: 1 },
   entryDesc: {
-    flex: 1, color: COLORS.textPrimary,
+    flex: 1, color: T.textPrimary,
     fontSize: 15, fontWeight: '600', letterSpacing: -0.2,
   },
   entryAmount: {
-    color: COLORS.textPrimary, fontSize: 16, fontWeight: '700',
+    color: T.textPrimary, fontSize: 16, fontWeight: '700',
     fontFamily: 'monospace', letterSpacing: -0.3,
   },
 
@@ -186,15 +192,15 @@ const styles = StyleSheet.create({
   },
   entryMeta: { flexDirection: 'row', gap: 6 },
   metaChip: {
-    color: COLORS.vozpe400, fontSize: 11, fontWeight: '500',
-    backgroundColor: `${COLORS.vozpe500}15`, borderRadius: 999,
+    color: T.blue, fontSize: 11, fontWeight: '500',
+    backgroundColor: T.blue + '15', borderRadius: 999,
     paddingHorizontal: 7, paddingVertical: 2,
   },
-  metaCat: { color: COLORS.textTertiary, fontSize: 11 },
+  metaCat: { color: T.textMuted, fontSize: 11 },
 
   statusChip: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
   },
-  statusText: { color: COLORS.success, fontSize: 11, fontWeight: '500' },
-  statusTextPending: { color: COLORS.warning },
+  statusText: { color: T.success, fontSize: 11, fontWeight: '500' },
+  statusTextPending: { color: T.warning },
 });

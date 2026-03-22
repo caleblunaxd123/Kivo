@@ -13,6 +13,9 @@ export const T = {
   green:       '#2DBE60',   // verde complementario del logo
   greenDeep:   '#1FA451',   // verde profundo — hover, pressed
   greenSoft:   '#EDF8F2',   // verde muy suave — superficies mint
+  // ── Aliases ───────────────────────────────────────────────────────────────
+  softBlueBg:  '#EAF3FB',   // alias de blueSoft — fondo suave azul
+  softMintBg:  '#EDF8F2',   // alias de greenSoft — fondo suave mint
 
   // ── Fondos ────────────────────────────────────────────────────────────────
   appBg:       '#F4F9FD',   // fondo app — blanco con matiz celeste mínimo

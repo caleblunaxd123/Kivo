@@ -4,38 +4,34 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
-  Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Mic, Table2, Users } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { COLORS } from '@vozpe/shared';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+import { T } from '../../theme/tokens';
 
 const TOUR_STEPS = [
   {
     icon: Mic,
-    iconColor: COLORS.vozpe500,
-    bgColor: `${COLORS.vozpe500}15`,
+    iconColor: T.blue,
+    bgColor: T.blue + '18',
     title: 'Graba con tu voz',
     description: 'Di "Pizza 80 soles entre 4" y Vozpe lo registra automáticamente. Sin formularios, sin teclear.',
     emoji: '🎤',
   },
   {
     icon: Table2,
-    iconColor: COLORS.ai,
-    bgColor: `${COLORS.ai}15`,
+    iconColor: '#7C3AED',
+    bgColor: '#7C3AED18',
     title: 'La sheet viva',
     description: 'Todas tus entradas se organizan solas en una tabla. Confirma, edita y filtra sin esfuerzo.',
     emoji: '📊',
   },
   {
     icon: Users,
-    iconColor: COLORS.success,
-    bgColor: `${COLORS.success}15`,
+    iconColor: T.green,
+    bgColor: T.green + '18',
     title: 'Divide con tu grupo',
     description: 'Vozpe calcula automáticamente quién debe qué. Comparte el resumen por WhatsApp en un toque.',
     emoji: '🤝',
@@ -70,6 +66,10 @@ export default function WelcomeScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom + 16 }]}>
+      {/* Blobs decorativos */}
+      <View style={styles.blob1} pointerEvents="none" />
+      <View style={styles.blob2} pointerEvents="none" />
+
       {/* Skip button — solo en pasos 0 y 1 */}
       <View style={styles.topRow}>
         <View style={{ flex: 1 }} />
@@ -111,8 +111,8 @@ export default function WelcomeScreen() {
             style={[
               styles.dot,
               i === step
-                ? { width: 24, backgroundColor: COLORS.vozpe500 }
-                : { width: 8, backgroundColor: COLORS.borderDefault },
+                ? { width: 24, backgroundColor: T.blue }
+                : { width: 8, backgroundColor: T.strokeBlue },
             ]}
           />
         ))}
@@ -120,7 +120,7 @@ export default function WelcomeScreen() {
 
       {/* Botón principal */}
       <TouchableOpacity
-        style={[styles.btnPrimary, isLast && styles.btnPrimaryLast]}
+        style={styles.btnPrimary}
         onPress={handleNext}
         activeOpacity={0.82}
       >
@@ -135,9 +135,22 @@ export default function WelcomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgBase,
+    backgroundColor: T.appBg,
     paddingHorizontal: 24,
     alignItems: 'center',
+  },
+
+  blob1: {
+    position: 'absolute',
+    width: 300, height: 300, borderRadius: 150,
+    backgroundColor: T.blue + '0E',
+    top: -120, right: -80,
+  },
+  blob2: {
+    position: 'absolute',
+    width: 200, height: 200, borderRadius: 100,
+    backgroundColor: T.green + '0A',
+    bottom: 60, left: -70,
   },
 
   topRow: {
@@ -152,7 +165,7 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   skipText: {
-    color: COLORS.textTertiary,
+    color: T.textMuted,
     fontSize: 14,
     fontWeight: '500',
   },
@@ -164,13 +177,13 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 22,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: T.textPrimary,
     textAlign: 'center',
     letterSpacing: -0.5,
   },
   headerSub: {
     fontSize: 13,
-    color: COLORS.textTertiary,
+    color: T.textMuted,
     marginTop: 4,
     textAlign: 'center',
   },
@@ -181,16 +194,14 @@ const styles = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: COLORS.bgSurface,
+    backgroundColor: T.cardBg,
     borderRadius: 24,
+    borderWidth: 1,
+    borderColor: T.strokeSoft,
     padding: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 6,
+    ...T.shadowCard,
     gap: 16,
   },
   cardEmoji: {
@@ -206,13 +217,13 @@ const styles = StyleSheet.create({
   cardTitle: {
     fontSize: 24,
     fontWeight: '800',
-    color: COLORS.textPrimary,
+    color: T.textPrimary,
     textAlign: 'center',
     letterSpacing: -0.6,
   },
   cardDescription: {
     fontSize: 15,
-    color: COLORS.textSecondary,
+    color: T.textSecondary,
     textAlign: 'center',
     lineHeight: 22,
   },
@@ -232,18 +243,11 @@ const styles = StyleSheet.create({
   btnPrimary: {
     width: '100%',
     height: 56,
-    backgroundColor: COLORS.vozpe500,
-    borderRadius: 28,
+    backgroundColor: T.blue,
+    borderRadius: T.rBtn,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: COLORS.vozpe500,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.4,
-    shadowRadius: 14,
-    elevation: 6,
-  },
-  btnPrimaryLast: {
-    // Ya tiene estilos completos arriba — placeholder para extensión futura
+    ...T.shadowBtn,
   },
   btnPrimaryText: {
     color: '#fff',

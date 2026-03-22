@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, ScrollView,
-  Alert, TextInput, Modal, Pressable, ActivityIndicator,
+  View, Text, TouchableOpacity, StyleSheet,
+  ScrollView, Alert, TextInput, Modal, Pressable, ActivityIndicator,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LogOut, ChevronRight, Pencil, Check, X } from 'lucide-react-native';
@@ -156,25 +156,31 @@ export default function ProfileScreen() {
             <View style={styles.sheetHandle} />
             <Text style={styles.sheetTitle}>Moneda por defecto</Text>
             <Text style={styles.sheetSub}>Elige la moneda principal para tus grupos</Text>
-            {CURRENCIES.map(c => {
-              const active = user?.preferredCurrency === c.code;
-              return (
-                <TouchableOpacity
-                  key={c.code}
-                  style={[styles.currencyRow, active && styles.currencyRowActive]}
-                  onPress={() => handleCurrencySelect(c.code)}
-                  activeOpacity={0.72}
-                >
-                  <Text style={styles.currencyFlag}>{c.flag}</Text>
-                  <View style={styles.currencyInfo}>
-                    <Text style={[styles.currencyCode, active && styles.currencyCodeActive]}>{c.code}</Text>
-                    <Text style={styles.currencyName}>{c.name}</Text>
-                  </View>
-                  <Text style={[styles.currencySymbol, active && styles.currencySymbolActive]}>{c.symbol}</Text>
-                  {active && <Check size={16} color={T.blue} />}
-                </TouchableOpacity>
-              );
-            })}
+            <ScrollView
+              style={styles.currencyList}
+              showsVerticalScrollIndicator={false}
+              bounces={false}
+            >
+              {CURRENCIES.map(c => {
+                const active = user?.preferredCurrency === c.code;
+                return (
+                  <TouchableOpacity
+                    key={c.code}
+                    style={[styles.currencyRow, active && styles.currencyRowActive]}
+                    onPress={() => handleCurrencySelect(c.code)}
+                    activeOpacity={0.72}
+                  >
+                    <Text style={styles.currencyFlag}>{c.flag}</Text>
+                    <View style={styles.currencyInfo}>
+                      <Text style={[styles.currencyCode, active && styles.currencyCodeActive]}>{c.code}</Text>
+                      <Text style={styles.currencyName}>{c.name}</Text>
+                    </View>
+                    <Text style={[styles.currencySymbol, active && styles.currencySymbolActive]}>{c.symbol}</Text>
+                    {active && <Check size={16} color={T.blue} />}
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
           </Pressable>
         </Pressable>
       </Modal>
@@ -276,6 +282,9 @@ const styles = StyleSheet.create({
     textAlign: 'center', marginBottom: 14,
   },
 
+  currencyList: {
+    maxHeight: 340,
+  },
   currencyRow: {
     flexDirection: 'row', alignItems: 'center',
     paddingVertical: 12, paddingHorizontal: 10,
