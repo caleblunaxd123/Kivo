@@ -7,7 +7,9 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, MoreHorizontal, AlertTriangle, Users, Share2 } from 'lucide-react-native';
 import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
+// expo-sharing requiere build nativo — import lazy para no crashear en Expo Go
+let Sharing: typeof import('expo-sharing') | null = null;
+try { Sharing = require('expo-sharing'); } catch {}
 import { formatCurrency, COLORS } from '@vozpe/shared';
 import { T } from '../../../theme/tokens';
 import type { ParsedEntry } from '@vozpe/shared';
@@ -149,6 +151,10 @@ export default function GroupScreen() {
   const handleExport = useCallback(async () => {
     setMenuVisible(false);
     try {
+      if (!Sharing) {
+        Alert.alert('No disponible', 'La función de exportar requiere una build nativa.');
+        return;
+      }
       const isAvailable = await Sharing.isAvailableAsync();
       if (!isAvailable) {
         Alert.alert('No disponible', 'El compartir no está disponible en este dispositivo.');

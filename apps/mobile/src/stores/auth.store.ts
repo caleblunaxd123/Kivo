@@ -114,7 +114,8 @@ export const useAuthStore = create<AuthState>((set) => ({
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('[Auth] onAuthStateChange:', event, session?.user?.id ?? 'no session');
-      if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED')) {
+      if (event === 'SIGNED_IN' && session) {
+        // Primer login — hacer upsert del perfil
         const sessionUserId = session.user.id;
         const userProfile = await upsertProfile(
           sessionUserId,
@@ -123,6 +124,11 @@ export const useAuthStore = create<AuthState>((set) => ({
           session.user.app_metadata?.provider,
         );
         set({ session, sessionUserId, user: userProfile, isAuthenticated: true });
+      } else if (event === 'TOKEN_REFRESHED' && session) {
+        // Refresh silencioso — solo actualizar sesión, no refetch de perfil
+        set({ session, sessionUserId: session.user.id, isAuthenticated: true });
+      } else if (event === 'USER_UPDATED' && session) {
+        set({ session, isAuthenticated: true });
       } else if (!session || event === 'SIGNED_OUT') {
         set({ session: null, sessionUserId: null, user: null, isAuthenticated: false });
       }
