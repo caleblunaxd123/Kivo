@@ -106,9 +106,11 @@ export function MultimodalComposer({
 
       if (uri) {
         // Read audio as base64 and send to Whisper via Edge Function
-        const audioBase64 = await FileSystem.readAsStringAsync(uri, {
+        const rawBase64 = await FileSystem.readAsStringAsync(uri, {
           encoding: 'base64' as any,
         });
+        // Strip newlines — atob() in Deno throws on line-broken base64
+        const audioBase64 = rawBase64.replace(/[\r\n\s]/g, '');
         await FileSystem.deleteAsync(uri, { idempotent: true });
 
         const { supabase } = await import('../../lib/supabase');

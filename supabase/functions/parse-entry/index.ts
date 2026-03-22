@@ -49,8 +49,12 @@ serve(async (req) => {
         );
       }
 
-      const audioBytes = Uint8Array.from(atob(audioBase64), c => c.charCodeAt(0));
-      const audioBlob = new Blob([audioBytes], { type: `audio/${audioFormat}` });
+      // Strip any whitespace/newlines that break atob() in Deno
+      const cleanBase64 = audioBase64.replace(/[\r\n\s]/g, '');
+      const audioBytes = Uint8Array.from(atob(cleanBase64), c => c.charCodeAt(0));
+      // Use audio/mp4 for m4a — more widely accepted MIME type
+      const mimeType = audioFormat === 'm4a' ? 'audio/mp4' : `audio/${audioFormat}`;
+      const audioBlob = new Blob([audioBytes], { type: mimeType });
 
       const formData = new FormData();
       formData.append('file', audioBlob, `recording.${audioFormat}`);
