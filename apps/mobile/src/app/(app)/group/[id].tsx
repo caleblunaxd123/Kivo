@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft, MoreHorizontal, AlertTriangle, Users, Share2 } from 'lucide-react-native';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
-import { formatCurrency } from '@vozpe/shared';
+import { formatCurrency, COLORS } from '@vozpe/shared';
 import { T } from '../../../theme/tokens';
 import type { ParsedEntry } from '@vozpe/shared';
 import { useGroupStore } from '../../../stores/group.store';
@@ -18,8 +18,7 @@ import { AvatarGroup } from '../../../components/common/Avatar';
 import { TimelineView } from '../../../components/timeline/TimelineView';
 import { SheetView } from '../../../components/sheet/SheetView';
 import { BalanceView } from '../../../components/balance/BalanceView';
-import { saveEntry } from '../../../services/entry.service';
-import { createEntryFromPhoto } from '../../../services/entry.service';
+import { saveEntry, createEntryFromPhoto } from '../../../services/entry.service';
 
 type ActiveTab = 'timeline' | 'sheet' | 'balance';
 

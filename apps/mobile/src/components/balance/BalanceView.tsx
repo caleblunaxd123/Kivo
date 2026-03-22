@@ -1,14 +1,15 @@
 import React, { useMemo } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, StyleSheet } from 'react-native';
 import { ArrowRight, TrendingUp, TrendingDown, Minus } from 'lucide-react-native';
 import {
-  COLORS, formatCurrency,
+  formatCurrency,
   calculateMinimalSettlements, getGroupTotals,
 } from '@vozpe/shared';
 import type { MemberBalance } from '@vozpe/shared';
 import { EmptyState } from '../common/EmptyState';
 import { useGroupStore } from '../../stores/group.store';
-import { generateMemberColor, generateInitials } from '@vozpe/shared';
+import { generateInitials } from '@vozpe/shared';
+import { T } from '../../theme/tokens';
 
 interface BalanceViewProps {
   groupId: string;
@@ -129,28 +130,32 @@ export function BalanceView({ groupId, baseCurrency }: BalanceViewProps) {
         settlements.length > 0 ? (
           <View style={styles.settlementsSection}>
             <Text style={styles.sectionTitle}>Cómo liquidar</Text>
-            {settlements.map((s, i) => (
-              <View key={i} style={styles.settlementCard}>
-                <View style={styles.settlementParty}>
-                  <MemberDot name={s.fromMemberName} />
-                  <Text style={styles.settlementName} numberOfLines={1}>
-                    {s.fromMemberName}
-                  </Text>
+            {settlements.map((s, i) => {
+              const fromColor = balances.find(b => b.memberName === s.fromMemberName)?.colorHex;
+              const toColor = balances.find(b => b.memberName === s.toMemberName)?.colorHex;
+              return (
+                <View key={i} style={styles.settlementCard}>
+                  <View style={styles.settlementParty}>
+                    <MemberDot name={s.fromMemberName} colorHex={fromColor} />
+                    <Text style={styles.settlementName} numberOfLines={1}>
+                      {s.fromMemberName}
+                    </Text>
+                  </View>
+                  <View style={styles.settlementArrow}>
+                    <Text style={styles.settlementAmount}>
+                      {formatCurrency(s.amount, s.currency)}
+                    </Text>
+                    <ArrowRight size={14} color={T.blue} />
+                  </View>
+                  <View style={styles.settlementParty}>
+                    <MemberDot name={s.toMemberName} colorHex={toColor} />
+                    <Text style={styles.settlementName} numberOfLines={1}>
+                      {s.toMemberName}
+                    </Text>
+                  </View>
                 </View>
-                <View style={styles.settlementArrow}>
-                  <Text style={styles.settlementAmount}>
-                    {formatCurrency(s.amount, s.currency)}
-                  </Text>
-                  <ArrowRight size={14} color={COLORS.vozpe400} />
-                </View>
-                <View style={styles.settlementParty}>
-                  <MemberDot name={s.toMemberName} />
-                  <Text style={styles.settlementName} numberOfLines={1}>
-                    {s.toMemberName}
-                  </Text>
-                </View>
-              </View>
-            ))}
+              );
+            })}
           </View>
         ) : (
           <View style={styles.settledBanner}>
@@ -165,8 +170,8 @@ export function BalanceView({ groupId, baseCurrency }: BalanceViewProps) {
 function BalanceCard({ balance }: { balance: MemberBalance }) {
   const isPositive = balance.netBalance > 0.01;
   const isNegative = balance.netBalance < -0.01;
-  const color = isPositive ? COLORS.success : isNegative ? COLORS.error : COLORS.textTertiary;
-  const memberColor = generateMemberColor(balance.memberName);
+  const color = isPositive ? T.success : isNegative ? T.error : T.textMuted;
+  const memberColor = balance.colorHex ?? T.blue;
   const initials = generateInitials(balance.memberName);
 
   return (
@@ -189,19 +194,19 @@ function BalanceCard({ balance }: { balance: MemberBalance }) {
       <View style={styles.balanceNet}>
         <View style={[styles.netBadge, {
           backgroundColor: isPositive
-            ? `${COLORS.success}14`
+            ? `${T.success}14`
             : isNegative
-            ? `${COLORS.error}12`
-            : `${COLORS.textTertiary}10`,
+            ? `${T.error}12`
+            : `${T.textMuted}10`,
           borderColor: isPositive
-            ? `${COLORS.success}30`
+            ? `${T.success}30`
             : isNegative
-            ? `${COLORS.error}25`
-            : `${COLORS.textTertiary}20`,
+            ? `${T.error}25`
+            : `${T.textMuted}20`,
         }]}>
-          {isPositive && <TrendingUp size={12} color={COLORS.success} />}
-          {isNegative && <TrendingDown size={12} color={COLORS.error} />}
-          {!isPositive && !isNegative && <Minus size={12} color={COLORS.textTertiary} />}
+          {isPositive && <TrendingUp size={12} color={T.success} />}
+          {isNegative && <TrendingDown size={12} color={T.error} />}
+          {!isPositive && !isNegative && <Minus size={12} color={T.textMuted} />}
           <Text style={[styles.balanceNetText, { color }]}>
             {isPositive ? '+' : ''}{formatCurrency(balance.netBalance, balance.currency)}
           </Text>
@@ -214,8 +219,8 @@ function BalanceCard({ balance }: { balance: MemberBalance }) {
   );
 }
 
-function MemberDot({ name }: { name: string }) {
-  const color = generateMemberColor(name);
+function MemberDot({ name, colorHex }: { name: string; colorHex?: string }) {
+  const color = colorHex ?? T.blue;
   const initials = generateInitials(name);
   return (
     <View style={[styles.miniAvatar, { backgroundColor: `${color}25` }]}>
@@ -230,20 +235,21 @@ const styles = StyleSheet.create({
   summaryCard: {
     margin: 16,
     padding: 20,
-    borderRadius: 16,
-    backgroundColor: COLORS.bgElevated,
+    borderRadius: T.rCard,
+    backgroundColor: T.cardBg,
     borderWidth: 1,
-    borderColor: COLORS.borderDefault,
+    borderColor: T.strokeSoft,
     alignItems: 'center',
     gap: 4,
+    ...T.shadowCard,
   },
-  summaryLabel: { color: COLORS.textTertiary, fontSize: 12, textTransform: 'uppercase', letterSpacing: 0.5 },
-  summaryAmount: { color: COLORS.textPrimary, fontSize: 32, fontWeight: '700', fontFamily: 'monospace', letterSpacing: -1 },
-  summaryMeta: { color: COLORS.textSecondary, fontSize: 13 },
+  summaryLabel: { color: T.textMuted, fontSize: T.fsXs, textTransform: 'uppercase', letterSpacing: 0.5 },
+  summaryAmount: { color: T.textPrimary, fontSize: 32, fontWeight: '700', fontFamily: 'monospace', letterSpacing: -1 },
+  summaryMeta: { color: T.textSecondary, fontSize: 13 },
 
   sectionTitle: {
-    color: COLORS.textTertiary,
-    fontSize: 11,
+    color: T.textMuted,
+    fontSize: T.fsXs,
     fontWeight: '700',
     letterSpacing: 0.8,
     textTransform: 'uppercase',
@@ -258,7 +264,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     gap: 12,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
+    borderBottomColor: T.strokeSoft,
   },
   avatar: {
     width: 40,
@@ -269,12 +275,12 @@ const styles = StyleSheet.create({
   },
   avatarText: { fontSize: 14, fontWeight: '700' },
   balanceInfo: { flex: 1, gap: 2 },
-  balanceName: { color: COLORS.textPrimary, fontSize: 15, fontWeight: '600' },
-  balanceStats: { color: COLORS.textTertiary, fontSize: 12 },
+  balanceName: { color: T.textPrimary, fontSize: 15, fontWeight: '600' },
+  balanceStats: { color: T.textMuted, fontSize: 12 },
   balanceNet: { alignItems: 'flex-end', gap: 4 },
   netBadge: {
     flexDirection: 'row', alignItems: 'center', gap: 4,
-    borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: T.rSm, paddingHorizontal: 8, paddingVertical: 4,
     borderWidth: 1,
   },
   balanceNetText: { fontSize: 13, fontWeight: '700', fontFamily: 'monospace' },
@@ -288,15 +294,15 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 8,
     padding: 12,
-    borderRadius: 12,
-    backgroundColor: COLORS.bgElevated,
+    borderRadius: T.rMd,
+    backgroundColor: T.cardBg,
     borderWidth: 1,
-    borderColor: COLORS.borderDefault,
+    borderColor: T.strokeSoft,
   },
   settlementParty: { flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1 },
-  settlementName: { color: COLORS.textSecondary, fontSize: 13, fontWeight: '500', flex: 1 },
+  settlementName: { color: T.textSecondary, fontSize: 13, fontWeight: '500', flex: 1 },
   settlementArrow: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 8 },
-  settlementAmount: { color: COLORS.vozpe400, fontSize: 13, fontWeight: '700', fontFamily: 'monospace' },
+  settlementAmount: { color: T.blue, fontSize: 13, fontWeight: '700', fontFamily: 'monospace' },
 
   miniAvatar: {
     width: 26,
@@ -310,11 +316,11 @@ const styles = StyleSheet.create({
   settledBanner: {
     margin: 16,
     padding: 16,
-    borderRadius: 12,
-    backgroundColor: `${COLORS.success}10`,
+    borderRadius: T.rMd,
+    backgroundColor: T.greenSoft,
     borderWidth: 1,
-    borderColor: `${COLORS.success}30`,
+    borderColor: T.strokeGreen,
     alignItems: 'center',
   },
-  settledText: { color: COLORS.success, fontSize: 14, fontWeight: '600' },
+  settledText: { color: T.success, fontSize: 14, fontWeight: '600' },
 });

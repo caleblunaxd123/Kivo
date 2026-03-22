@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
-  View, Text, StyleSheet, SectionList, RefreshControl,
+  View, Text, StyleSheet, SectionList, RefreshControl, TouchableOpacity,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Activity } from 'lucide-react-native';
 import { formatRelativeTime, CATEGORY_CONFIG, formatCurrency } from '@vozpe/shared';
@@ -25,8 +26,9 @@ interface ActivityItem {
 }
 
 export default function ActivityScreen() {
-  const insets = useSafeAreaInsets();
-  const groups = useGroupStore(s => s.groups);
+  const insets  = useSafeAreaInsets();
+  const router  = useRouter();
+  const groups  = useGroupStore(s => s.groups);
   const [items,     setItems]     = useState<ActivityItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -141,18 +143,18 @@ export default function ActivityScreen() {
             />
           ) : null
         }
-        renderItem={({ item }) => <ActivityRow item={item} />}
+        renderItem={({ item }) => <ActivityRow item={item} onPress={() => router.push(`/(app)/group/${item.groupId}`)} />}
       />
     </View>
   );
 }
 
-function ActivityRow({ item }: { item: ActivityItem }) {
+function ActivityRow({ item, onPress }: { item: ActivityItem; onPress: () => void }) {
   const cat       = CATEGORY_CONFIG[item.category as keyof typeof CATEGORY_CONFIG] ?? CATEGORY_CONFIG.other;
   const isPending = item.status === 'pending_review';
 
   return (
-    <View style={[styles.row, isPending && styles.rowPending]}>
+    <TouchableOpacity style={[styles.row, isPending && styles.rowPending]} onPress={onPress} activeOpacity={0.7}>
       {/* Emoji del grupo */}
       <View style={styles.rowLeft}>
         <Text style={styles.groupEmoji}>{item.groupEmoji}</Text>
@@ -176,7 +178,7 @@ function ActivityRow({ item }: { item: ActivityItem }) {
           <Text style={styles.pendingLabel}>⚠ Pendiente de revisión</Text>
         )}
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 

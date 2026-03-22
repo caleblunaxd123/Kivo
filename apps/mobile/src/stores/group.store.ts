@@ -312,12 +312,24 @@ export const useGroupStore = create<GroupState>((set, get) => ({
   },
 
   deleteEntry: async (entryId) => {
+    // Snapshot the entry before removing so we can rollback on failure
+    const snapshot = get().entries.find(e => e.id === entryId);
+
     // Optimistic remove
     get().removeEntry(entryId);
 
     const { error } = await supabase.rpc('delete_entry', { p_entry_id: entryId });
     if (error) {
       console.error('[deleteEntry] error:', error);
+      // Rollback: restore the removed entry
+      if (snapshot) {
+        set(state => ({
+          entries: [snapshot, ...state.entries],
+          pendingCount: snapshot.status === 'pending_review'
+            ? state.pendingCount + 1
+            : state.pendingCount,
+        }));
+      }
       throw new Error(error.message);
     }
     // Recalculate groups[].totalAmount after confirmed delete

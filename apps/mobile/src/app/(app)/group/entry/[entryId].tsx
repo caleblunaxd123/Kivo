@@ -12,10 +12,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ChevronLeft, Trash2, Check, AlertTriangle, Pencil, CheckCircle2,
 } from 'lucide-react-native';
-import { COLORS, CATEGORY_CONFIG, formatCurrency, formatDate } from '@vozpe/shared';
+import { CATEGORY_CONFIG, formatCurrency, formatDate } from '@vozpe/shared';
 import type { EntryCategory, EntryStatus } from '@vozpe/shared';
 import { useGroupStore } from '../../../../stores/group.store';
 import { useAuthStore } from '../../../../stores/auth.store';
+import { T } from '../../../../theme/tokens';
 
 const CATEGORIES = Object.entries(CATEGORY_CONFIG) as [EntryCategory, { emoji: string; label: string }][];
 
@@ -112,7 +113,7 @@ export default function EntryDetailScreen() {
     return (
       <View style={[styles.container, { paddingTop: insets.top }]}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ChevronLeft size={22} color={COLORS.textSecondary} />
+          <ChevronLeft size={22} color={T.textSecondary} />
         </TouchableOpacity>
         <View style={styles.centered}>
           <Text style={styles.emptyText}>Entrada no encontrada</Text>
@@ -126,7 +127,7 @@ export default function EntryDetailScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-          <ChevronLeft size={22} color={COLORS.textSecondary} />
+          <ChevronLeft size={22} color={T.textSecondary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>
           {isEditing ? 'Editando entrada' : 'Detalle'}
@@ -135,16 +136,16 @@ export default function EntryDetailScreen() {
           {!isEditing ? (
             <>
               <TouchableOpacity style={styles.iconBtn} onPress={() => setIsEditing(true)}>
-                <Pencil size={18} color={COLORS.textSecondary} />
+                <Pencil size={18} color={T.textSecondary} />
               </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.iconBtn, styles.iconBtnDanger]}
                 onPress={handleDelete}
-                disabled={isDeleting}
+                disabled={isDeleting || isSaving}
               >
                 {isDeleting
-                  ? <ActivityIndicator size="small" color={COLORS.error} />
-                  : <Trash2 size={18} color={COLORS.error} />
+                  ? <ActivityIndicator size="small" color={T.error} />
+                  : <Trash2 size={18} color={T.error} />
                 }
               </TouchableOpacity>
             </>
@@ -183,7 +184,7 @@ export default function EntryDetailScreen() {
         {isPending && (
           <View style={styles.pendingBanner}>
             <View style={styles.pendingBannerTop}>
-              <AlertTriangle size={15} color={COLORS.warning} />
+              <AlertTriangle size={15} color={T.warning} />
               <Text style={styles.pendingBannerTitle}>Entrada pendiente de revisión</Text>
             </View>
             {(entry.pendingReasons?.length ?? 0) > 0 && (
@@ -197,8 +198,8 @@ export default function EntryDetailScreen() {
               disabled={isSaving}
             >
               {isSaving
-                ? null
-                : <CheckCircle2 size={15} color={COLORS.success} />
+                ? <ActivityIndicator size="small" color={T.success} />
+                : <CheckCircle2 size={15} color={T.success} />
               }
               <Text style={styles.confirmBtnText}>
                 {isSaving ? 'Confirmando…' : 'Marcar como confirmada'}
@@ -233,7 +234,7 @@ export default function EntryDetailScreen() {
               value={description}
               onChangeText={setDescription}
               placeholder="Descripción de la entrada"
-              placeholderTextColor={COLORS.textTertiary}
+              placeholderTextColor={T.textMuted}
               multiline
             />
           ) : (
@@ -279,7 +280,7 @@ export default function EntryDetailScreen() {
             <MetaField
               label="Estado"
               value="Confirmado ✓"
-              valueStyle={{ color: COLORS.success }}
+              valueStyle={{ color: T.success }}
             />
           )}
         </View>
@@ -293,12 +294,12 @@ export default function EntryDetailScreen() {
               value={notes}
               onChangeText={setNotes}
               placeholder="Notas opcionales…"
-              placeholderTextColor={COLORS.textTertiary}
+              placeholderTextColor={T.textMuted}
               multiline
               numberOfLines={3}
             />
           ) : (
-            <Text style={[styles.fieldValue, !entry.notes && { color: COLORS.textTertiary }]}>
+            <Text style={[styles.fieldValue, !entry.notes && { color: T.textMuted }]}>
               {entry.notes || 'Sin notas'}
             </Text>
           )}
@@ -330,40 +331,40 @@ function MetaField({
 }
 
 const styles = StyleSheet.create({
-  container:  { flex: 1, backgroundColor: COLORS.bgBase },
+  container:  { flex: 1, backgroundColor: T.appBg },
   centered:   { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  emptyText:  { color: COLORS.textSecondary, fontSize: 15 },
+  emptyText:  { color: T.textSecondary, fontSize: 15 },
 
   header: {
     flexDirection: 'row', alignItems: 'center', gap: 10,
     paddingHorizontal: 16, paddingVertical: 10,
-    borderBottomWidth: 1, borderBottomColor: COLORS.borderSubtle,
+    borderBottomWidth: 1, borderBottomColor: T.strokeSoft,
   },
   backBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: COLORS.bgElevated,
+    backgroundColor: T.blueSoft,
     alignItems: 'center', justifyContent: 'center',
   },
   headerTitle: {
     flex: 1, fontSize: 16, fontWeight: '700',
-    color: COLORS.textPrimary, letterSpacing: -0.3,
+    color: T.textPrimary, letterSpacing: -0.3,
   },
   headerActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   iconBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: COLORS.bgElevated,
+    backgroundColor: T.blueSoft,
     alignItems: 'center', justifyContent: 'center',
   },
-  iconBtnDanger: { backgroundColor: `${COLORS.error}15` },
+  iconBtnDanger: { backgroundColor: T.errorBg },
   cancelEditBtn: {
     paddingHorizontal: 12, paddingVertical: 7,
-    borderRadius: 8, borderWidth: 1, borderColor: COLORS.borderDefault,
+    borderRadius: T.rSm, borderWidth: 1, borderColor: T.strokeSoft,
   },
-  cancelEditText: { color: COLORS.textSecondary, fontSize: 14 },
+  cancelEditText: { color: T.textSecondary, fontSize: 14 },
   saveBtn: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
     paddingHorizontal: 14, paddingVertical: 7,
-    backgroundColor: COLORS.vozpe500, borderRadius: 8,
+    backgroundColor: T.blue, borderRadius: T.rSm,
   },
   saveBtnText: { color: '#fff', fontSize: 14, fontWeight: '600' },
 
@@ -372,62 +373,63 @@ const styles = StyleSheet.create({
   pendingBanner: {
     flexDirection: 'column', gap: 10,
     margin: 16, padding: 14,
-    backgroundColor: `${COLORS.warning}10`,
-    borderRadius: 14, borderWidth: 1, borderColor: `${COLORS.warning}35`,
-    borderLeftWidth: 3, borderLeftColor: COLORS.warning,
+    backgroundColor: T.warningBg,
+    borderRadius: T.rMd, borderWidth: 1, borderColor: `${T.warning}35`,
+    borderLeftWidth: 3, borderLeftColor: T.warning,
   },
   pendingBannerTop: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
   },
   pendingBannerTitle: {
-    color: COLORS.warning, fontSize: 13, fontWeight: '700', flex: 1,
+    color: T.warning, fontSize: 13, fontWeight: '700', flex: 1,
   },
   pendingBannerText: {
-    color: COLORS.textSecondary, fontSize: 12, lineHeight: 17,
+    color: T.textSecondary, fontSize: 12, lineHeight: 17,
   },
   confirmBtn: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-    backgroundColor: `${COLORS.success}18`, borderRadius: 10,
+    backgroundColor: T.greenSoft, borderRadius: T.rSm,
     paddingHorizontal: 14, paddingVertical: 10,
-    borderWidth: 1, borderColor: `${COLORS.success}35`,
+    borderWidth: 1, borderColor: T.strokeGreen,
   },
-  confirmBtnText: { color: COLORS.success, fontSize: 13, fontWeight: '600' },
+  confirmBtnText: { color: T.success, fontSize: 13, fontWeight: '600' },
 
   amountCard: {
     alignItems: 'center', justifyContent: 'center',
     paddingVertical: 28, gap: 8,
     marginHorizontal: 16, marginTop: 16,
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 16, borderWidth: 1, borderColor: COLORS.borderSubtle,
+    backgroundColor: T.cardBg,
+    borderRadius: T.rCard, borderWidth: 1, borderColor: T.strokeSoft,
+    ...T.shadowCard,
   },
   amountEmoji: { fontSize: 36 },
   amountText: {
-    fontSize: 36, fontWeight: '800', color: COLORS.textPrimary,
+    fontSize: 36, fontWeight: '800', color: T.textPrimary,
     fontFamily: 'monospace', letterSpacing: -1,
   },
   amountInput: {
-    fontSize: 36, fontWeight: '800', color: COLORS.vozpe400,
+    fontSize: 36, fontWeight: '800', color: T.blue,
     fontFamily: 'monospace', letterSpacing: -1,
-    borderBottomWidth: 2, borderBottomColor: COLORS.vozpe500,
+    borderBottomWidth: 2, borderBottomColor: T.blue,
     minWidth: 120, textAlign: 'center',
   },
-  amountCurrency: { color: COLORS.textTertiary, fontSize: 13, fontWeight: '500' },
+  amountCurrency: { color: T.textMuted, fontSize: 13, fontWeight: '500' },
 
   section: {
     marginHorizontal: 16, marginTop: 16,
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderSubtle,
+    backgroundColor: T.cardBg,
+    borderRadius: T.rMd, borderWidth: 1, borderColor: T.strokeSoft,
     padding: 14, gap: 8,
   },
   sectionLabel: {
-    fontSize: 11, fontWeight: '700', color: COLORS.textTertiary,
+    fontSize: 11, fontWeight: '700', color: T.textMuted,
     letterSpacing: 0.5, textTransform: 'uppercase',
   },
-  fieldValue: { color: COLORS.textPrimary, fontSize: 15 },
+  fieldValue: { color: T.textPrimary, fontSize: 15 },
   textInput: {
-    color: COLORS.textPrimary, fontSize: 15,
-    backgroundColor: COLORS.bgInput, borderRadius: 8,
-    padding: 10, borderWidth: 1, borderColor: COLORS.borderDefault,
+    color: T.textPrimary, fontSize: 15,
+    backgroundColor: T.inputBg, borderRadius: T.rSm,
+    padding: 10, borderWidth: 1, borderColor: T.strokeBlue,
   },
   textInputMulti: { minHeight: 80, textAlignVertical: 'top' },
 
@@ -435,32 +437,32 @@ const styles = StyleSheet.create({
   catChip: {
     flexDirection: 'row', alignItems: 'center', gap: 5,
     paddingHorizontal: 10, paddingVertical: 6,
-    borderRadius: 999, borderWidth: 1, borderColor: COLORS.borderDefault,
-    backgroundColor: COLORS.bgElevated,
+    borderRadius: T.rBtn, borderWidth: 1, borderColor: T.strokeSoft,
+    backgroundColor: T.blueSoft,
   },
-  catChipActive: { borderColor: COLORS.vozpe500, backgroundColor: `${COLORS.vozpe500}15` },
+  catChipActive: { borderColor: T.blue, backgroundColor: T.blueLight },
   catEmoji: { fontSize: 13 },
-  catLabel: { fontSize: 12, color: COLORS.textSecondary, fontWeight: '500' },
-  catLabelActive: { color: COLORS.vozpe400 },
+  catLabel: { fontSize: 12, color: T.textSecondary, fontWeight: '500' },
+  catLabelActive: { color: T.blue },
 
   metaGrid: {
     marginHorizontal: 16, marginTop: 16,
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 12, borderWidth: 1, borderColor: COLORS.borderSubtle,
+    backgroundColor: T.cardBg,
+    borderRadius: T.rMd, borderWidth: 1, borderColor: T.strokeSoft,
     overflow: 'hidden',
   },
   metaField: {
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     paddingHorizontal: 14, paddingVertical: 11,
-    borderTopWidth: 1, borderTopColor: COLORS.borderSubtle,
+    borderTopWidth: 1, borderTopColor: T.strokeSoft,
   },
-  metaLabel: { color: COLORS.textTertiary, fontSize: 13 },
-  metaValue: { color: COLORS.textSecondary, fontSize: 13, fontWeight: '500' },
+  metaLabel: { color: T.textMuted, fontSize: 13 },
+  metaValue: { color: T.textSecondary, fontSize: 13, fontWeight: '500' },
 
   rawInputBox: {
-    backgroundColor: COLORS.bgInput, borderRadius: 8, padding: 10,
+    backgroundColor: T.inputBg, borderRadius: T.rSm, padding: 10,
   },
   rawInputText: {
-    color: COLORS.textTertiary, fontSize: 12, fontStyle: 'italic',
+    color: T.textMuted, fontSize: 12, fontStyle: 'italic',
   },
 });
