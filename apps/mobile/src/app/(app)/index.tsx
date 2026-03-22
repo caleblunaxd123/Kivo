@@ -9,7 +9,6 @@ import {
   Plus, Bell, TrendingUp, Layers, ChevronRight,
   HelpCircle, Sparkles, Mail, X,
 } from 'lucide-react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { formatCurrency, GROUP_TYPE_CONFIG, generateInitials } from '@vozpe/shared';
 import type { Group } from '@vozpe/shared';
 import { useGroupStore } from '../../stores/group.store';
@@ -27,9 +26,6 @@ export default function GroupsHomeScreen() {
 
   useEffect(() => {
     fetchGroups();
-    AsyncStorage.getItem('vozpe_tour_done').then(done => {
-      if (!done) router.replace('/(auth)/welcome');
-    });
   }, []);
 
   const onRefresh = useCallback(() => { fetchGroups(); }, []);
