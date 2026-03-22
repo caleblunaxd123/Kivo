@@ -204,23 +204,37 @@ export function MultimodalComposer({
     return (
       <View style={styles.idleContainer}>
         <View style={styles.idleRow}>
-          {/* Action buttons */}
-          <TouchableOpacity style={styles.actionBtn} onPress={startVoiceRecording} accessibilityRole="button" accessibilityLabel="Grabar con voz">
-            <Mic size={20} color={COLORS.vozpe400} strokeWidth={1.8} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={openCamera} accessibilityRole="button" accessibilityLabel="Tomar foto de ticket">
-            <Camera size={20} color={COLORS.vozpe400} strokeWidth={1.8} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.actionBtn} onPress={() => setMode('text_input')} accessibilityRole="button" accessibilityLabel="Escribir entrada">
-            <PenLine size={20} color={COLORS.vozpe400} strokeWidth={1.8} />
-          </TouchableOpacity>
+          {/* Secondary action buttons — Voz + Foto */}
+          <View style={styles.secondaryBtns}>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={startVoiceRecording}
+              accessibilityRole="button"
+              accessibilityLabel="Grabar con voz"
+            >
+              <Mic size={19} color={COLORS.vozpe500} strokeWidth={1.8} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.actionBtn}
+              onPress={openCamera}
+              accessibilityRole="button"
+              accessibilityLabel="Tomar foto de ticket"
+            >
+              <Camera size={19} color={COLORS.vozpe500} strokeWidth={1.8} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Divider */}
+          <View style={styles.idleDivider} />
 
           {/* Primary CTA */}
           <TouchableOpacity
             style={styles.primaryBtn}
             onPress={() => setMode('text_input')}
+            accessibilityRole="button"
+            accessibilityLabel="Agregar entrada"
           >
-            <Plus size={18} color={COLORS.white} strokeWidth={2.5} />
+            <Plus size={17} color={COLORS.white} strokeWidth={2.5} />
             <Text style={styles.primaryBtnText}>Agregar entrada</Text>
           </TouchableOpacity>
         </View>
@@ -400,14 +414,22 @@ const styles = StyleSheet.create({
   idleRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: 10,
+  },
+  secondaryBtns: {
+    flexDirection: 'row',
     gap: 8,
   },
   actionBtn: {
     width: 44, height: 44,
-    borderRadius: 14,
-    backgroundColor: COLORS.bgElevated,
+    borderRadius: 13,
+    backgroundColor: `${COLORS.vozpe500}10`,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: COLORS.borderDefault,
+    borderWidth: 1, borderColor: `${COLORS.vozpe500}25`,
+  },
+  idleDivider: {
+    width: 1, height: 28,
+    backgroundColor: COLORS.borderDefault,
   },
   primaryBtn: {
     flex: 1,
@@ -416,11 +438,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 7,
     backgroundColor: COLORS.vozpe500,
-    borderRadius: 14,
+    borderRadius: 13,
     paddingVertical: 12,
     shadowColor: COLORS.vozpe500,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
+    shadowOpacity: 0.35,
     shadowRadius: 10,
     elevation: 6,
   },

@@ -38,7 +38,7 @@ export default function GroupScreen() {
     archiveGroup, leaveGroup,
   } = useGroupStore();
 
-  const [tab,         setTab]         = useState<ActiveTab>('sheet');
+  const [tab,         setTab]         = useState<ActiveTab>('timeline');
   const [menuVisible, setMenuVisible] = useState(false);
   const [isActioning, setIsActioning] = useState(false);
 

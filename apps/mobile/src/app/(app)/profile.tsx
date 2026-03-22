@@ -5,11 +5,9 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LogOut, ChevronRight, Pencil, Check, X } from 'lucide-react-native';
-import { COLORS } from '@vozpe/shared';
+import { COLORS, CURRENCIES } from '@vozpe/shared';
 import { useAuthStore } from '../../stores/auth.store';
 import { Avatar } from '../../components/common/Avatar';
-
-const CURRENCIES = ['USD', 'EUR', 'PEN', 'ARS', 'CLP', 'COP', 'MXN', 'BRL'];
 
 export default function ProfileScreen() {
   const insets       = useSafeAreaInsets();
@@ -111,7 +109,15 @@ export default function ProfileScreen() {
           >
             <Text style={styles.rowLabel}>Moneda por defecto</Text>
             <View style={styles.rowRight}>
-              <Text style={styles.rowValue}>{user?.preferredCurrency ?? 'USD'}</Text>
+              {(() => {
+                const cur = CURRENCIES.find(c => c.code === (user?.preferredCurrency ?? 'USD'));
+                return (
+                  <>
+                    {cur && <Text style={styles.rowCurrencyFlag}>{cur.flag}</Text>}
+                    <Text style={styles.rowValue}>{user?.preferredCurrency ?? 'USD'}</Text>
+                  </>
+                );
+              })()}
               <ChevronRight size={16} color={COLORS.textTertiary} />
             </View>
           </TouchableOpacity>
@@ -150,22 +156,34 @@ export default function ProfileScreen() {
       {/* Currency picker modal */}
       <Modal visible={currencyModal} transparent animationType="slide" onRequestClose={() => setCurrencyModal(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setCurrencyModal(false)}>
-          <View style={[styles.modalSheet, { paddingBottom: insets.bottom + 16 }]}>
+          <Pressable style={[styles.modalSheet, { paddingBottom: insets.bottom + 16 }]}>
             <View style={styles.modalHandle} />
             <Text style={styles.modalTitle}>Moneda por defecto</Text>
-            {CURRENCIES.map(c => (
-              <TouchableOpacity
-                key={c}
-                style={[styles.currencyRow, user?.preferredCurrency === c && styles.currencyRowActive]}
-                onPress={() => handleCurrencySelect(c)}
-              >
-                <Text style={[styles.currencyText, user?.preferredCurrency === c && styles.currencyTextActive]}>
-                  {c}
-                </Text>
-                {user?.preferredCurrency === c && <Check size={16} color={COLORS.vozpe400} />}
-              </TouchableOpacity>
-            ))}
-          </View>
+            <Text style={styles.modalSubtitle}>Elige la moneda principal para tus grupos</Text>
+            {CURRENCIES.map(c => {
+              const isActive = user?.preferredCurrency === c.code;
+              return (
+                <TouchableOpacity
+                  key={c.code}
+                  style={[styles.currencyRow, isActive && styles.currencyRowActive]}
+                  onPress={() => handleCurrencySelect(c.code)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.currencyFlag}>{c.flag}</Text>
+                  <View style={styles.currencyInfo}>
+                    <Text style={[styles.currencyCode, isActive && styles.currencyCodeActive]}>
+                      {c.code}
+                    </Text>
+                    <Text style={styles.currencyName}>{c.name}</Text>
+                  </View>
+                  <Text style={[styles.currencySymbol, isActive && styles.currencySymbolActive]}>
+                    {c.symbol}
+                  </Text>
+                  {isActive && <Check size={16} color={COLORS.vozpe400} />}
+                </TouchableOpacity>
+              );
+            })}
+          </Pressable>
         </Pressable>
       </Modal>
     </>
@@ -218,6 +236,7 @@ const styles = StyleSheet.create({
   rowLabel: { fontSize: 15, color: COLORS.textPrimary },
   rowRight: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   rowValue: { fontSize: 14, color: COLORS.textSecondary },
+  rowCurrencyFlag: { fontSize: 16 },
   idText: { fontFamily: 'monospace', fontSize: 12 },
 
   signOutBtn: {
@@ -234,8 +253,9 @@ const styles = StyleSheet.create({
   },
   modalSheet: {
     backgroundColor: COLORS.bgSurface,
-    borderTopLeftRadius: 20, borderTopRightRadius: 20,
+    borderTopLeftRadius: 24, borderTopRightRadius: 24,
     paddingTop: 12, paddingHorizontal: 16,
+    maxHeight: '80%',
   },
   modalHandle: {
     width: 36, height: 4, borderRadius: 2,
@@ -243,15 +263,28 @@ const styles = StyleSheet.create({
     alignSelf: 'center', marginBottom: 16,
   },
   modalTitle: {
-    fontSize: 16, fontWeight: '700', color: COLORS.textPrimary,
-    textAlign: 'center', marginBottom: 12,
+    fontSize: 17, fontWeight: '700', color: COLORS.textPrimary,
+    textAlign: 'center', marginBottom: 2,
+  },
+  modalSubtitle: {
+    fontSize: 13, color: COLORS.textTertiary,
+    textAlign: 'center', marginBottom: 14,
   },
   currencyRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingVertical: 14, paddingHorizontal: 8,
-    borderRadius: 10, marginBottom: 4,
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: 12, paddingHorizontal: 10,
+    borderRadius: 12, marginBottom: 4,
+    gap: 12,
   },
-  currencyRowActive: { backgroundColor: `${COLORS.vozpe500}15` },
-  currencyText: { fontSize: 16, color: COLORS.textPrimary, fontWeight: '500' },
-  currencyTextActive: { color: COLORS.vozpe400, fontWeight: '700' },
+  currencyRowActive: { backgroundColor: `${COLORS.vozpe500}12` },
+  currencyFlag: { fontSize: 22 },
+  currencyInfo: { flex: 1, gap: 1 },
+  currencyCode: { fontSize: 15, color: COLORS.textPrimary, fontWeight: '700' },
+  currencyCodeActive: { color: COLORS.vozpe500 },
+  currencyName: { fontSize: 12, color: COLORS.textTertiary },
+  currencySymbol: {
+    fontSize: 14, color: COLORS.textTertiary, fontWeight: '600',
+    fontFamily: 'monospace', marginRight: 4,
+  },
+  currencySymbolActive: { color: COLORS.vozpe400 },
 });

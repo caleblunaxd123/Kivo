@@ -187,13 +187,12 @@ export function SheetView({
         </View>
       </ScrollView>
 
-      {/* ── Footer totals ── */}
+      {/* ── Footer ── */}
       <View style={styles.footer}>
-        <Text style={styles.footerLabel}>{sorted.length} fila{sorted.length !== 1 ? 's' : ''}</Text>
-        <View style={styles.footerRight}>
-          <Text style={styles.footerTotalLabel}>TOTAL CONFIRMADO</Text>
-          <Text style={styles.footerTotal}>{formatCurrency(stats.total, baseCurrency)}</Text>
-        </View>
+        <Text style={styles.footerLabel}>
+          {sorted.length} entrada{sorted.length !== 1 ? 's' : ''}
+          {filter !== 'all' ? ` · filtro: ${filter === 'confirmed' ? 'confirmadas' : 'pendientes'}` : ''}
+        </Text>
       </View>
     </View>
   );
@@ -456,20 +455,11 @@ const styles = StyleSheet.create({
 
   // Footer
   footer: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    paddingHorizontal: 16, paddingVertical: 10,
+    paddingHorizontal: 16, paddingVertical: 8,
     backgroundColor: XL.totalBg,
-    borderTopWidth: 2, borderTopColor: XL.headerBg,
+    borderTopWidth: 1, borderTopColor: XL.border,
   },
-  footerLabel: { color: XL.textSub, fontSize: 12, fontWeight: '500' },
-  footerRight: { alignItems: 'flex-end', gap: 2 },
-  footerTotalLabel: {
-    fontSize: 9, fontWeight: '700', color: XL.headerBg, letterSpacing: 0.8,
-  },
-  footerTotal: {
-    fontSize: 20, fontWeight: '800',
-    color: XL.headerBg, fontFamily: 'monospace', letterSpacing: -0.5,
-  },
+  footerLabel: { color: XL.textMuted, fontSize: 11, fontWeight: '500' },
 
   // Column width definitions
   colN:      { width: COL.n },

@@ -271,8 +271,8 @@ function GoogleColorIcon({ size = 22 }: { size?: number }) {
 function AppleIcon({ size = 22 }: { size?: number }) {
   return (
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: size * 0.82, color: '#000', lineHeight: size }}>
-
+      <Text style={{ fontSize: size * 0.88, color: '#000', lineHeight: size * 1.05 }}>
+        {'\uF8FF'}
       </Text>
     </View>
   );

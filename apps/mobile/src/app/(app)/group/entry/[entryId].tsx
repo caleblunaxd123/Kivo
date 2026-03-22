@@ -19,6 +19,14 @@ import { useAuthStore } from '../../../../stores/auth.store';
 
 const CATEGORIES = Object.entries(CATEGORY_CONFIG) as [EntryCategory, { emoji: string; label: string }][];
 
+const ORIGIN_LABELS: Record<string, string> = {
+  voice:  'Voz',
+  photo:  'Foto',
+  text:   'Texto rápido',
+  manual: 'Manual',
+  import: 'Importado',
+};
+
 export default function EntryDetailScreen() {
   const { entryId } = useLocalSearchParams<{ entryId: string }>();
   const router   = useRouter();
@@ -174,13 +182,27 @@ export default function EntryDetailScreen() {
         {/* Status banner */}
         {isPending && (
           <View style={styles.pendingBanner}>
-            <AlertTriangle size={16} color={COLORS.warning} />
-            <Text style={styles.pendingBannerText}>
-              Pendiente: {entry.pendingReasons?.join(', ') || 'sin detalles'}
-            </Text>
-            <TouchableOpacity style={styles.confirmBtn} onPress={handleConfirm} disabled={isSaving}>
-              <CheckCircle2 size={15} color={COLORS.success} />
-              <Text style={styles.confirmBtnText}>Confirmar</Text>
+            <View style={styles.pendingBannerTop}>
+              <AlertTriangle size={15} color={COLORS.warning} />
+              <Text style={styles.pendingBannerTitle}>Entrada pendiente de revisión</Text>
+            </View>
+            {(entry.pendingReasons?.length ?? 0) > 0 && (
+              <Text style={styles.pendingBannerText}>
+                {entry.pendingReasons!.join(' · ')}
+              </Text>
+            )}
+            <TouchableOpacity
+              style={styles.confirmBtn}
+              onPress={handleConfirm}
+              disabled={isSaving}
+            >
+              {isSaving
+                ? null
+                : <CheckCircle2 size={15} color={COLORS.success} />
+              }
+              <Text style={styles.confirmBtnText}>
+                {isSaving ? 'Confirmando…' : 'Marcar como confirmada'}
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -251,7 +273,7 @@ export default function EntryDetailScreen() {
             value={entry.splitRule === 'equal' ? 'División igual' : entry.splitRule ?? '—'}
           />
           <MetaField label="Fecha" value={formatDate(entry.entryDate)} />
-          <MetaField label="Origen" value={entry.origin} />
+          <MetaField label="Origen" value={ORIGIN_LABELS[entry.origin] ?? entry.origin} />
           <MetaField label="Agregado por" value={creator?.displayName ?? '—'} />
           {!isPending && (
             <MetaField
@@ -348,19 +370,28 @@ const styles = StyleSheet.create({
   scroll: { flex: 1 },
 
   pendingBanner: {
+    flexDirection: 'column', gap: 10,
+    margin: 16, padding: 14,
+    backgroundColor: `${COLORS.warning}10`,
+    borderRadius: 14, borderWidth: 1, borderColor: `${COLORS.warning}35`,
+    borderLeftWidth: 3, borderLeftColor: COLORS.warning,
+  },
+  pendingBannerTop: {
     flexDirection: 'row', alignItems: 'center', gap: 8,
-    margin: 16, padding: 12,
-    backgroundColor: `${COLORS.warning}12`,
-    borderRadius: 12, borderWidth: 1, borderColor: `${COLORS.warning}30`,
   },
-  pendingBannerText: { flex: 1, color: COLORS.warning, fontSize: 13 },
+  pendingBannerTitle: {
+    color: COLORS.warning, fontSize: 13, fontWeight: '700', flex: 1,
+  },
+  pendingBannerText: {
+    color: COLORS.textSecondary, fontSize: 12, lineHeight: 17,
+  },
   confirmBtn: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    backgroundColor: `${COLORS.success}15`, borderRadius: 8,
-    paddingHorizontal: 10, paddingVertical: 5,
-    borderWidth: 1, borderColor: `${COLORS.success}30`,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
+    backgroundColor: `${COLORS.success}18`, borderRadius: 10,
+    paddingHorizontal: 14, paddingVertical: 10,
+    borderWidth: 1, borderColor: `${COLORS.success}35`,
   },
-  confirmBtnText: { color: COLORS.success, fontSize: 12, fontWeight: '600' },
+  confirmBtnText: { color: COLORS.success, fontSize: 13, fontWeight: '600' },
 
   amountCard: {
     alignItems: 'center', justifyContent: 'center',

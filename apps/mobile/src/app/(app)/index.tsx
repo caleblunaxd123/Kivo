@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Plus, Bell, TrendingUp, Layers } from 'lucide-react-native';
+import { Plus, Bell, TrendingUp, Layers, ChevronRight } from 'lucide-react-native';
 import { COLORS, formatCurrency, GROUP_TYPE_CONFIG, generateInitials } from '@vozpe/shared';
 import type { Group } from '@vozpe/shared';
 import { useGroupStore } from '../../stores/group.store';
@@ -192,7 +192,7 @@ function GroupCard({ group, onPress }: { group: Group; onPress: () => void }) {
       </View>
 
       {/* Chevron */}
-      <Text style={styles.cardChevron}>›</Text>
+      <ChevronRight size={18} color={COLORS.textTertiary} style={styles.cardChevron} />
     </TouchableOpacity>
   );
 }
@@ -405,8 +405,7 @@ const styles = StyleSheet.create({
     color: COLORS.warning, fontSize: 11, fontWeight: '600',
   },
   cardChevron: {
-    color: COLORS.textTertiary, fontSize: 22,
-    paddingHorizontal: 12, paddingVertical: 14,
+    marginHorizontal: 12,
   },
 
   // ── FAB ──────────────────────────────────────────────────────

@@ -121,14 +121,14 @@ export function BalanceView({ groupId, baseCurrency }: BalanceViewProps) {
             </Text>
           </View>
 
-          <Text style={styles.sectionTitle}>SALDOS</Text>
+          <Text style={styles.sectionTitle}>Saldos</Text>
         </>
       )}
       renderItem={({ item }) => <BalanceCard balance={item} />}
       ListFooterComponent={
         settlements.length > 0 ? (
           <View style={styles.settlementsSection}>
-            <Text style={styles.sectionTitle}>CÓMO LIQUIDAR</Text>
+            <Text style={styles.sectionTitle}>Cómo liquidar</Text>
             {settlements.map((s, i) => (
               <View key={i} style={styles.settlementCard}>
                 <View style={styles.settlementParty}>
@@ -187,14 +187,27 @@ function BalanceCard({ balance }: { balance: MemberBalance }) {
 
       {/* Net */}
       <View style={styles.balanceNet}>
-        {isPositive && <TrendingUp size={14} color={COLORS.success} />}
-        {isNegative && <TrendingDown size={14} color={COLORS.error} />}
-        {!isPositive && !isNegative && <Minus size={14} color={COLORS.textTertiary} />}
-        <Text style={[styles.balanceNetText, { color }]}>
-          {isPositive ? '+' : ''}{formatCurrency(balance.netBalance, balance.currency)}
-        </Text>
+        <View style={[styles.netBadge, {
+          backgroundColor: isPositive
+            ? `${COLORS.success}14`
+            : isNegative
+            ? `${COLORS.error}12`
+            : `${COLORS.textTertiary}10`,
+          borderColor: isPositive
+            ? `${COLORS.success}30`
+            : isNegative
+            ? `${COLORS.error}25`
+            : `${COLORS.textTertiary}20`,
+        }]}>
+          {isPositive && <TrendingUp size={12} color={COLORS.success} />}
+          {isNegative && <TrendingDown size={12} color={COLORS.error} />}
+          {!isPositive && !isNegative && <Minus size={12} color={COLORS.textTertiary} />}
+          <Text style={[styles.balanceNetText, { color }]}>
+            {isPositive ? '+' : ''}{formatCurrency(balance.netBalance, balance.currency)}
+          </Text>
+        </View>
         <Text style={[styles.balanceNetLabel, { color }]}>
-          {isPositive ? 'le deben' : isNegative ? 'debe' : 'en paz'}
+          {isPositive ? 'a favor' : isNegative ? 'por pagar' : 'al día'}
         </Text>
       </View>
     </View>
@@ -233,6 +246,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     letterSpacing: 0.8,
+    textTransform: 'uppercase',
     paddingHorizontal: 16,
     paddingBottom: 8,
   },
@@ -257,9 +271,14 @@ const styles = StyleSheet.create({
   balanceInfo: { flex: 1, gap: 2 },
   balanceName: { color: COLORS.textPrimary, fontSize: 15, fontWeight: '600' },
   balanceStats: { color: COLORS.textTertiary, fontSize: 12 },
-  balanceNet: { alignItems: 'flex-end', gap: 2 },
-  balanceNetText: { fontSize: 15, fontWeight: '700', fontFamily: 'monospace' },
-  balanceNetLabel: { fontSize: 11 },
+  balanceNet: { alignItems: 'flex-end', gap: 4 },
+  netBadge: {
+    flexDirection: 'row', alignItems: 'center', gap: 4,
+    borderRadius: 8, paddingHorizontal: 8, paddingVertical: 4,
+    borderWidth: 1,
+  },
+  balanceNetText: { fontSize: 13, fontWeight: '700', fontFamily: 'monospace' },
+  balanceNetLabel: { fontSize: 11, fontWeight: '500' },
 
   settlementsSection: { paddingTop: 24, paddingBottom: 8 },
   settlementCard: {
