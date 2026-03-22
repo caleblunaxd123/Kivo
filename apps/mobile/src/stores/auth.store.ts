@@ -126,6 +126,9 @@ export const useAuthStore = create<AuthState>((set) => ({
         set({ session, isAuthenticated: true });
 
       } else if (event === 'SIGNED_OUT' || !session) {
+        // Limpiar SecureStore explícitamente para evitar que el token inválido
+        // sea restaurado en la próxima apertura de la app
+        try { await supabase.auth.signOut(); } catch {}
         set({ session: null, sessionUserId: null, user: null, isAuthenticated: false, isLoading: false });
       }
     });

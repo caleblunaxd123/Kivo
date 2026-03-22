@@ -1,15 +1,30 @@
+import { useEffect, useState } from 'react';
 import { Tabs, Redirect } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Users, Activity, User } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '../../stores/auth.store';
 import { useOfflineQueue } from '../../hooks/useOfflineQueue';
 import { T } from '../../theme/tokens';
 
 export default function AppLayout() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
+  const [tourChecked, setTourChecked] = useState(false);
+  const [tourDone, setTourDone]       = useState(true); // assume done to avoid flash
   useOfflineQueue();
 
+  useEffect(() => {
+    AsyncStorage.getItem('vozpe_tour_done').then(v => {
+      setTourDone(!!v);
+      setTourChecked(true);
+    });
+  }, []);
+
   if (!isAuthenticated) return <Redirect href="/onboarding" />;
+
+  // Esperar el check del tour antes de redirigir (evita flash)
+  if (!tourChecked) return null;
+  if (!tourDone)    return <Redirect href="/(auth)/welcome" />;
 
   return (
     <Tabs
