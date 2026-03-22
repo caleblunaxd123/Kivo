@@ -6,13 +6,12 @@ import {
   Animated,
   Dimensions,
   TouchableOpacity,
-  Platform,
   Alert,
   ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Camera, PenLine, Sparkles, Mic, Mail } from 'lucide-react-native';
+import { Mail } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { COLORS } from '@vozpe/shared';
@@ -27,31 +26,20 @@ function getRedirectUrl(): string {
 import { supabase } from '../lib/supabase';
 import { VozpeLogo } from '../components/common/VozpeLogo';
 
-const { width } = Dimensions.get('window');
+const { height: WINDOW_HEIGHT } = Dimensions.get('window');
 
 export default function OnboardingScreen() {
   const router  = useRouter();
   const insets  = useSafeAreaInsets();
   const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
 
-  const logoOpacity    = useRef(new Animated.Value(0)).current;
-  const heroOpacity    = useRef(new Animated.Value(0)).current;
-  const heroTranslateY = useRef(new Animated.Value(22)).current;
-  const ctaOpacity     = useRef(new Animated.Value(0)).current;
-  const ctaTranslateY  = useRef(new Animated.Value(14)).current;
-  const card1Scale     = useRef(new Animated.Value(0.94)).current;
-  const card2Scale     = useRef(new Animated.Value(0.94)).current;
+  const logoOpacity   = useRef(new Animated.Value(0)).current;
+  const ctaOpacity    = useRef(new Animated.Value(0)).current;
+  const ctaTranslateY = useRef(new Animated.Value(14)).current;
 
   useEffect(() => {
     Animated.sequence([
       Animated.timing(logoOpacity, { toValue: 1, duration: 420, useNativeDriver: true }),
-      Animated.delay(80),
-      Animated.parallel([
-        Animated.timing(heroOpacity,    { toValue: 1, duration: 520, useNativeDriver: true }),
-        Animated.timing(heroTranslateY, { toValue: 0, duration: 520, useNativeDriver: true }),
-        Animated.timing(card1Scale,     { toValue: 1, duration: 620, useNativeDriver: true }),
-        Animated.timing(card2Scale,     { toValue: 1, duration: 720, useNativeDriver: true }),
-      ]),
       Animated.delay(120),
       Animated.parallel([
         Animated.timing(ctaOpacity,    { toValue: 1, duration: 360, useNativeDriver: true }),
@@ -110,100 +98,26 @@ export default function OnboardingScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingBottom: insets.bottom + 14, paddingTop: insets.top + 6 }]}>
-
-      {/* ── Orbs de fondo — en su propio layer con overflow hidden ── */}
-      <View style={styles.orbsLayer} pointerEvents="none">
-        <View style={styles.orb1} />
-        <View style={styles.orb2} />
-        <View style={styles.orb3} />
-        <View style={styles.orb4} />
+    <View style={styles.container}>
+      {/* ── Sección oscura — logo sobre fondo oscuro ── */}
+      <View style={[styles.darkHeader, { height: WINDOW_HEIGHT * 0.46, paddingTop: insets.top + 20 }]}>
+        <Animated.View style={{ opacity: logoOpacity, marginBottom: 4 }}>
+          <VozpeLogo size="xxl" />
+        </Animated.View>
+        <Text style={styles.darkSubtitle}>Organiza tus gastos{'\n'}con tu voz</Text>
       </View>
 
-      {/* ── Logo ── */}
-      <Animated.View style={[styles.logoWrap, { opacity: logoOpacity }]}>
-        <VozpeLogo size="xxl" />
-      </Animated.View>
-
-      {/* ── Hero ── */}
+      {/* ── Sección clara — auth buttons ── */}
       <Animated.View
         style={[
-          styles.heroContainer,
-          { opacity: heroOpacity, transform: [{ translateY: heroTranslateY }] },
-        ]}
-      >
-        {/* Demo card */}
-        <Animated.View style={[styles.demoCard, { transform: [{ scale: card1Scale }] }]}>
-
-          {/* Voice input row */}
-          <View style={styles.demoInputRow}>
-            <View style={styles.demoMicBadge}>
-              <Mic size={13} color={COLORS.vozpe500} />
-            </View>
-            <Text style={styles.demoInputText}>"Taxi 40 dólares, entre 4"</Text>
-            <View style={styles.demoSparkle}>
-              <Sparkles size={12} color={COLORS.ai} />
-            </View>
-          </View>
-
-          {/* Divider */}
-          <View style={styles.arrowRow}>
-            <View style={styles.arrowLine} />
-            <Text style={styles.arrowLabel}>Vozpe entiende</Text>
-            <View style={styles.arrowLine} />
-          </View>
-
-          {/* Parsed result */}
-          <Animated.View style={[styles.parsedRow, { transform: [{ scale: card2Scale }] }]}>
-            <View style={styles.parsedIcon}>
-              <Text style={styles.parsedEmoji}>🚗</Text>
-            </View>
-            <View style={styles.parsedInfo}>
-              <Text style={styles.parsedDesc}>Taxi</Text>
-              <Text style={styles.parsedMeta}>División igual · 4 personas</Text>
-            </View>
-            <View style={styles.parsedRight}>
-              <Text style={styles.parsedAmount}>$40.00</Text>
-              <View style={styles.parsedPerPersonBadge}>
-                <Text style={styles.parsedPerPerson}>$10 c/u</Text>
-              </View>
-            </View>
-          </Animated.View>
-        </Animated.View>
-
-        {/* Method chips */}
-        <View style={styles.methodsRow}>
-          {[
-            { icon: Mic,     label: 'Voz',   color: COLORS.vozpe500 },
-            { icon: Camera,  label: 'Foto',  color: COLORS.ai },
-            { icon: PenLine, label: 'Texto', color: COLORS.success },
-          ].map(({ icon: Icon, label, color }) => (
-            <View key={label} style={styles.methodChip}>
-              <View style={[styles.methodIconWrap, { backgroundColor: `${color}18` }]}>
-                <Icon size={14} color={color} />
-              </View>
-              <Text style={styles.methodLabel}>{label}</Text>
-            </View>
-          ))}
-        </View>
-
-        {/* Tagline */}
-        <View style={styles.taglineWrap}>
-          <Text style={styles.tagline}>Anota ahora,{'\n'}ordena después.</Text>
-          <Text style={styles.taglineSub}>Sin formularios, sin caos.{'\n'}Solo tú y tu grupo.</Text>
-        </View>
-      </Animated.View>
-
-      {/* ── Auth ── */}
-      <Animated.View
-        style={[
-          styles.ctaContainer,
+          styles.lightBody,
+          { paddingBottom: insets.bottom + 14 },
           { opacity: ctaOpacity, transform: [{ translateY: ctaTranslateY }] },
         ]}
       >
         {/* Google */}
         <TouchableOpacity
-          style={styles.btnSocial}
+          style={styles.btnGoogle}
           onPress={() => handleOAuth('google')}
           activeOpacity={0.80}
           disabled={!!oauthLoading}
@@ -211,39 +125,20 @@ export default function OnboardingScreen() {
           {oauthLoading === 'google' ? (
             <ActivityIndicator size="small" color={COLORS.textSecondary} />
           ) : (
-            <View style={styles.btnSocialInner}>
-              <GoogleColorIcon size={22} />
-              <Text style={styles.btnSocialText}>Continuar con Google</Text>
-            </View>
+            <>
+              <GoogleColorIcon size={20} />
+              <Text style={styles.btnGoogleText}>Continuar con Google</Text>
+            </>
           )}
         </TouchableOpacity>
 
-        {/* Apple — solo iOS */}
-        {Platform.OS === 'ios' && (
-          <TouchableOpacity
-            style={styles.btnSocial}
-            onPress={() => handleOAuth('apple')}
-            activeOpacity={0.80}
-            disabled={!!oauthLoading}
-          >
-            {oauthLoading === 'apple' ? (
-              <ActivityIndicator size="small" color={COLORS.textSecondary} />
-            ) : (
-              <View style={styles.btnSocialInner}>
-                <AppleIcon size={22} />
-                <Text style={styles.btnSocialText}>Continuar con Apple</Text>
-              </View>
-            )}
-          </TouchableOpacity>
-        )}
-
-        {/* Correo — botón visible, no escondido */}
+        {/* Email */}
         <TouchableOpacity
           style={styles.btnEmail}
           onPress={() => router.replace('/(auth)/login')}
           activeOpacity={0.75}
         >
-          <Mail size={16} color={COLORS.textSecondary} />
+          <Mail size={18} color="#fff" />
           <Text style={styles.btnEmailText}>Acceder con correo electrónico</Text>
         </TouchableOpacity>
 
@@ -289,248 +184,90 @@ function GoogleColorIcon({ size = 22 }: { size?: number }) {
   );
 }
 
-// ─── Ícono Apple ──────────────────────────────────────────────────────────────
-function AppleIcon({ size = 22 }: { size?: number }) {
-  return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
-      <Text style={{ fontSize: size * 0.88, color: '#000', lineHeight: size * 1.05 }}>
-        {'\uF8FF'}
-      </Text>
-    </View>
-  );
-}
-
 // ─── Estilos ──────────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.bgBase,
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 22,
+    backgroundColor: '#0F172A',
   },
 
-  // ── Orbs layer (absoluteFill con overflow hidden para no afectar layout) ──
-  orbsLayer: {
-    ...StyleSheet.absoluteFillObject,
-    overflow: 'hidden',
-  },
-
-  // ── Orbs ────────────────────────────────────────────────────────
-  // Orb 1: arriba izquierda — teal (color del ícono del logo)
-  orb1: {
-    position: 'absolute',
-    width: 320, height: 320, borderRadius: 160,
-    backgroundColor: `${COLORS.vozpe500}16`,
-    top: -110, left: -90,
-  },
-  // Orb 2: arriba derecha — navy suave (color "Voz")
-  orb2: {
-    position: 'absolute',
-    width: 200, height: 200, borderRadius: 100,
-    backgroundColor: `${COLORS.vozpeNavy}0C`,
-    top: 20, right: -60,
-  },
-  // Orb 3: centro derecha — cyan claro
-  orb3: {
-    position: 'absolute',
-    width: 260, height: 260, borderRadius: 130,
-    backgroundColor: `${COLORS.vozpe400}0C`,
-    top: '28%', right: -100,
-  },
-  // Orb 4: abajo izquierda — lime suave (color "PE")
-  orb4: {
-    position: 'absolute',
-    width: 220, height: 220, borderRadius: 110,
-    backgroundColor: `${COLORS.vozpeGreen}0A`,
-    bottom: 60, left: -70,
-  },
-
-  // ── Logo ─────────────────────────────────────────────────────────
-  logoWrap: {
-    alignItems: 'center',
-    paddingTop: 14,
-    paddingBottom: 8,
-    // Sin paddingHorizontal para que el logo xxl use el ancho completo
-  },
-
-  // ── Hero ─────────────────────────────────────────────────────────
-  heroContainer: {
-    flex: 1,
+  // ── Sección oscura ───────────────────────────────────────────
+  darkHeader: {
     width: '100%',
+    backgroundColor: '#0F172A',
+    paddingBottom: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 14,
-    paddingVertical: 10,
   },
 
-  // Demo card
-  demoCard: {
-    width: '100%',
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 22,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: COLORS.borderDefault,
-    gap: 11,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.07,
-    shadowRadius: 22,
-    elevation: 8,
+  darkSubtitle: {
+    color: 'rgba(255,255,255,0.55)',
+    fontSize: 14,
+    textAlign: 'center',
+    marginTop: 12,
   },
 
-  demoInputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    backgroundColor: COLORS.bgElevated,
-    borderRadius: 13,
-    paddingHorizontal: 13,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: COLORS.borderDefault,
-  },
-  demoMicBadge: {
-    width: 30, height: 30, borderRadius: 15,
-    backgroundColor: `${COLORS.vozpe500}18`,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: `${COLORS.vozpe500}30`,
-    flexShrink: 0,
-  },
-  demoInputText: {
+  // ── Sección clara ────────────────────────────────────────────
+  lightBody: {
     flex: 1,
-    color: COLORS.textSecondary,
-    fontSize: 13, fontStyle: 'italic',
-    flexWrap: 'wrap',
-  },
-  demoSparkle: {
-    width: 26, height: 26, borderRadius: 13,
-    backgroundColor: `${COLORS.ai}15`,
-    alignItems: 'center', justifyContent: 'center',
-    flexShrink: 0,
+    backgroundColor: COLORS.bgBase,
+    alignItems: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 32,
+    gap: 12,
   },
 
-  arrowRow: {
-    flexDirection: 'row', alignItems: 'center', gap: 10,
-  },
-  arrowLine: {
-    flex: 1, height: 1, backgroundColor: COLORS.borderSubtle,
-  },
-  arrowLabel: {
-    color: COLORS.textTertiary, fontSize: 10.5,
-    fontWeight: '500', letterSpacing: 0.3,
-  },
-
-  // Parsed row — usa borderLeftWidth como acento (sin View posicionado)
-  parsedRow: {
+  // ── Google button ────────────────────────────────────────────
+  btnGoogle: {
+    width: '100%',
+    height: 52,
+    backgroundColor: '#fff',
+    borderRadius: 28,
+    borderWidth: 1,
+    borderColor: '#DADCE0',
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 11,
-    backgroundColor: `${COLORS.success}09`,
-    borderRadius: 13,
-    padding: 12,
-    borderWidth: 1,
-    borderLeftWidth: 3,
-    borderColor: `${COLORS.success}1E`,
-    borderLeftColor: COLORS.success,
-  },
-  parsedIcon: {
-    width: 38, height: 38, borderRadius: 11,
-    backgroundColor: COLORS.bgSurface,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: COLORS.borderSubtle,
-  },
-  parsedEmoji: { fontSize: 18 },
-  parsedInfo: { flex: 1, gap: 2 },
-  parsedDesc: { color: COLORS.textPrimary, fontSize: 14, fontWeight: '700' },
-  parsedMeta: { color: COLORS.textTertiary, fontSize: 11 },
-  parsedRight: { alignItems: 'flex-end', gap: 5 },
-  parsedAmount: {
-    color: COLORS.textPrimary, fontSize: 18, fontWeight: '800',
-    fontFamily: 'monospace', letterSpacing: -0.6,
-  },
-  parsedPerPersonBadge: {
-    backgroundColor: `${COLORS.vozpe500}18`,
-    borderRadius: 999, paddingHorizontal: 8, paddingVertical: 3,
-    borderWidth: 1, borderColor: `${COLORS.vozpe500}28`,
-  },
-  parsedPerPerson: { color: COLORS.vozpe500, fontSize: 10, fontWeight: '700' },
-
-  // Method chips
-  methodsRow: {
-    flexDirection: 'row', gap: 8, width: '100%',
-  },
-  methodChip: {
-    flex: 1, flexDirection: 'row',
-    alignItems: 'center', justifyContent: 'center',
-    gap: 6,
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 12, paddingVertical: 9,
-    borderWidth: 1, borderColor: COLORS.borderDefault,
-  },
-  methodIconWrap: {
-    width: 24, height: 24, borderRadius: 7,
-    alignItems: 'center', justifyContent: 'center',
-  },
-  methodLabel: {
-    color: COLORS.textSecondary, fontSize: 12, fontWeight: '500',
-  },
-
-  // Tagline
-  taglineWrap: { alignItems: 'center', gap: 6 },
-  tagline: {
-    fontSize: 23, fontWeight: '800',
-    color: COLORS.textPrimary, textAlign: 'center',
-    letterSpacing: -0.7, lineHeight: 29,
-  },
-  taglineSub: {
-    fontSize: 13.5, color: COLORS.textTertiary,
-    textAlign: 'center', lineHeight: 19,
-  },
-
-  // ── Auth ─────────────────────────────────────────────────────────
-  ctaContainer: {
-    width: '100%',
-    alignItems: 'center',
-    gap: 10,
-  },
-
-  btnSocial: {
-    width: '100%',
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 16,
-    paddingVertical: 14, paddingHorizontal: 20,
-    borderWidth: 1, borderColor: COLORS.borderDefault,
-    alignItems: 'center', justifyContent: 'center',
-    minHeight: 52,
+    justifyContent: 'center',
+    gap: 12,
+    elevation: 1,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05, shadowRadius: 6, elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 3,
   },
-  btnSocialInner: {
-    flexDirection: 'row', alignItems: 'center', gap: 11,
-  },
-  btnSocialText: {
-    color: COLORS.textPrimary, fontSize: 15, fontWeight: '500',
+  btnGoogleText: {
+    color: '#3C4043',
+    fontSize: 15,
+    fontWeight: '500',
   },
 
-  // Email: botón visible con borde
+  // ── Email button ─────────────────────────────────────────────
   btnEmail: {
     width: '100%',
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 13, paddingHorizontal: 20,
-    borderRadius: 16,
-    borderWidth: 1, borderColor: COLORS.borderDefault,
-    backgroundColor: 'transparent',
+    height: 52,
+    backgroundColor: COLORS.vozpe500,
+    borderRadius: 28,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+    elevation: 4,
+    shadowColor: COLORS.vozpe500,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
   },
   btnEmailText: {
-    color: COLORS.textSecondary, fontSize: 14, fontWeight: '500',
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '600',
   },
 
+  // ── Legal ────────────────────────────────────────────────────
   legal: {
-    color: COLORS.textTertiary, fontSize: 11, textAlign: 'center',
+    color: COLORS.textTertiary,
+    fontSize: 11,
+    textAlign: 'center',
     marginTop: -2,
   },
   legalLink: { color: COLORS.vozpe400 },

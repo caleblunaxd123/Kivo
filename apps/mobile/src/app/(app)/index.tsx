@@ -1,11 +1,12 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState } from 'react';
 import {
   View, Text, FlatList, TouchableOpacity,
-  StyleSheet, RefreshControl,
+  StyleSheet, RefreshControl, Modal, Linking,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Plus, Bell, TrendingUp, Layers, ChevronRight } from 'lucide-react-native';
+import { Plus, Bell, TrendingUp, Layers, ChevronRight, HelpCircle, Sparkles, Mail, X } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, formatCurrency, GROUP_TYPE_CONFIG, generateInitials } from '@vozpe/shared';
 import type { Group } from '@vozpe/shared';
 import { useGroupStore } from '../../stores/group.store';
@@ -18,8 +19,17 @@ export default function GroupsHomeScreen() {
   const insets  = useSafeAreaInsets();
   const user    = useAuthStore(s => s.user);
   const { groups, isLoadingGroups, fetchGroups } = useGroupStore();
+  const [helpVisible, setHelpVisible] = useState(false);
 
-  useEffect(() => { fetchGroups(); }, []);
+  useEffect(() => {
+    fetchGroups();
+    // Verificar si el tour ya fue completado — si no, redirigir
+    AsyncStorage.getItem('vozpe_tour_done').then(done => {
+      if (!done) {
+        router.replace('/(auth)/welcome');
+      }
+    });
+  }, []);
 
   const onRefresh = useCallback(() => { fetchGroups(); }, []);
 
@@ -56,9 +66,14 @@ export default function GroupsHomeScreen() {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.notifBtn}>
-            <Bell size={18} color={COLORS.textSecondary} strokeWidth={1.8} />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity style={styles.notifBtn}>
+              <Bell size={18} color={COLORS.textSecondary} strokeWidth={1.8} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.notifBtn} onPress={() => setHelpVisible(true)}>
+              <HelpCircle size={18} color={COLORS.textSecondary} strokeWidth={1.8} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Stats cards */}
@@ -136,6 +151,77 @@ export default function GroupsHomeScreen() {
       >
         <Plus size={22} color={COLORS.white} strokeWidth={2.5} />
       </TouchableOpacity>
+
+      {/* ── Modal de ayuda ── */}
+      <Modal
+        visible={helpVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setHelpVisible(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setHelpVisible(false)}
+        />
+        <View style={[styles.helpSheet, { paddingBottom: insets.bottom + 16 }]}>
+          {/* Handle */}
+          <View style={styles.sheetHandle} />
+
+          {/* Título */}
+          <View style={styles.sheetHeader}>
+            <Text style={styles.sheetTitle}>¿Necesitas ayuda?</Text>
+            <TouchableOpacity style={styles.sheetCloseBtn} onPress={() => setHelpVisible(false)}>
+              <X size={18} color={COLORS.textTertiary} />
+            </TouchableOpacity>
+          </View>
+
+          {/* Opción: Ver tour */}
+          <TouchableOpacity
+            style={styles.helpOption}
+            activeOpacity={0.75}
+            onPress={() => {
+              setHelpVisible(false);
+              router.push('/(auth)/welcome');
+            }}
+          >
+            <View style={[styles.helpOptionIcon, { backgroundColor: `${COLORS.vozpe500}15` }]}>
+              <Sparkles size={20} color={COLORS.vozpe500} />
+            </View>
+            <View style={styles.helpOptionText}>
+              <Text style={styles.helpOptionLabel}>Ver tour de la app</Text>
+              <Text style={styles.helpOptionSub}>Repasa las funciones principales</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Opción: Contactar soporte */}
+          <TouchableOpacity
+            style={styles.helpOption}
+            activeOpacity={0.75}
+            onPress={() => {
+              setHelpVisible(false);
+              Linking.openURL('mailto:soporte@vozpe.com');
+            }}
+          >
+            <View style={[styles.helpOptionIcon, { backgroundColor: `${COLORS.ai}15` }]}>
+              <Mail size={20} color={COLORS.ai} />
+            </View>
+            <View style={styles.helpOptionText}>
+              <Text style={styles.helpOptionLabel}>Contactar soporte</Text>
+              <Text style={styles.helpOptionSub}>soporte@vozpe.com</Text>
+            </View>
+          </TouchableOpacity>
+
+          {/* Cancelar */}
+          <TouchableOpacity
+            style={styles.helpCancelBtn}
+            activeOpacity={0.7}
+            onPress={() => setHelpVisible(false)}
+          >
+            <Text style={styles.helpCancelText}>Cancelar</Text>
+          </TouchableOpacity>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -251,6 +337,10 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 18, fontWeight: '700',
     color: COLORS.textPrimary, letterSpacing: -0.3,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    gap: 8,
   },
   notifBtn: {
     width: 38, height: 38, borderRadius: 19,
@@ -425,5 +515,82 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.5,
     shadowRadius: 16,
     elevation: 10,
+  },
+
+  // ── Help Modal ───────────────────────────────────────────────
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+  },
+  helpSheet: {
+    backgroundColor: COLORS.bgSurface,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    gap: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 16,
+    elevation: 20,
+  },
+  sheetHandle: {
+    alignSelf: 'center',
+    width: 36, height: 4, borderRadius: 2,
+    backgroundColor: COLORS.borderDefault,
+    marginBottom: 4,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    letterSpacing: -0.3,
+  },
+  sheetCloseBtn: {
+    width: 32, height: 32, borderRadius: 16,
+    backgroundColor: COLORS.bgElevated,
+    alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderColor: COLORS.borderDefault,
+  },
+  helpOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    backgroundColor: COLORS.bgBase,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: COLORS.borderDefault,
+  },
+  helpOptionIcon: {
+    width: 44, height: 44, borderRadius: 14,
+    alignItems: 'center', justifyContent: 'center',
+    flexShrink: 0,
+  },
+  helpOptionText: { flex: 1, gap: 2 },
+  helpOptionLabel: {
+    fontSize: 15, fontWeight: '600',
+    color: COLORS.textPrimary,
+  },
+  helpOptionSub: {
+    fontSize: 12,
+    color: COLORS.textTertiary,
+  },
+  helpCancelBtn: {
+    alignItems: 'center',
+    paddingVertical: 14,
+    marginTop: 2,
+  },
+  helpCancelText: {
+    fontSize: 15,
+    color: COLORS.textTertiary,
+    fontWeight: '500',
   },
 });
