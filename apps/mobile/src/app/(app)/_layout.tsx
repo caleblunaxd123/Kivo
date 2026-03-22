@@ -13,18 +13,7 @@ export default function AppLayout() {
   const [tourDone, setTourDone]       = useState(true); // assume done to avoid flash
   useOfflineQueue();
 
-  useEffect(() => {
-    AsyncStorage.getItem('vozpe_tour_done').then(v => {
-      setTourDone(!!v);
-      setTourChecked(true);
-    });
-  }, []);
-
   if (!isAuthenticated) return <Redirect href="/onboarding" />;
-
-  // Esperar el check del tour antes de redirigir (evita flash)
-  if (!tourChecked) return null;
-  if (!tourDone)    return <Redirect href="/(auth)/welcome" />;
 
   return (
     <Tabs
