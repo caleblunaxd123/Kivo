@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform, Alert,
@@ -89,6 +89,26 @@ export default function LoginScreen() {
   const [oauthLoading, setOauthLoading] = useState<'google' | 'apple' | null>(null);
   const [emailFocused, setEmailFocused] = useState(false);
   const [passFocused,  setPassFocused]  = useState(false);
+
+  // Android OAuth fix: Chrome Custom Tabs devuelve 'cancel' en openAuthSessionAsync,
+  // la URL real llega por el sistema de deep links. Este listener la captura.
+  useEffect(() => {
+    const sub = Linking.addEventListener('url', async ({ url }) => {
+      if (url.includes('code=') || url.includes('access_token=')) {
+        await handleOAuthUrl(url);
+        setOauthLoading(null);
+      }
+    });
+
+    // Cold-start: app abierta directamente desde el redirect OAuth
+    Linking.getInitialURL().then(url => {
+      if (url && (url.includes('code=') || url.includes('access_token='))) {
+        handleOAuthUrl(url).then(() => setOauthLoading(null));
+      }
+    });
+
+    return () => sub.remove();
+  }, []);
 
   const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

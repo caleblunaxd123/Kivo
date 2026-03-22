@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet,
   ScrollView, Alert, TextInput, Modal, Pressable, ActivityIndicator,
@@ -20,6 +20,11 @@ export default function ProfileScreen() {
   const [nameInput,   setNameInput]   = useState(user?.displayName ?? '');
   const [isSaving,    setIsSaving]    = useState(false);
   const [currencyModal, setCurrencyModal] = useState(false);
+
+  // Sincronizar nameInput cuando el perfil carga de forma asíncrona (p.ej. post-OAuth)
+  useEffect(() => {
+    if (!editingName) setNameInput(user?.displayName ?? '');
+  }, [user?.displayName]);
 
   const handleSaveName = async () => {
     if (!nameInput.trim()) return;

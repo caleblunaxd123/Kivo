@@ -5,42 +5,40 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ── Fondos — light, tinte cyan muy suave (igual que la app móvil) ──
-        'bg-base':        '#F4FAFB',
-        'bg-surface':     '#FFFFFF',
-        'bg-elevated':    '#ECFEFF',
-        'bg-input':       '#F4FAFB',
-        'bg-hover':       '#CFFAFE',
-        // ── Bordes ──────────────────────────────────────────────────────────
-        'border-subtle':  '#E0F7FA',
-        'border-default': '#BAE6FD',
-        'border-strong':  '#7DD3FC',
-        // ── Texto ───────────────────────────────────────────────────────────
-        'text-primary':   '#0C1A2E',
-        'text-secondary': '#374E6B',
-        'text-tertiary':  '#6B8FA8',
-        // ── Brand — Vozpe Teal (igual que COLORS del paquete shared) ────────
+        // ── Fondos — coinciden exactamente con T.appBg / T.cardBg del móvil ──
+        'bg-base':        '#F4F9FD',   // T.appBg
+        'bg-surface':     '#FFFFFF',   // T.cardBg
+        'bg-elevated':    '#EAF3FB',   // T.softBlueBg / T.blueSoft
+        'bg-input':       '#F2F7FC',   // T.inputBg
+        // ── Bordes — coinciden con tokens del móvil ──────────────────────────
+        'border-subtle':  '#D5E8F5',   // T.strokeSoft
+        'border-default': '#BDD8F0',   // T.strokeBlue
+        'border-strong':  '#93BAE0',
+        // ── Texto — coinciden con T.textPrimary / Secondary / Muted ─────────
+        'text-primary':   '#0F172A',   // T.textPrimary
+        'text-secondary': '#4A6070',   // T.textSecondary
+        'text-tertiary':  '#7C8B98',   // T.textMuted
+        // ── Brand — azul Vozpe (mismo que T.blue en el móvil) ───────────────
         vozpe: {
-          300: '#67E8F9',
-          400: '#22D3EE',
-          500: '#0891B2',   // primario — botones, acentos
-          600: '#0E7490',   // hover
-          700: '#155E75',
+          50:  '#EAF3FB',   // T.softBlueBg
+          100: '#DBEEFF',   // T.blueLight
+          200: '#BFDBFE',
+          300: '#93C5FD',
+          400: '#60A5FA',
+          500: '#1F6FE5',   // T.blue  — primario (botones, acentos)
+          600: '#1557C8',   // T.blueDeep — hover / pressed
+          700: '#1043A0',
         },
-        // ── Navy (color de "Voz" en el logo) ────────────────────────────────
-        navy: {
-          DEFAULT: '#1E3A8A',
-          light:   '#EFF6FF',
-        },
-        // ── Green (color de "PE" en el logo) ────────────────────────────────
+        // ── Verde complementario (T.green del móvil) ────────────────────────
         brand: {
-          green:  '#65A30D',
-          bright: '#84CC16',
+          green:  '#2DBE60',   // T.green
+          deep:   '#1FA451',   // T.greenDeep
+          soft:   '#EDF8F2',   // T.softMintBg
         },
-        // ── Semantic ─────────────────────────────────────────────────────────
-        success: '#059669',
-        warning: '#D97706',
-        danger:  '#DC2626',
+        // ── Semánticos ───────────────────────────────────────────────────────
+        success: '#22A861',   // T.success
+        warning: '#D97706',   // T.warning
+        danger:  '#DC2626',   // T.error
         ai:      '#7C3AED',
       },
       fontFamily: {
@@ -48,15 +46,21 @@ const config: Config = {
         mono: ['JetBrains Mono', 'var(--font-mono)', 'monospace'],
       },
       borderRadius: {
-        'sm':  '4px',
-        'md':  '8px',
-        'lg':  '12px',
-        'xl':  '16px',
-        '2xl': '24px',
+        'sm':  '8px',
+        'md':  '12px',
+        'lg':  '16px',
+        'xl':  '18px',
+        '2xl': '22px',
+        '3xl': '28px',
+        'full': '9999px',
       },
       boxShadow: {
-        'card': '0 1px 4px rgba(8,145,178,0.06), 0 2px 12px rgba(8,145,178,0.04)',
-        'btn':  '0 4px 12px rgba(8,145,178,0.30)',
+        // Sombras coinciden con T.shadowCard y T.shadowBtn del móvil
+        'card':  '0 2px 10px rgba(31,111,229,0.07), 0 1px 4px rgba(31,111,229,0.04)',
+        'btn':   '0 5px 14px rgba(31,111,229,0.28)',
+        'fab':   '0 8px 20px rgba(31,111,229,0.36)',
+        'modal': '0 -4px 20px rgba(0,0,0,0.08)',
+        'xs':    '0 1px 4px rgba(31,111,229,0.05)',
       },
     },
   },

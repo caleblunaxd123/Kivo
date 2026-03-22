@@ -165,7 +165,7 @@ export default function GroupsHomeScreen() {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={styles.helpOption} onPress={() => { setHelpVisible(false); router.push('/(auth)/welcome'); }}>
+          <TouchableOpacity style={styles.helpOption} onPress={() => { setHelpVisible(false); router.push('/(app)/welcome'); }}>
             <View style={[styles.helpIconBox, { backgroundColor: T.blue + '14' }]}>
               <Sparkles size={20} color={T.blue} />
             </View>

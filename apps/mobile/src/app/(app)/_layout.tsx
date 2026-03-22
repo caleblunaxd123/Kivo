@@ -1,16 +1,12 @@
-import { useEffect, useState } from 'react';
 import { Tabs, Redirect } from 'expo-router';
 import { View, StyleSheet } from 'react-native';
 import { Users, Activity, User } from 'lucide-react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAuthStore } from '../../stores/auth.store';
 import { useOfflineQueue } from '../../hooks/useOfflineQueue';
 import { T } from '../../theme/tokens';
 
 export default function AppLayout() {
   const isAuthenticated = useAuthStore(s => s.isAuthenticated);
-  const [tourChecked, setTourChecked] = useState(false);
-  const [tourDone, setTourDone]       = useState(true); // assume done to avoid flash
   useOfflineQueue();
 
   if (!isAuthenticated) return <Redirect href="/onboarding" />;
@@ -48,8 +44,9 @@ export default function AppLayout() {
         }}
       />
       {/* Pantallas ocultas — sin tab */}
-      <Tabs.Screen name="group/[id]"          options={{ href: null, tabBarStyle: { display: 'none' } }} />
-      <Tabs.Screen name="group/create"        options={{ href: null, tabBarStyle: { display: 'none' } }} />
+      <Tabs.Screen name="welcome"               options={{ href: null, tabBarStyle: { display: 'none' } }} />
+      <Tabs.Screen name="group/[id]"            options={{ href: null, tabBarStyle: { display: 'none' } }} />
+      <Tabs.Screen name="group/create"          options={{ href: null, tabBarStyle: { display: 'none' } }} />
       <Tabs.Screen name="group/entry/[entryId]" options={{ href: null, tabBarStyle: { display: 'none' } }} />
     </Tabs>
   );
