@@ -100,7 +100,7 @@ export default function OnboardingScreen() {
 
       {/* ── Logo ── */}
       <Animated.View style={[styles.logoWrap, { opacity: logoOpacity }]}>
-        <VozpeLogo size="lg" />
+        <VozpeLogo size="xl" />
       </Animated.View>
 
       {/* ── Hero ── */}
