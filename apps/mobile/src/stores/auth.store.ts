@@ -91,32 +91,33 @@ export const useAuthStore = create<AuthState>((set) => ({
       if (event === 'INITIAL_SESSION') {
         // App arrancó — sesión restaurada desde SecureStore (o null si no hay)
         if (session) {
-          try {
-            const { data: raw } = await supabase
-              .from('users').select('*').eq('id', session.user.id).single();
-            set({
-              session, sessionUserId: session.user.id,
-              user: raw ? mapUser(raw) : null,
-              isAuthenticated: true, isLoading: false,
-            });
-          } catch {
-            // Si falla la DB, igual autenticar con datos de Supabase Auth
-            set({ session, sessionUserId: session.user.id, isAuthenticated: true, isLoading: false });
-          }
+          // Autenticar INMEDIATAMENTE — no esperar a la DB
+          set({ session, sessionUserId: session.user.id, isAuthenticated: true, isLoading: false });
+          // Cargar perfil en background sin bloquear la navegación
+          supabase.from('users').select('*').eq('id', session.user.id).single()
+            .then(({ data: raw }) => {
+              if (raw) set(state => state.isAuthenticated ? { user: mapUser(raw) } : {});
+            })
+            .catch(() => {/* perfil se cargará al siguiente SIGNED_IN */});
         } else {
           // Sin sesión → mostrar onboarding
           set({ isLoading: false });
         }
 
       } else if (event === 'SIGNED_IN' && session) {
-        // Login nuevo (OAuth o email)
-        const userProfile = await upsertProfile(
+        // Login nuevo (OAuth o email) — autenticar INMEDIATAMENTE
+        // No esperar upsertProfile para no crear race condition con los guards
+        set({ session, sessionUserId: session.user.id, isAuthenticated: true, isLoading: false });
+        // Upsert perfil en background
+        upsertProfile(
           session.user.id,
           session.user.email!,
           session.user.user_metadata?.full_name,
           session.user.app_metadata?.provider,
-        );
-        set({ session, sessionUserId: session.user.id, user: userProfile, isAuthenticated: true, isLoading: false });
+        ).then(userProfile => {
+          // Solo actualizar si sigue autenticado (evita set tardío post-signOut)
+          set(state => state.isAuthenticated ? { user: userProfile } : {});
+        }).catch(() => {/* no bloquear */});
 
       } else if (event === 'TOKEN_REFRESHED' && session) {
         // Refresh silencioso — solo actualizar sesión, sin refetch de perfil
@@ -125,7 +126,8 @@ export const useAuthStore = create<AuthState>((set) => ({
       } else if (event === 'USER_UPDATED' && session) {
         set({ session, isAuthenticated: true });
 
-      } else if (event === 'SIGNED_OUT' || !session) {
+      } else if (event === 'SIGNED_OUT') {
+        // Solo en SIGNED_OUT explícito — no en null session de otros eventos
         set({ session: null, sessionUserId: null, user: null, isAuthenticated: false, isLoading: false });
       }
     });

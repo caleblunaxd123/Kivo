@@ -37,7 +37,7 @@ export function Sidebar({ userEmail, userName, userInitials, userColor, plan }: 
       {/* Logo */}
       <div className="flex items-center px-5 py-4 border-b border-border-subtle">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-vozpe.png" alt="Vozpe" className="h-7" />
+        <img src="/logo-vozpe.png" alt="Vozpe" className="h-9" />
       </div>
 
       {/* Nav */}
