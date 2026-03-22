@@ -19,7 +19,7 @@ const SIZES = {
   lg:  { height: 70,  width: 266 },
   xl:  { height: 90,  width: 342 },
   // xxl: ocupa el ancho disponible de pantalla sin padding lateral
-  xxl: { height: Math.round(SW / 3.5), width: SW },
+  xxl: { height: 150, width: SW },
 };
 
 interface VozpeLogoProps {

@@ -8,6 +8,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Plus, Bell, TrendingUp, Layers, ChevronRight, HelpCircle, Sparkles, Mail, X } from 'lucide-react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { COLORS, formatCurrency, GROUP_TYPE_CONFIG, generateInitials } from '@vozpe/shared';
+
+// Teal brand — igual que el logo y onboarding
+const TEAL       = '#29B8B3';
+const TEAL_VIVID = '#1ECFC9';
+const TEAL_DARK  = '#1A9B96';
 import type { Group } from '@vozpe/shared';
 import { useGroupStore } from '../../stores/group.store';
 import { useAuthStore } from '../../stores/auth.store';
@@ -288,13 +293,13 @@ function GroupCard({ group, onPress }: { group: Group; onPress: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bgBase },
+  container: { flex: 1, backgroundColor: '#D8F4F3' },
 
   // ── Header card ──────────────────────────────────────────────
   headerCard: {
-    backgroundColor: COLORS.bgSurface,
+    backgroundColor: '#E8F9F8',
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
+    borderBottomColor: TEAL + '30',
     paddingHorizontal: 20,
     paddingTop: 14,
     paddingBottom: 12,
@@ -308,9 +313,9 @@ const styles = StyleSheet.create({
   },
   headerOrb: {
     position: 'absolute',
-    width: 220, height: 220, borderRadius: 110,
-    backgroundColor: `${COLORS.vozpe500}18`,
-    top: -80, right: -60,
+    width: 240, height: 240, borderRadius: 120,
+    backgroundColor: TEAL_VIVID + '28',
+    top: -90, right: -60,
   },
   headerTop: {
     flexDirection: 'row',
@@ -371,19 +376,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
-    backgroundColor: COLORS.vozpe600,
+    backgroundColor: TEAL_DARK,
     borderRadius: 14,
     paddingHorizontal: 14,
     paddingVertical: 11,
-    shadowColor: COLORS.vozpe500,
+    shadowColor: TEAL,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.35,
+    shadowRadius: 10,
+    elevation: 6,
   },
   statIconWrap: {
     width: 30, height: 30, borderRadius: 9,
-    backgroundColor: `${COLORS.vozpe500}20`,
+    backgroundColor: TEAL + '22',
     alignItems: 'center', justifyContent: 'center',
   },
   statIconWrapAccent: {
@@ -432,8 +437,8 @@ const styles = StyleSheet.create({
   cardAccentBar: {
     width: 3,
     alignSelf: 'stretch',
-    backgroundColor: COLORS.vozpe500,
-    opacity: 0.7,
+    backgroundColor: TEAL,
+    opacity: 0.9,
   },
   cardEmojiCol: {
     width: 60,
@@ -506,15 +511,15 @@ const styles = StyleSheet.create({
   fab: {
     position: 'absolute',
     right: 20,
-    width: 54, height: 54,
-    borderRadius: 27,
-    backgroundColor: COLORS.vozpe500,
+    width: 56, height: 56,
+    borderRadius: 28,
+    backgroundColor: TEAL,
     alignItems: 'center', justifyContent: 'center',
-    shadowColor: COLORS.vozpe500,
+    shadowColor: TEAL,
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.5,
-    shadowRadius: 16,
-    elevation: 10,
+    shadowOpacity: 0.55,
+    shadowRadius: 18,
+    elevation: 12,
   },
 
   // ── Help Modal ───────────────────────────────────────────────
