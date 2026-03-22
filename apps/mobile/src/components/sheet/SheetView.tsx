@@ -70,7 +70,9 @@ export function SheetView({
   const stats = useMemo(() => {
     const confirmed = filtered.filter(e => e.status === 'confirmed');
     const pending   = filtered.filter(e => e.status === 'pending_review');
-    const total     = confirmed.reduce((s, e) => s + (e.amountInBase ?? e.amount), 0);
+    const total     = filtered
+      .filter(e => e.status !== 'archived')
+      .reduce((s, e) => s + (e.amountInBase ?? e.amount), 0);
     return { confirmed: confirmed.length, pending: pending.length, total };
   }, [filtered]);
 

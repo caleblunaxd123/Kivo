@@ -4,7 +4,7 @@
     "slug": "vozpe",
     "version": "0.1.0",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "sdkVersion": "54.0.0",
     "assetBundlePatterns": [
       "**/*"
@@ -41,7 +41,7 @@
       [
         "expo-notifications",
         {
-          "color": "#6366F1"
+          "color": "#0891B2"
         }
       ],
       "expo-secure-store",

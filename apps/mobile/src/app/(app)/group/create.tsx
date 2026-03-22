@@ -88,7 +88,12 @@ export default function CreateGroupScreen() {
 
   // ── Voice ──────────────────────────────────────────────────────────────────
   const startVoice = async () => {
-    await startRecording();
+    try {
+      await startRecording();
+    } catch (e: any) {
+      Alert.alert('Micrófono', e?.message ?? 'No se pudo acceder al micrófono.');
+      return;
+    }
     pulseRef.current = Animated.loop(
       Animated.sequence([
         Animated.timing(pulseAnim, { toValue: 1.2, duration: 600, useNativeDriver: true }),
@@ -101,12 +106,18 @@ export default function CreateGroupScreen() {
   const stopVoice = async () => {
     pulseRef.current?.stop();
     pulseAnim.setValue(1);
-    const transcription = await stopAndTranscribe();
-    if (transcription) {
-      const parsed = parseGroupFromVoice(transcription);
-      if (parsed.name) setName(parsed.name);
-      handleTypeSelect(parsed.type);
-      setCurrency(parsed.currency);
+    try {
+      const transcription = await stopAndTranscribe();
+      if (transcription) {
+        const parsed = parseGroupFromVoice(transcription);
+        if (parsed.name) setName(parsed.name);
+        handleTypeSelect(parsed.type);
+        setCurrency(parsed.currency);
+      } else {
+        Alert.alert('Sin voz detectada', 'No se pudo transcribir. Intenta hablar más claro.');
+      }
+    } catch (e: any) {
+      Alert.alert('Error', e?.message ?? 'Error al procesar la grabación.');
     }
   };
 
@@ -261,7 +272,7 @@ export default function CreateGroupScreen() {
           label="Crear grupo"
           onPress={handleCreate}
           loading={loading}
-          disabled={!name.trim() || isRecording || isTranscribing}
+          disabled={!name.trim() || isRecording || isTranscribing || loading}
           fullWidth
           size="lg"
         />
