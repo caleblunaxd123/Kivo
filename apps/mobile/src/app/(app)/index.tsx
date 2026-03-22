@@ -31,6 +31,9 @@ export default function GroupsHomeScreen() {
   const initials     = generateInitials(user?.displayName ?? 'K');
   const avatarColor  = user?.colorHex ?? COLORS.vozpe500;
 
+  const hour = new Date().getHours();
+  const greetingText = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
+
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
 
@@ -46,7 +49,7 @@ export default function GroupsHomeScreen() {
               <Text style={styles.userAvatarText}>{initials}</Text>
             </View>
             <View style={styles.greetingCol}>
-              <Text style={styles.greetingSmall}>Buenos días</Text>
+              <Text style={styles.greetingSmall}>{greetingText}</Text>
               <Text style={styles.greeting}>{firstName} 👋</Text>
             </View>
           </View>
@@ -74,7 +77,7 @@ export default function GroupsHomeScreen() {
                 <TrendingUp size={14} color="#fff" />
               </View>
               <View>
-                <Text style={styles.statValueAccent}>
+                <Text style={styles.statValueAccent} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
                   {formatCurrency(totalAcrossGroups, user?.preferredCurrency ?? 'USD')}
                 </Text>
                 <Text style={styles.statLabelAccent}>total registrado</Text>
@@ -162,7 +165,7 @@ function GroupCard({ group, onPress }: { group: Group; onPress: () => void }) {
           </View>
 
           {/* Amount */}
-          <Text style={styles.cardAmount}>
+          <Text style={styles.cardAmount} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
             {formatCurrency(group.totalAmount ?? 0, group.baseCurrency)}
           </Text>
         </View>

@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Camera, PenLine, Sparkles, Mic } from 'lucide-react-native';
+import { Camera, PenLine, Sparkles, Mic, Mail } from 'lucide-react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import Constants from 'expo-constants';
@@ -215,15 +215,13 @@ export default function OnboardingScreen() {
           </TouchableOpacity>
         )}
 
-        {/* Separador */}
-        <View style={styles.separator} />
-
-        {/* Correo — acción secundaria limpia, sin divider redundante */}
+        {/* Correo — botón visible, no escondido */}
         <TouchableOpacity
           style={styles.btnEmail}
           onPress={() => router.push('/(auth)/login')}
-          activeOpacity={0.70}
+          activeOpacity={0.75}
         >
+          <Mail size={16} color={COLORS.textSecondary} />
           <Text style={styles.btnEmailText}>Acceder con correo electrónico</Text>
         </TouchableOpacity>
 
@@ -485,19 +483,18 @@ const styles = StyleSheet.create({
     color: COLORS.textPrimary, fontSize: 15, fontWeight: '500',
   },
 
-  // Separador sin texto — un simple línea fina
-  separator: {
-    width: '100%', height: 1,
-    backgroundColor: COLORS.borderSubtle,
-    marginVertical: 1,
-  },
-
-  // Email: acción secundaria como texto — sin botón lleno, sin divider redundante
+  // Email: botón visible con borde
   btnEmail: {
-    paddingVertical: 6, paddingHorizontal: 12,
+    width: '100%',
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    gap: 8,
+    paddingVertical: 13, paddingHorizontal: 20,
+    borderRadius: 16,
+    borderWidth: 1, borderColor: COLORS.borderDefault,
+    backgroundColor: 'transparent',
   },
   btnEmailText: {
-    color: COLORS.textTertiary, fontSize: 13.5, fontWeight: '500',
+    color: COLORS.textSecondary, fontSize: 14, fontWeight: '500',
   },
 
   legal: {

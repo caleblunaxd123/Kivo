@@ -242,7 +242,7 @@ function SheetRow({
         </View>
 
         {/* Categoría */}
-        <View style={[styles.dCell, styles.colCat]}>
+        <View style={[styles.dCell, styles.colCat, { overflow: 'hidden' }]}>
           <View style={[styles.catChip, { backgroundColor: `${cat.color}20` }]}>
             <Text style={styles.catEmoji}>{cat.emoji}</Text>
             <Text style={[styles.catLabel, { color: cat.color }]} numberOfLines={1}>
@@ -418,12 +418,13 @@ const styles = StyleSheet.create({
 
   // Category chip
   catChip: {
-    flexDirection: 'row', alignItems: 'center', gap: 4,
-    borderRadius: 6, paddingHorizontal: 6, paddingVertical: 3,
+    flexDirection: 'row', alignItems: 'center', gap: 3,
+    borderRadius: 6, paddingHorizontal: 5, paddingVertical: 3,
     alignSelf: 'flex-start',
+    maxWidth: '100%',
   },
-  catEmoji: { fontSize: 12 },
-  catLabel: { fontSize: 10, fontWeight: '600' },
+  catEmoji: { fontSize: 11, flexShrink: 0 },
+  catLabel: { fontSize: 10, fontWeight: '600', flexShrink: 1 },
 
   // Status chips
   chipConfirmed: {

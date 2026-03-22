@@ -207,7 +207,7 @@ export default function GroupScreen() {
         <View style={styles.bannerCards}>
           <View style={styles.bannerCard}>
             <Text style={styles.bannerCardLabel}>Total del grupo</Text>
-            <Text style={styles.bannerCardAmount}>
+            <Text style={styles.bannerCardAmount} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
               {formatCurrency(totalAmount, group.baseCurrency)}
             </Text>
             <AvatarGroup
