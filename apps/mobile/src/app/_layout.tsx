@@ -37,11 +37,11 @@ if (__DEV__) {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutos
-      retry: 2,
     },
   },
 });
+
+import { T } from '../theme/tokens';
 
 export default function RootLayout() {
   const initialize = useAuthStore(s => s.initialize);
@@ -53,7 +53,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>
-        <StatusBar style="dark" backgroundColor="#F4F9FD" />
+        <StatusBar style="dark" backgroundColor={T.appBg} />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="index" />
           <Stack.Screen name="onboarding" />

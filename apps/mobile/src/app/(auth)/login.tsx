@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, KeyboardAvoidingView, Platform, Alert,
@@ -148,10 +148,15 @@ export default function LoginScreen() {
     }
   };
 
+  const isAuthenticating = useRef(false);
+
   const handleOAuth = async (provider: 'google' | 'apple') => {
+    if (isAuthenticating.current) return;
+    isAuthenticating.current = true;
     setOauthLoading(provider);
+
     try {
-      const redirectTo = getRedirectUrl();
+      const redirectTo = getRedirectUrl().replace('vozpe://', 'kivo://');
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo, skipBrowserRedirect: true },
@@ -162,14 +167,14 @@ export default function LoginScreen() {
       const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
       console.log('[OAuth] result:', JSON.stringify(result));
 
-      if (result.type === 'cancel' || result.type === 'dismiss') return;
-      if (result.type !== 'success' || !result.url) return;
-
-      await handleOAuthUrl(result.url);
+      if (result.type === 'success' && result.url) {
+        await handleOAuthUrl(result.url);
+      }
     } catch (e: any) {
       Alert.alert('Error', e?.message ?? 'Error al iniciar sesión');
     } finally {
       setOauthLoading(null);
+      isAuthenticating.current = false;
     }
   };
 

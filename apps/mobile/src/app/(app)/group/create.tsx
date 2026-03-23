@@ -6,13 +6,14 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X, Mic, Square, Loader } from 'lucide-react-native';
-import { COLORS, GROUP_TYPE_CONFIG } from '@vozpe/shared';
+import { GROUP_TYPE_CONFIG } from '@vozpe/shared';
 import type { GroupType } from '@vozpe/shared';
 import { supabase } from '../../../lib/supabase';
 import { useAuthStore } from '../../../stores/auth.store';
 import { useGroupStore } from '../../../stores/group.store';
 import { useVoiceRecording } from '../../../hooks/useVoiceRecording';
 import { Button } from '../../../components/common/Button';
+import { T } from '../../../theme/tokens';
 
 const GROUP_TYPES = Object.entries(GROUP_TYPE_CONFIG) as [GroupType, { label: string; emoji: string }][];
 
@@ -79,8 +80,6 @@ export default function CreateGroupScreen() {
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const pulseRef  = useRef<Animated.CompositeAnimation | null>(null);
 
-  const typeConfig = GROUP_TYPE_CONFIG[type];
-
   const handleTypeSelect = (t: GroupType) => {
     setType(t);
     setEmoji(GROUP_TYPE_CONFIG[t].emoji);
@@ -129,6 +128,7 @@ export default function CreateGroupScreen() {
 
   // ── Create ─────────────────────────────────────────────────────────────────
   const handleCreate = async () => {
+    if (loading) return; // Prevent double-tap
     const ownerId = user?.id ?? sessionUserId;
     if (!name.trim() || !ownerId) return;
     setLoading(true);
@@ -149,7 +149,6 @@ export default function CreateGroupScreen() {
       router.replace(`/(app)/group/${groupId}`);
     } catch (e: any) {
       Alert.alert('Error', e.message);
-    } finally {
       setLoading(false);
     }
   };
@@ -162,7 +161,7 @@ export default function CreateGroupScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.closeBtn} onPress={() => router.back()}>
-          <X size={20} color={COLORS.textSecondary} />
+          <X size={20} color={T.textSecondary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Crear grupo</Text>
         <View style={{ width: 36 }} />
@@ -185,7 +184,7 @@ export default function CreateGroupScreen() {
         <View style={styles.voiceBanner}>
           {isTranscribing ? (
             <View style={styles.voiceRow}>
-              <Loader size={16} color={COLORS.vozpe500} />
+              <Loader size={16} color={T.blue} />
               <Text style={styles.voiceHint}>Transcribiendo…</Text>
             </View>
           ) : isRecording ? (
@@ -193,7 +192,7 @@ export default function CreateGroupScreen() {
               <Animated.View style={[styles.voiceDot, { transform: [{ scale: pulseAnim }] }]} />
               <Text style={styles.voiceHint}>Di el nombre y tipo del grupo…</Text>
               <TouchableOpacity style={styles.voiceStopBtn} onPress={stopVoice}>
-                <Square size={14} color={COLORS.bgSurface} fill={COLORS.bgSurface} />
+                <Square size={14} color="#FFF" fill="#FFF" />
               </TouchableOpacity>
               <TouchableOpacity onPress={cancelVoice}>
                 <Text style={styles.voiceCancelText}>Cancelar</Text>
@@ -202,7 +201,7 @@ export default function CreateGroupScreen() {
           ) : (
             <TouchableOpacity style={styles.voiceRow} onPress={startVoice} activeOpacity={0.7}>
               <View style={styles.voiceMicBtn}>
-                <Mic size={15} color={COLORS.vozpe500} />
+                <Mic size={15} color={T.blue} />
               </View>
               <Text style={styles.voiceHint}>
                 <Text style={styles.voiceHintBold}>Crea con voz</Text>
@@ -218,7 +217,7 @@ export default function CreateGroupScreen() {
           <TextInput
             style={styles.input}
             placeholder="Ej: Viaje a Chile…"
-            placeholderTextColor={COLORS.textTertiary}
+            placeholderTextColor={T.textMuted}
             value={name}
             onChangeText={setName}
             autoFocus={false}
@@ -282,106 +281,106 @@ export default function CreateGroupScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: COLORS.bgBase },
+  container: { flex: 1, backgroundColor: T.appBg },
   header: {
     flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
     paddingHorizontal: 16, paddingVertical: 12,
-    borderBottomWidth: 1, borderBottomColor: COLORS.borderSubtle,
+    borderBottomWidth: 1, borderBottomColor: T.strokeSoft,
   },
   closeBtn: {
     width: 36, height: 36, borderRadius: 18,
-    backgroundColor: COLORS.bgElevated,
+    backgroundColor: T.blueSoft,
     alignItems: 'center', justifyContent: 'center',
   },
-  headerTitle: { fontSize: 16, fontWeight: '600', color: COLORS.textPrimary },
+  headerTitle: { fontSize: 16, fontWeight: '600', color: T.textPrimary },
   scroll: { flex: 1 },
   content: { padding: 20, gap: 24 },
 
   coverSection: { alignItems: 'center', gap: 8 },
   coverCircle: {
     width: 88, height: 88, borderRadius: 44,
-    backgroundColor: COLORS.bgElevated,
+    backgroundColor: T.blueSoft,
     alignItems: 'center', justifyContent: 'center',
-    borderWidth: 2, borderColor: COLORS.borderDefault,
+    borderWidth: 2, borderColor: T.strokeBlue,
   },
   coverEmoji: { fontSize: 40 },
-  coverHint: { color: COLORS.textTertiary, fontSize: 13 },
+  coverHint: { color: T.textMuted, fontSize: 13 },
 
   // Voice banner
   voiceBanner: {
-    backgroundColor: `${COLORS.vozpe500}0D`,
+    backgroundColor: T.blue + '0D',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: `${COLORS.vozpe500}30`,
+    borderColor: T.blue + '30',
     paddingHorizontal: 14,
     paddingVertical: 12,
   },
   voiceRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   voiceDot: {
     width: 10, height: 10, borderRadius: 5,
-    backgroundColor: '#EF4444',
+    backgroundColor: T.error,
   },
   voiceMicBtn: {
     width: 30, height: 30, borderRadius: 15,
-    backgroundColor: `${COLORS.vozpe500}20`,
+    backgroundColor: T.blue + '15',
     alignItems: 'center', justifyContent: 'center',
   },
   voiceStopBtn: {
     width: 24, height: 24, borderRadius: 6,
-    backgroundColor: COLORS.vozpe500,
+    backgroundColor: T.blue,
     alignItems: 'center', justifyContent: 'center',
   },
-  voiceHint: { flex: 1, color: COLORS.textSecondary, fontSize: 13 },
-  voiceHintBold: { color: COLORS.vozpe500, fontWeight: '600' },
-  voiceCancelText: { color: COLORS.textTertiary, fontSize: 12 },
+  voiceHint: { flex: 1, color: T.textSecondary, fontSize: 12.5 },
+  voiceHintBold: { color: T.blue, fontWeight: '700' },
+  voiceCancelText: { color: T.textMuted, fontSize: 12 },
 
   field: { gap: 10 },
   fieldLabel: {
-    fontSize: 13, fontWeight: '600', color: COLORS.textSecondary,
+    fontSize: 13, fontWeight: '600', color: T.textSecondary,
     textTransform: 'uppercase', letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: COLORS.bgInput,
-    borderRadius: 14, borderWidth: 1, borderColor: COLORS.borderDefault,
+    backgroundColor: T.cardBg,
+    borderRadius: 14, borderWidth: 1, borderColor: T.strokeSoft,
     paddingHorizontal: 16, paddingVertical: 14,
-    color: COLORS.textPrimary, fontSize: 16,
+    color: T.textPrimary, fontSize: 16,
   },
 
   typeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   typeCard: {
     flexBasis: '22%', flexGrow: 1, maxWidth: '30%',
     aspectRatio: 1,
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 14, borderWidth: 1, borderColor: COLORS.borderDefault,
+    backgroundColor: T.blueSoft,
+    borderRadius: 14, borderWidth: 1, borderColor: T.strokeSoft,
     alignItems: 'center', justifyContent: 'center', gap: 4,
   },
   typeCardActive: {
-    borderColor: COLORS.vozpe500,
-    backgroundColor: `${COLORS.vozpe500}15`,
+    borderColor: T.blue,
+    backgroundColor: T.blue + '15',
   },
   typeEmoji: { fontSize: 22 },
   typeLabel: {
-    fontSize: 10, color: COLORS.textSecondary, fontWeight: '500',
+    fontSize: 10, color: T.textSecondary, fontWeight: '500',
     textAlign: 'center', paddingHorizontal: 2,
   },
-  typeLabelActive: { color: COLORS.vozpe400 },
+  typeLabelActive: { color: T.blue, fontWeight: '700' },
 
   currencyRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   currencyChip: {
     paddingHorizontal: 14, paddingVertical: 8,
-    backgroundColor: COLORS.bgSurface,
-    borderRadius: 999, borderWidth: 1, borderColor: COLORS.borderDefault,
+    backgroundColor: T.blueSoft,
+    borderRadius: 999, borderWidth: 1, borderColor: T.strokeSoft,
   },
   currencyChipActive: {
-    borderColor: COLORS.vozpe500,
-    backgroundColor: `${COLORS.vozpe500}15`,
+    borderColor: T.blue,
+    backgroundColor: T.blue + '15',
   },
-  currencyText: { color: COLORS.textSecondary, fontSize: 13, fontWeight: '500' },
-  currencyTextActive: { color: COLORS.vozpe400 },
+  currencyText: { color: T.textSecondary, fontSize: 13, fontWeight: '500' },
+  currencyTextActive: { color: T.blue, fontWeight: '700' },
 
   footer: {
     paddingHorizontal: 20, paddingTop: 12,
-    borderTopWidth: 1, borderTopColor: COLORS.borderSubtle,
-    backgroundColor: COLORS.bgBase,
+    borderTopWidth: 1, borderTopColor: T.strokeSoft,
+    backgroundColor: T.appBg,
   },
 });

@@ -376,12 +376,13 @@ export const useGroupStore = create<GroupState>((set, get) => ({
             });
           } else if (payload.eventType === 'UPDATE') {
             const updated = mapRealtimeEntry(payload.new as Record<string, unknown>);
-            set(state => ({
-              entries: state.entries.map(e => e.id === updated.id ? { ...e, ...updated } : e),
-              pendingCount: state.entries.filter(e =>
-                e.id === updated.id ? updated.status === 'pending_review' : e.status === 'pending_review'
-              ).length,
-            }));
+            set(state => {
+              const nextEntries = state.entries.map(e => (e.id === updated.id ? { ...e, ...updated } : e));
+              return {
+                entries: nextEntries,
+                pendingCount: nextEntries.filter(e => e.status === 'pending_review').length,
+              };
+            });
           } else if (payload.eventType === 'DELETE') {
             const deletedId = (payload.old as { id: string }).id;
             set(state => ({

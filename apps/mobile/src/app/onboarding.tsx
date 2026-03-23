@@ -141,11 +141,15 @@ export default function OnboardingScreen() {
   // ── Guard de auth — DESPUÉS de todos los hooks ──────────────────────────
   if (isAuthenticated) return <Redirect href="/(app)" />;
 
-  // ── Handler OAuth ────────────────────────────────────────────────────────
+  const isAuthenticating = useRef(false);
+
   const handleOAuth = async (provider: 'google' | 'apple') => {
+    if (isAuthenticating.current) return;
+    isAuthenticating.current = true;
     setOauthLoading(provider);
+
     try {
-      const redirectTo = getRedirectUrl();
+      const redirectTo = getRedirectUrl().replace('vozpe://', 'kivo://');
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: { redirectTo, skipBrowserRedirect: true },
@@ -158,14 +162,14 @@ export default function OnboardingScreen() {
 
       if (result.type === 'success' && result.url) {
         await handleOAuthUrl(result.url);
-        return;
-      }
-      if (result.type === 'cancel' || result.type === 'dismiss') {
+      } else {
         setOauthLoading(null);
+        isAuthenticating.current = false;
       }
     } catch (e: any) {
       Alert.alert('Error', e?.message ?? `Error al iniciar sesión con ${provider}.`);
       setOauthLoading(null);
+      isAuthenticating.current = false;
     }
   };
 

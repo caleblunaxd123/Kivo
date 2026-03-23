@@ -34,6 +34,7 @@ export const GROUP_TYPE_CONFIG = {
   materials: { label: 'Materiales', emoji: '🔧' },
   birthday: { label: 'Cumpleaños', emoji: '🎂' },
   general: { label: 'General', emoji: '📋' },
+  couple: { label: 'Pareja', emoji: '❤️' },
 } as const;
 
 export const SPLIT_RULE_LABELS = {

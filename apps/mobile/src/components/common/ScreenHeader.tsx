@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Platform } from 'react-native
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
-import { COLORS } from '@vozpe/shared';
+import { T } from '../../theme/tokens';
 
 interface ScreenHeaderProps {
   title: string;
@@ -34,7 +34,7 @@ export function ScreenHeader({
       <View style={styles.left}>
         {showBack && (
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <ChevronLeft size={22} color={COLORS.textSecondary} />
+            <ChevronLeft size={22} color={T.textSecondary} />
           </TouchableOpacity>
         )}
       </View>
@@ -58,9 +58,9 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   headerSolid: {
-    backgroundColor: COLORS.bgBase,
+    backgroundColor: T.appBg,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.borderSubtle,
+    borderBottomColor: T.strokeSoft,
   },
   left:   { width: 40, alignItems: 'flex-start' },
   center: { flex: 1, alignItems: 'center' },
@@ -71,16 +71,16 @@ const styles = StyleSheet.create({
     borderRadius: 18,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: COLORS.bgElevated,
+    backgroundColor: T.blueSoft,
   },
   title: {
-    color: COLORS.textPrimary,
+    color: T.textPrimary,
     fontSize: 16,
     fontWeight: '600',
     letterSpacing: -0.2,
   },
   subtitle: {
-    color: COLORS.textSecondary,
+    color: T.textSecondary,
     fontSize: 12,
     marginTop: 1,
   },

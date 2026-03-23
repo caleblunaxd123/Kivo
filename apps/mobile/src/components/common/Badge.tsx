@@ -1,16 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '@vozpe/shared';
+import { T } from '../../theme/tokens';
 
 type BadgeVariant = 'success' | 'warning' | 'danger' | 'info' | 'ai' | 'default';
 
 const VARIANT_STYLES: Record<BadgeVariant, { bg: string; text: string; border: string }> = {
-  success: { bg: COLORS.successMuted, text: COLORS.success,       border: `${COLORS.success}40` },
-  warning: { bg: COLORS.warningMuted, text: COLORS.warning,       border: `${COLORS.warning}40` },
-  danger:  { bg: COLORS.errorMuted,   text: COLORS.error,         border: `${COLORS.error}40`   },
-  info:    { bg: '#0A1A2D',           text: '#60A5FA',             border: '#60A5FA40'             },
-  ai:      { bg: COLORS.aiMuted,      text: COLORS.ai,             border: `${COLORS.ai}40`       },
-  default: { bg: COLORS.bgElevated,   text: COLORS.textSecondary,  border: COLORS.borderDefault   },
+  success: { bg: T.greenSoft,   text: T.success, border: `${T.success}40` },
+  warning: { bg: T.warningBg,   text: T.warning, border: `${T.warning}40` },
+  danger:  { bg: T.errorBg,     text: T.error,   border: `${T.error}40`   },
+  info:    { bg: T.blueSoft,    text: T.blue,    border: `${T.blue}40`    },
+  ai:      { bg: '#7C3AED14',   text: '#7C3AED', border: '#7C3AED40'      },
+  default: { bg: T.blueSoft,    text: T.textSecondary, border: T.strokeBlue },
 };
 
 interface BadgeProps {

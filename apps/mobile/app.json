@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Vozpe",
-    "slug": "vozpe",
+    "name": "Kivo",
+    "slug": "kivo",
     "version": "0.1.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
@@ -11,15 +11,15 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.vozpe.app",
+      "bundleIdentifier": "com.kivo.app",
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Vozpe usa el micrófono para que puedas registrar gastos por voz.",
-        "NSCameraUsageDescription": "Vozpe usa la cámara para escanear tickets y recibos.",
-        "NSPhotoLibraryUsageDescription": "Vozpe accede a tu galería para adjuntar fotos de tickets."
+        "NSMicrophoneUsageDescription": "Kivo usa el micrófono para que puedas registrar gastos por voz.",
+        "NSCameraUsageDescription": "Kivo usa la cámara para escanear tickets y recibos.",
+        "NSPhotoLibraryUsageDescription": "Kivo accede a tu galería para adjuntar fotos de tickets."
       }
     },
     "android": {
-      "package": "com.vozpe.app",
+      "package": "com.kivo.app",
       "permissions": [
         "RECORD_AUDIO",
         "CAMERA",
@@ -34,25 +34,25 @@
         "expo-router",
         {
           "root": "src/app",
-          "origin": "vozpe://"
+          "origin": "kivo://"
         }
       ],
       "expo-camera",
       [
         "expo-notifications",
         {
-          "color": "#0891B2"
+          "color": "#1F6FE5"
         }
       ],
       "expo-secure-store",
       "expo-web-browser",
       "expo-audio"
     ],
-    "scheme": "vozpe",
+    "scheme": "kivo",
     "extra": {
       "router": {
         "root": "src",
-        "origin": "vozpe://"
+        "origin": "kivo://"
       },
       "eas": {
         "projectId": "b393ec31-4e71-4cd6-b84b-cff6316aebaf"

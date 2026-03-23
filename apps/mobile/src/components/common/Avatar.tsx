@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { generateInitials, generateMemberColor, COLORS } from '@vozpe/shared';
+import { generateInitials, generateMemberColor } from '@vozpe/shared';
+import { T } from '../../theme/tokens';
 
 type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
@@ -53,7 +54,7 @@ export function Avatar({
         <View
           style={[
             styles.presence,
-            { backgroundColor: isOnline ? COLORS.success : COLORS.borderDefault },
+            { backgroundColor: isOnline ? T.success : T.strokeBlue },
             size === 'xs' && styles.presenceXs,
           ]}
         />
@@ -109,7 +110,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: COLORS.borderSubtle,
+    borderColor: T.strokeSoft,
   },
   initials: {
     fontWeight: '700',
@@ -123,18 +124,18 @@ const styles = StyleSheet.create({
     height: 10,
     borderRadius: 5,
     borderWidth: 2,
-    borderColor: COLORS.bgBase,
+    borderColor: T.appBg,
   },
   presenceXs: { width: 7, height: 7, borderRadius: 3.5 },
   overflowBadge: {
-    backgroundColor: COLORS.bgElevated,
+    backgroundColor: T.blueSoft,
     borderWidth: 1.5,
-    borderColor: COLORS.borderDefault,
+    borderColor: T.strokeBlue,
     alignItems: 'center',
     justifyContent: 'center',
   },
   overflowText: {
-    color: COLORS.textSecondary,
+    color: T.textSecondary,
     fontWeight: '600',
   },
 });

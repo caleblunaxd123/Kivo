@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { COLORS } from '@vozpe/shared';
 import { Button } from './Button';
+import { T } from '../../theme/tokens';
 
 interface EmptyStateProps {
   emoji?: string;
@@ -55,14 +55,14 @@ const styles = StyleSheet.create({
   },
   emoji: { fontSize: 48, marginBottom: 4 },
   title: {
-    color: COLORS.textPrimary,
+    color: T.textPrimary,
     fontSize: 20,
     fontWeight: '600',
     textAlign: 'center',
     letterSpacing: -0.3,
   },
   subtitle: {
-    color: COLORS.textSecondary,
+    color: T.textSecondary,
     fontSize: 15,
     textAlign: 'center',
     lineHeight: 22,

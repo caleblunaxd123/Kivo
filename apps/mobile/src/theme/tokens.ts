@@ -1,5 +1,5 @@
 /**
- * VozPE Design Tokens — fuente de verdad visual
+ * Kivo Design Tokens — fuente de verdad visual
  * Todos los colores, sombras, radios y espaciados nacen del logo (azul + verde).
  * Importar siempre como:  import { T } from '../theme/tokens';
  */
@@ -71,6 +71,16 @@ export const T = {
   fsLg:  18,
   fsXl:  22,
   fs2xl: 26,
+  fs3xl: 32,
+  fs4xl: 40,
+  fs5xl: 48,
+
+  // Font Weights
+  fwNormal: '400',
+  fwMedium: '500',
+  fwSemiBold: '600',
+  fwBold: '700',
+  fwExtraBold: '800',
 
   // ── Sombras ───────────────────────────────────────────────────────────────
   shadowXs: {
