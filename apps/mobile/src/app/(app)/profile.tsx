@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LogOut, ChevronRight, Pencil, Check, X } from 'lucide-react-native';
-import { CURRENCIES } from '@kivo/shared';
+import { CURRENCIES } from '@vozpe/shared';
 import { useAuthStore } from '../../stores/auth.store';
 import { Avatar } from '../../components/common/Avatar';
 import { T } from '../../theme/tokens';

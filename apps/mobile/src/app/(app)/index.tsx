@@ -9,8 +9,8 @@ import {
   Plus, Bell, TrendingUp, Layers, ChevronRight,
   HelpCircle, Sparkles, Mail, X,
 } from 'lucide-react-native';
-import { formatCurrency, GROUP_TYPE_CONFIG, generateInitials } from '@kivo/shared';
-import type { Group } from '@kivo/shared';
+import { formatCurrency, GROUP_TYPE_CONFIG, generateInitials } from '@vozpe/shared';
+import type { Group } from '@vozpe/shared';
 import { useGroupStore } from '../../stores/group.store';
 import { useAuthStore } from '../../stores/auth.store';
 import { EmptyState } from '../../components/common/EmptyState';

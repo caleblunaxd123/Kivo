@@ -4,11 +4,11 @@ import { ArrowRight, TrendingUp, TrendingDown, Minus } from 'lucide-react-native
 import {
   formatCurrency,
   calculateMinimalSettlements, getGroupTotals,
-} from '@kivo/shared';
-import type { MemberBalance } from '@kivo/shared';
+} from '@vozpe/shared';
+import type { MemberBalance } from '@vozpe/shared';
 import { EmptyState } from '../common/EmptyState';
 import { useGroupStore } from '../../stores/group.store';
-import { generateInitials } from '@kivo/shared';
+import { generateInitials } from '@vozpe/shared';
 import { T } from '../../theme/tokens';
 
 interface BalanceViewProps {
