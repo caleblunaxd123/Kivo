@@ -32,17 +32,17 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #C7D2FE;
+    background: #BDD8F0;   /* T.strokeBlue */
     border-radius: 9999px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #A5B4FC;
+    background: #89C4E8;
   }
 
-  /* Focus ring — uses vozpe brand color */
+  /* Focus ring — T.blue del logo */
   :focus-visible {
-    outline: 2px solid #6366F1;
+    outline: 2px solid #1F6FE5;
     outline-offset: 2px;
   }
 }
@@ -52,9 +52,9 @@
     font-family: var(--font-mono);
   }
 
-  /* Gradient text utility */
+  /* Gradient text utility — azul + verde del logo */
   .text-gradient-vozpe {
-    background: linear-gradient(135deg, #6366F1, #8B5CF6, #4F46E5);
+    background: linear-gradient(135deg, #1F6FE5, #1557C8, #2DBE60);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;

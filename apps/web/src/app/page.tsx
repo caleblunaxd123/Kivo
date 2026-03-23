@@ -180,9 +180,9 @@ export default function LandingPage() {
       <section className="flex flex-col items-center justify-center text-center px-6 py-20 md:py-28 gap-7 relative overflow-hidden">
         {/* Background decorations */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-gradient-to-br from-vozpe-500/12 to-violet-500/8 blur-3xl" />
-          <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-indigo-400/10 to-blue-500/8 blur-3xl" />
-          <div className="absolute top-[30%] left-[20%] w-[300px] h-[300px] rounded-full bg-brand-green/6 blur-3xl" />
+          <div className="absolute top-[-20%] right-[-10%] w-[600px] h-[600px] rounded-full bg-vozpe-500/8 blur-3xl" />
+          <div className="absolute bottom-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-vozpe-500/6 blur-3xl" />
+          <div className="absolute top-[30%] left-[20%] w-[300px] h-[300px] rounded-full bg-brand-green/8 blur-3xl" />
         </div>
 
         {/* Badge */}
@@ -194,7 +194,7 @@ export default function LandingPage() {
         {/* Headline */}
         <h1 className="relative text-5xl md:text-7xl font-extrabold text-text-primary leading-[1.05] max-w-4xl tracking-tight">
           Anota ahora,<br />
-          <span className="bg-gradient-to-r from-vozpe-500 via-violet-500 to-indigo-600 bg-clip-text text-transparent">
+          <span className="bg-gradient-to-r from-vozpe-500 via-vozpe-600 to-brand-green bg-clip-text text-transparent">
             ordena después.
           </span>
         </h1>
@@ -328,7 +328,7 @@ export default function LandingPage() {
                 {i < STEPS.length - 1 && (
                   <div className="hidden md:block absolute top-10 right-0 translate-x-1/2 text-border-default text-lg z-10">→</div>
                 )}
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-vozpe-500 to-violet-600 text-white text-2xl mb-5 shadow-btn">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-vozpe-500 to-vozpe-600 text-white text-2xl mb-5 shadow-btn">
                   {s.emoji}
                 </div>
                 <div className="text-xs font-bold text-text-tertiary mb-2 tracking-wider">{s.n}</div>

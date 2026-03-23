@@ -129,7 +129,7 @@ export default function LoginPage() {
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-vozpe-500/8 blur-3xl" />
-        <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-violet-500/6 blur-3xl" />
+        <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-brand-green/6 blur-3xl" />
       </div>
 
       <div className="relative max-w-sm w-full space-y-5">

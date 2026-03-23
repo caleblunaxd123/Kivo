@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     shortcut: '/favicon.svg',
     apple: '/logo-vozpe.png',
   },
-  themeColor: '#6366F1',
+  themeColor: '#1F6FE5',
 };
 
 export default function RootLayout({
