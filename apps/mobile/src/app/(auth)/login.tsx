@@ -332,7 +332,7 @@ export default function LoginScreen() {
         </View>
 
         {/* Cambio de modo */}
-        <TouchableOpacity style={styles.switchBtn} onPress={() => setMode(isLogin ? 'signup' : 'login')}>
+        <TouchableOpacity style={styles.switchBtn} onPress={() => isLogin ? router.push('/(auth)/signup') : setMode('login')}>
           <Text style={styles.switchText}>
             {isLogin ? '¿Sin cuenta? ' : '¿Ya tienes cuenta? '}
             <Text style={styles.switchLink}>
