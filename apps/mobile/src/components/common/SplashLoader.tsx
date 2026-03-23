@@ -7,7 +7,7 @@ import React, { useEffect, useRef } from 'react';
 import {
   View, StyleSheet, Animated, Dimensions, Easing,
 } from 'react-native';
-import { VozpeLogo } from './VozpeLogo';
+import { KivoLogo } from './KivoLogo';
 import { T } from '../../theme/tokens';
 
 const { width: SW } = Dimensions.get('window');
@@ -88,7 +88,7 @@ export function SplashLoader() {
         styles.logoWrap,
         { opacity: logoOpacity, transform: [{ scale: logoScale }] },
       ]}>
-        <VozpeLogo size="lg" />
+        <KivoLogo size="lg" />
       </Animated.View>
 
       {/* Dots loader */}

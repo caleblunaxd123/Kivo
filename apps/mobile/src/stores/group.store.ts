@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { Group, Entry, GroupMember, MemberBalance, EntryType, EntryCategory, SplitRule } from '@vozpe/shared';
+import type { Group, Entry, GroupMember, MemberBalance, EntryType, EntryCategory, SplitRule } from '@kivo/shared';
 import { supabase } from '../lib/supabase';
 
 /** Maps a raw DB row (snake_case) coming from Realtime into a typed Entry (camelCase). */

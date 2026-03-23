@@ -11,7 +11,7 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/auth.store';
-import { VozpeLogo } from '../components/common/VozpeLogo';
+import { KivoLogo } from '../components/common/KivoLogo';
 import { T } from '../theme/tokens';
 
 const { width: SW } = Dimensions.get('window');
@@ -192,7 +192,7 @@ export default function OnboardingScreen() {
         {/* ── Logo ─────────────────────────────────────────────────── */}
         {/* PNG 1536×1024 ratio 1.5 → height>262 → renders width-constrained en SW×262 */}
         <Animated.View style={[styles.logoWrap, { opacity: logoAnim }]}>
-          <VozpeLogo size="xxl" />
+          <KivoLogo size="xxl" />
         </Animated.View>
 
         {/* ── Demo hero card ────────────────────────────────────────── */}
@@ -214,7 +214,7 @@ export default function OnboardingScreen() {
           </Animated.View>
 
           {/* Label interpretación */}
-          <Text style={styles.vozpeUnderstandsLabel}>Vozpe entiende</Text>
+          <Text style={styles.vozpeUnderstandsLabel}>Kivo entiende</Text>
 
           {/* Parsed result */}
           <Animated.View style={[styles.parsedRow, { transform: [{ scale: card2S }] }]}>
@@ -311,9 +311,9 @@ export default function OnboardingScreen() {
 
           <Text style={styles.legal}>
             Al continuar aceptas los{' '}
-            <Text style={styles.legalLink} onPress={() => Linking.openURL('https://vozpe.com/terminos')}>Términos</Text>
+            <Text style={styles.legalLink} onPress={() => Linking.openURL('https://kivo.app/terminos')}>Términos</Text>
             {' '}y la{' '}
-            <Text style={styles.legalLink} onPress={() => Linking.openURL('https://vozpe.com/privacidad')}>Privacidad</Text>.
+            <Text style={styles.legalLink} onPress={() => Linking.openURL('https://kivo.app/privacidad')}>Privacidad</Text>.
           </Text>
         </Animated.View>
       </ScrollView>

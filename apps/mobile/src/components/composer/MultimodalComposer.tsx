@@ -1,5 +1,5 @@
 /**
- * MultimodalComposer — El compositor multimodal de Vozpe
+ * MultimodalComposer — El compositor multimodal de Kivo
  * El componente más importante de la app.
  * Permite captura por voz, foto y texto.
  */
@@ -23,8 +23,8 @@ import {
 } from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
-import type { ParsedEntry, GroupMember } from '@vozpe/shared';
-import { parseQuickText, COLORS } from '@vozpe/shared';
+import type { ParsedEntry, GroupMember } from '@kivo/shared';
+import { parseQuickText, COLORS } from '@kivo/shared';
 import { T } from '../../theme/tokens';
 
 type ComposerMode = 'idle' | 'voice_recording' | 'voice_preview' | 'photo_preview' | 'text_input';
@@ -222,7 +222,7 @@ export function MultimodalComposer({
               accessibilityRole="button"
               accessibilityLabel="Tomar foto de ticket"
             >
-              <Camera size={22} color={COLORS.vozpe500} strokeWidth={1.8} />
+              <Camera size={22} color={COLORS.kivo500} strokeWidth={1.8} />
             </TouchableOpacity>
             <Text style={styles.actionColLabel}>Foto</Text>
           </View>
@@ -248,7 +248,7 @@ export function MultimodalComposer({
               accessibilityRole="button"
               accessibilityLabel="Escribir manualmente"
             >
-              <PenLine size={22} color={COLORS.vozpe500} strokeWidth={1.8} />
+              <PenLine size={22} color={COLORS.kivo500} strokeWidth={1.8} />
             </TouchableOpacity>
             <Text style={styles.actionColLabel}>Texto</Text>
           </View>
@@ -314,7 +314,7 @@ export function MultimodalComposer({
         <View style={styles.expandedHeader}>
           <View style={styles.aiLabel}>
             <Sparkles size={14} color={COLORS.ai} />
-            <Text style={styles.aiLabelText}>Vozpe interpreta</Text>
+            <Text style={styles.aiLabelText}>Kivo interpreta</Text>
           </View>
           <TouchableOpacity onPress={cancel} style={styles.closeBtn}>
             <X size={16} color={COLORS.textSecondary} />

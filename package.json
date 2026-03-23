@@ -1,5 +1,5 @@
 {
-  "name": "vozpe",
+  "name": "kivo",
   "version": "0.1.0",
   "private": true,
   "workspaces": {
@@ -12,9 +12,9 @@
     ]
   },
   "scripts": {
-    "dev:mobile": "yarn workspace @vozpe/mobile start",
-    "dev:web": "yarn workspace @vozpe/web dev",
-    "build:web": "yarn workspace @vozpe/web build",
+    "dev:mobile": "yarn workspace @kivo/mobile start",
+    "dev:web": "yarn workspace @kivo/web dev",
+    "build:web": "yarn workspace @kivo/web build",
     "db:types": "supabase gen types typescript --linked > packages/shared/src/types/database.ts",
     "db:migrate": "supabase db push",
     "lint": "turbo lint",

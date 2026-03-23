@@ -6,8 +6,8 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { X, Mic, Square, Loader } from 'lucide-react-native';
-import { GROUP_TYPE_CONFIG } from '@vozpe/shared';
-import type { GroupType } from '@vozpe/shared';
+import { GROUP_TYPE_CONFIG } from '@kivo/shared';
+import type { GroupType } from '@kivo/shared';
 import { supabase } from '../../../lib/supabase';
 import { useAuthStore } from '../../../stores/auth.store';
 import { useGroupStore } from '../../../stores/group.store';

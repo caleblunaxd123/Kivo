@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { User } from '@vozpe/shared';
+import type { User } from '@kivo/shared';
 import { supabase } from '../lib/supabase';
 
 // Supabase returns snake_case; our User type uses camelCase

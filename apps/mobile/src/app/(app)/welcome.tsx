@@ -17,7 +17,7 @@ const TOUR_STEPS = [
     iconColor: T.blue,
     bgColor: T.blue + '18',
     title: 'Graba con tu voz',
-    description: 'Di "Pizza 80 soles entre 4" y Vozpe lo registra automáticamente. Sin formularios, sin teclear.',
+    description: 'Di "Pizza 80 soles entre 4" y Kivo lo registra automáticamente. Sin formularios, sin teclear.',
     emoji: '🎤',
   },
   {
@@ -33,7 +33,7 @@ const TOUR_STEPS = [
     iconColor: T.green,
     bgColor: T.green + '18',
     title: 'Divide con tu grupo',
-    description: 'Vozpe calcula automáticamente quién debe qué. Comparte el resumen por WhatsApp en un toque.',
+    description: 'Kivo calcula automáticamente quién debe qué. Comparte el resumen por WhatsApp en un toque.',
     emoji: '🤝',
   },
 ];
@@ -49,7 +49,7 @@ export default function AppWelcomeScreen() {
 
   const handleNext = async () => {
     if (isLast) {
-      await AsyncStorage.setItem('vozpe_tour_done', '1');
+      await AsyncStorage.setItem('kivo_tour_done', '1');
       router.back();
     } else {
       setStep(s => s + 1);
@@ -57,7 +57,7 @@ export default function AppWelcomeScreen() {
   };
 
   const handleSkip = async () => {
-    await AsyncStorage.setItem('vozpe_tour_done', '1');
+    await AsyncStorage.setItem('kivo_tour_done', '1');
     router.back();
   };
 
@@ -79,7 +79,7 @@ export default function AppWelcomeScreen() {
 
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Tour de Vozpe 👋</Text>
+        <Text style={styles.headerTitle}>Tour de Kivo 👋</Text>
         <Text style={styles.headerSub}>3 cosas que debes saber</Text>
       </View>
 

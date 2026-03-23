@@ -9,8 +9,8 @@ import {
   Plus, Bell, TrendingUp, Layers, ChevronRight,
   HelpCircle, Sparkles, Mail, X,
 } from 'lucide-react-native';
-import { formatCurrency, GROUP_TYPE_CONFIG, generateInitials } from '@vozpe/shared';
-import type { Group } from '@vozpe/shared';
+import { formatCurrency, GROUP_TYPE_CONFIG, generateInitials } from '@kivo/shared';
+import type { Group } from '@kivo/shared';
 import { useGroupStore } from '../../stores/group.store';
 import { useAuthStore } from '../../stores/auth.store';
 import { EmptyState } from '../../components/common/EmptyState';
@@ -178,14 +178,14 @@ export default function GroupsHomeScreen() {
 
           <TouchableOpacity
             style={styles.helpOption}
-            onPress={() => { setHelpVisible(false); Linking.openURL('mailto:soporte@vozpe.com'); }}
+            onPress={() => { setHelpVisible(false); Linking.openURL('mailto:soporte@kivo.app'); }}
           >
             <View style={[styles.helpIconBox, { backgroundColor: T.green + '14' }]}>
               <Mail size={20} color={T.green} />
             </View>
             <View style={styles.helpTextCol}>
               <Text style={styles.helpOptionTitle}>Contactar soporte</Text>
-              <Text style={styles.helpOptionSub}>soporte@vozpe.com</Text>
+              <Text style={styles.helpOptionSub}>soporte@kivo.app</Text>
             </View>
             <ChevronRight size={16} color={T.textMuted} />
           </TouchableOpacity>

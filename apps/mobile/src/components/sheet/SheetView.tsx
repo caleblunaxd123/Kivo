@@ -9,8 +9,8 @@ import {
   ScrollView, Platform,
 } from 'react-native';
 import { AlertCircle, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react-native';
-import { COLORS, CATEGORY_CONFIG, formatCurrency, formatDate } from '@vozpe/shared';
-import type { Entry, GroupMember } from '@vozpe/shared';
+import { COLORS, CATEGORY_CONFIG, formatCurrency, formatDate } from '@kivo/shared';
+import type { Entry, GroupMember } from '@kivo/shared';
 import { EmptyState } from '../common/EmptyState';
 
 // ─── Paleta Excel ────────────────────────────────────────────────────────────

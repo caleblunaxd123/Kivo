@@ -1,10 +1,10 @@
 /**
- * Color utilities for Vozpe
+ * Color utilities for Kivo
  * Genera colores determinísticos para usuarios/miembros basados en su nombre
  */
 
 const MEMBER_COLORS = [
-  '#0891B2', // cyan  (vozpe brand)
+  '#0891B2', // cyan  (kivo brand)
   '#8B5CF6', // violet
   '#EC4899', // pink
   '#F59E0B', // amber
@@ -13,7 +13,7 @@ const MEMBER_COLORS = [
   '#EF4444', // red
   '#14B8A6', // teal
   '#F97316', // orange
-  '#65A30D', // lime (vozpe green)
+  '#65A30D', // lime (kivo green)
   '#84CC16', // lime light
   '#A855F7', // purple
 ];
@@ -40,7 +40,7 @@ export function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-// Vozpe design tokens — Light theme
+// Kivo design tokens — Light theme
 // Alineado con identidad visual del logo: teal/cyan + lime green + navy.
 // Fondos limpios en blanco/gris muy suave, acentos en teal vibrante.
 export const COLORS = {
@@ -63,21 +63,21 @@ export const COLORS = {
   textSecondary: '#374E6B',   // Navy-gris medio
   textTertiary:  '#6B8FA8',   // Placeholder / muted
 
-  // ── Brand — VozPE Teal/Cyan (icon + UI accent) ────────────────
-  vozpe300: '#67E8F9',   // cyan-300
-  vozpe400: '#22D3EE',   // cyan-400 — iconos, chips
-  vozpe500: '#0891B2',   // cyan-600 — primario UI (botones, highlights)
-  vozpe600: '#0E7490',   // cyan-700 — hover/pressed
-  vozpe700: '#155E75',   // cyan-800 — muy oscuro
+  // ── Brand — Kivo Teal/Cyan (icon + UI accent) ────────────────
+  kivo300: '#67E8F9',   // cyan-300
+  kivo400: '#22D3EE',   // cyan-400 — iconos, chips
+  kivo500: '#0891B2',   // cyan-600 — primario UI (botones, highlights)
+  kivo600: '#0E7490',   // cyan-700 — hover/pressed
+  kivo700: '#155E75',   // cyan-800 — muy oscuro
 
-  // ── Brand — VozPE Navy (texto "Voz" en el logo) ───────────────
-  vozpeNavy:      '#1E3A8A',   // blue-800 — color de "Voz" en el logo
-  vozpeNavyLight: '#EFF6FF',   // bg muy suave navy
+  // ── Brand — Kivo Navy (texto "Kivo" en el logo) ───────────────
+  kivoNavy:      '#1E3A8A',   // blue-800 — color de "Kivo" en el logo
+  kivoNavyLight: '#EFF6FF',   // bg muy suave navy
 
-  // ── Brand — VozPE Green (texto "PE" en el logo) ───────────────
-  vozpeGreen:      '#65A30D',   // lime-600 — legible en fondo claro
-  vozpeGreenLight: '#F7FEE7',   // lime-50 — bg muy suave
-  vozpeGreenBright: '#84CC16',  // lime-500 — para iconos/chips
+  // ── Brand — Kivo Green (texto "Kivo" en el logo) ───────────────
+  kivoGreen:      '#65A30D',   // lime-600 — legible en fondo claro
+  kivoGreenLight: '#F7FEE7',   // lime-50 — bg muy suave
+  kivoGreenBright: '#84CC16',  // lime-500 — para iconos/chips
 
   // ── Semantic ─────────────────────────────────────────────────
   success:      '#059669',

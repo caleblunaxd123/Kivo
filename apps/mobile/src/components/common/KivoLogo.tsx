@@ -1,5 +1,5 @@
 /**
- * VozpeLogo — Logo oficial de VozPE
+ * KivoLogo — Logo oficial de Kivo
  * Usa el asset PNG en apps/mobile/assets/logo-vozpe.png
  */
 
@@ -18,17 +18,15 @@ const SIZES = {
   md:  { height: 50,  width: 190 },
   lg:  { height: 70,  width: 266 },
   xl:  { height: 90,  width: 342 },
-  // xxl: ocupa el ancho disponible de pantalla sin padding lateral
-  // xxl: height > SW/1.5 (=262) fuerza render width-constrained → logo usa ancho completo
   xxl: { height: 300, width: SW },
 };
 
-interface VozpeLogoProps {
+interface KivoLogoProps {
   size?: keyof typeof SIZES;
   style?: StyleProp<ImageStyle>;
 }
 
-export function VozpeLogo({ size = 'md', style }: VozpeLogoProps) {
+export function KivoLogo({ size = 'md', style }: KivoLogoProps) {
   const { height, width } = SIZES[size];
   return (
     <Image
