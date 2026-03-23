@@ -17,9 +17,13 @@ import { T } from '../theme/tokens';
 const { width: SW } = Dimensions.get('window');
 
 function getRedirectUrl() {
-  const url = Linking.createURL('/');
-  console.log('[OAuth] redirectTo:', url);
-  return url;
+  // Expo Go en LAN devuelve exp://192.168.x.x:8081/--/
+  // Supabase necesita la URL base sin el path /--/ para hacer match exacto.
+  // En tunnel devuelve exp://xxx.exp.direct/--/ → también strip el path.
+  const full = Linking.createURL('/');
+  const base = full.replace(/\/--\/.*$/, '').replace(/\/$/, '');
+  console.log('[OAuth] redirectTo:', base);
+  return base;
 }
 
 /** Extrae el code/tokens de la URL de retorno OAuth y los intercambia con Supabase */

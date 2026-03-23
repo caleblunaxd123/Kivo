@@ -7,7 +7,7 @@ import React from 'react';
 import { Image, ImageStyle, StyleProp, Dimensions } from 'react-native';
 
 // Asset PNG con fondo transparente
-const logoAsset = require('../../../assets/logo-vozpe.png');
+const logoAsset = require('../../../assets/logo-kivo.png');
 
 const SW = Dimensions.get('window').width;
 

@@ -158,7 +158,7 @@ export default function VerifyScreen() {
 
       {/* Back */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.canGoBack() ? router.back() : router.replace('/(auth)/signup')}>
           <ChevronLeft size={20} color={T.textSecondary} />
         </TouchableOpacity>
       </View>

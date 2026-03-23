@@ -11,7 +11,7 @@ import {
   Phone, Calendar, AlertCircle,
 } from 'lucide-react-native';
 import { supabase } from '../../lib/supabase';
-import { VozpeLogo } from '../../components/common/VozpeLogo';
+import { KivoLogo } from '../../components/common/KivoLogo';
 import { T } from '../../theme/tokens';
 
 // ── Formateo automático de fecha DD/MM/AAAA ───────────────────────────────────
@@ -22,17 +22,20 @@ function formatBirthDate(raw: string): string {
   return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
 }
 
-// Valida que la fecha sea real y la persona tenga entre 8 y 120 años
+// Valida que la fecha sea real y la persona tenga al menos 18 años
 function validateBirthDate(dmy: string): string | null {
   const parts = dmy.split('/');
   if (parts.length !== 3 || parts[2].length < 4) return 'Ingresa la fecha completa (DD/MM/AAAA)';
   const [d, m, y] = parts.map(Number);
+  if (m < 1 || m > 12) return 'El mes debe estar entre 01 y 12';
+  if (d < 1 || d > 31) return 'El día debe estar entre 01 y 31';
   const date = new Date(y, m - 1, d);
   if (isNaN(date.getTime()) || date.getDate() !== d || date.getMonth() + 1 !== m)
     return 'La fecha no es válida';
-  const age = (Date.now() - date.getTime()) / (1000 * 60 * 60 * 24 * 365.25);
-  if (age < 8)  return 'Debes tener al menos 8 años';
-  if (age > 120) return 'Fecha de nacimiento no válida';
+  const today = new Date();
+  const min18 = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
+  if (date > min18) return 'Debes tener al menos 18 años para registrarte';
+  if (y < 1900) return 'Fecha de nacimiento no válida';
   return null;
 }
 
@@ -53,6 +56,7 @@ export default function SignupScreen() {
   const [password,    setPassword]    = useState('');
   const [confirmPass, setConfirmPass] = useState('');
   const [birthDate,   setBirthDate]   = useState('');
+  const [birthError,  setBirthError]  = useState('');
   const [phone,       setPhone]       = useState('');
 
   const [showPass,    setShowPass]    = useState(false);
@@ -71,7 +75,14 @@ export default function SignupScreen() {
   const phoneRef     = useRef<TextInput>(null);
 
   const handleBirthDateChange = (text: string) => {
-    setBirthDate(formatBirthDate(text));
+    const formatted = formatBirthDate(text);
+    setBirthDate(formatted);
+    // Validar en tiempo real cuando la fecha está completa
+    if (formatted.length === 10) {
+      setBirthError(validateBirthDate(formatted) ?? '');
+    } else {
+      setBirthError('');
+    }
   };
 
   const handleSubmit = async () => {
@@ -125,12 +136,13 @@ export default function SignupScreen() {
   };
 
   const canSubmit = fullName.trim() && email.trim() && password.length >= 8
-    && confirmPass && birthDate.length === 10;
+    && confirmPass && birthDate.length === 10 && !birthError;
 
   return (
     <KeyboardAvoidingView
       style={[styles.outer, { paddingTop: insets.top }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'android' ? 0 : 0}
     >
       {/* Blobs decorativos */}
       <View style={styles.blob1} pointerEvents="none" />
@@ -138,19 +150,20 @@ export default function SignupScreen() {
 
       {/* Back */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.canGoBack() ? router.back() : router.replace('/(auth)/login')}>
           <ChevronLeft size={20} color={T.textSecondary} />
         </TouchableOpacity>
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 40 }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 120 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
+        automaticallyAdjustKeyboardInsets
       >
         {/* Logo */}
         <View style={styles.logoWrap}>
-          <VozpeLogo size="xxl" />
+          <KivoLogo size="xxl" />
         </View>
 
         {/* Título */}
@@ -271,9 +284,10 @@ export default function SignupScreen() {
 
           {/* Fecha de nacimiento */}
           <Field
-            icon={<Calendar size={16} color={focused('birth') ? T.blue : T.textMuted} />}
+            icon={<Calendar size={16} color={birthError ? T.errorRed : focused('birth') ? T.blue : T.textMuted} />}
             focused={focused('birth')}
             hint="DD/MM/AAAA"
+            error={!!birthError}
           >
             <TextInput
               ref={birthRef}
@@ -290,6 +304,12 @@ export default function SignupScreen() {
               onBlur={() => setFocus(null)}
             />
           </Field>
+          {!!birthError && (
+            <View style={styles.fieldErrorWrap}>
+              <AlertCircle size={12} color={T.errorRed} />
+              <Text style={styles.fieldErrorText}>{birthError}</Text>
+            </View>
+          )}
 
           {/* Teléfono (opcional) */}
           <Field
@@ -346,15 +366,20 @@ export default function SignupScreen() {
 }
 
 // ── Field wrapper ─────────────────────────────────────────────────────────────
-function Field({ icon, focused, children, right, hint }: {
+function Field({ icon, focused, children, right, hint, error }: {
   icon: React.ReactNode;
   focused: boolean;
   children: React.ReactNode;
   right?: React.ReactNode;
   hint?: string;
+  error?: boolean;
 }) {
   return (
-    <View style={[styles.inputWrap, focused && styles.inputWrapFocused]}>
+    <View style={[
+      styles.inputWrap,
+      focused && styles.inputWrapFocused,
+      error && styles.inputWrapError,
+    ]}>
       <View style={styles.inputIconWrap}>{icon}</View>
       {children}
       {hint && !right && <Text style={styles.fieldHint}>{hint}</Text>}
@@ -413,9 +438,12 @@ const styles = StyleSheet.create({
     gap: 10, ...T.shadowXs,
   },
   inputWrapFocused: { borderColor: T.blue, backgroundColor: T.blueSoft },
+  inputWrapError:   { borderColor: T.errorRed, backgroundColor: '#FFF5F5' },
   inputIconWrap: { width: 20, alignItems: 'center' },
   input: { flex: 1, color: T.textPrimary, fontSize: T.fsBase },
   fieldHint: { color: T.textMuted, fontSize: 11, fontWeight: '500' },
+  fieldErrorWrap: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: -6 },
+  fieldErrorText: { color: T.errorRed, fontSize: 11.5, flex: 1 },
 
   btnPrimary: {
     width: '100%', height: 54,

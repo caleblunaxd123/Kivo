@@ -16,9 +16,10 @@ import { KivoLogo } from '../../components/common/KivoLogo';
 import { T } from '../../theme/tokens';
 
 function getRedirectUrl() {
-  const url = Linking.createURL('/(auth)/login');
-  console.log('[OAuth] redirectTo:', url);
-  return url;
+  const full = Linking.createURL('/');
+  const base = full.replace(/\/--\/.*$/, '').replace(/\/$/, '');
+  console.log('[OAuth] redirectTo:', base);
+  return base;
 }
 
 async function handleOAuthUrl(url: string): Promise<void> {
@@ -205,7 +206,7 @@ export default function LoginScreen() {
 
       {/* Back button */}
       <View style={styles.topBar}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
+        <TouchableOpacity style={styles.backBtn} onPress={() => router.canGoBack() ? router.back() : router.replace('/onboarding')}>
           <ChevronLeft size={20} color={T.textSecondary} />
         </TouchableOpacity>
       </View>
