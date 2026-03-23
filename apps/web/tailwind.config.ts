@@ -5,40 +5,40 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // ── Fondos — coinciden exactamente con T.appBg / T.cardBg del móvil ──
-        'bg-base':        '#F4FAFB',   // T.appBg
-        'bg-surface':     '#FFFFFF',   // T.cardBg
-        'bg-elevated':    '#ECFEFF',   // Elevado cyan
-        'bg-input':       '#F4FAFB',   // T.inputBg
-        // ── Bordes — coinciden con tokens del móvil ──────────────────────────
-        'border-subtle':  '#E0F7FA',   // borderSubtle
-        'border-default': '#BAE6FD',   // borderDefault
-        'border-strong':  '#7DD3FC',   // borderStrong
-        // ── Texto — coinciden con T.textPrimary / Secondary / Muted ─────────
-        'text-primary':   '#0C1A2E',   // textPrimary
-        'text-secondary': '#374E6B',   // textSecondary
-        'text-tertiary':  '#6B8FA8',   // textMuted
-        // ── Brand — azul Vozpe (mismo que T.blue en el móvil => vozpe500: #0891B2) ───────────────
+        // ── Fondos ───────────────────────────────────────────────────────────
+        'bg-base':        '#F4F6FB',   // app background (CLAUDE.md)
+        'bg-surface':     '#FFFFFF',   // cards / surfaces
+        'bg-elevated':    '#EEF2FF',   // light indigo elevated
+        'bg-input':       '#F4F6FB',   // input fields
+        // ── Bordes ───────────────────────────────────────────────────────────
+        'border-subtle':  '#E0E7FF',   // indigo-100
+        'border-default': '#C7D2FE',   // indigo-200
+        'border-strong':  '#A5B4FC',   // indigo-300
+        // ── Texto ─────────────────────────────────────────────────────────
+        'text-primary':   '#0C1A2E',
+        'text-secondary': '#374E6B',
+        'text-tertiary':  '#6B8FA8',
+        // ── Brand — Indigo Vozpe (CLAUDE.md: #6366F1) ────────────────────
         vozpe: {
-          50:  '#ECFEFF',
-          100: '#CFFAFE',
-          200: '#A5F3FC',
-          300: '#67E8F9',
-          400: '#22D3EE',
-          500: '#0891B2',   // vozpe500 — primario (botones, acentos)
-          600: '#0E7490',   // hover / pressed
-          700: '#155E75',
+          50:  '#EEF2FF',   // indigo-50
+          100: '#E0E7FF',   // indigo-100
+          200: '#C7D2FE',   // indigo-200
+          300: '#A5B4FC',   // indigo-300
+          400: '#818CF8',   // indigo-400
+          500: '#6366F1',   // ★ vozpe primary (CLAUDE.md)
+          600: '#4F46E5',   // hover / pressed
+          700: '#4338CA',   // deep
         },
-        // ── Verde complementario (vozpeGreen del móvil => #65A30D) ────────────────────────
+        // ── Verde complementario ──────────────────────────────────────────
         brand: {
-          green:  '#65A30D',   // vozpeGreen
-          deep:   '#4D7C0F',   
-          soft:   '#F7FEE7',   // vozpeGreenLight
+          green:  '#22C55E',
+          deep:   '#16A34A',
+          soft:   '#F0FDF4',
         },
-        // ── Semánticos ───────────────────────────────────────────────────────
-        success: '#059669',   // success
-        warning: '#D97706',   // warning
-        danger:  '#DC2626',   // error
+        // ── Semánticos ────────────────────────────────────────────────────
+        success: '#059669',
+        warning: '#D97706',
+        danger:  '#DC2626',
         ai:      '#7C3AED',
       },
       fontFamily: {
@@ -55,12 +55,22 @@ const config: Config = {
         'full': '9999px',
       },
       boxShadow: {
-        // Sombras coinciden con T.shadowCard y T.shadowBtn del móvil
-        'card':  '0 2px 10px rgba(31,111,229,0.07), 0 1px 4px rgba(31,111,229,0.04)',
-        'btn':   '0 5px 14px rgba(31,111,229,0.28)',
-        'fab':   '0 8px 20px rgba(31,111,229,0.36)',
+        'card':  '0 2px 10px rgba(99,102,241,0.07), 0 1px 4px rgba(99,102,241,0.04)',
+        'btn':   '0 5px 14px rgba(99,102,241,0.28)',
+        'fab':   '0 8px 20px rgba(99,102,241,0.36)',
         'modal': '0 -4px 20px rgba(0,0,0,0.08)',
-        'xs':    '0 1px 4px rgba(31,111,229,0.05)',
+        'xs':    '0 1px 4px rgba(99,102,241,0.05)',
+        'glow':  '0 0 40px rgba(99,102,241,0.15)',
+      },
+      animation: {
+        'float': 'float 6s ease-in-out infinite',
+        'pulse-slow': 'pulse 4s ease-in-out infinite',
+      },
+      keyframes: {
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
       },
     },
   },

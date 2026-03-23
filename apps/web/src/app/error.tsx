@@ -15,27 +15,36 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <html>
-      <body className="min-h-screen flex items-center justify-center bg-[#F4F9FD] px-4">
-        <div className="text-center max-w-sm">
-          <div className="text-6xl mb-6">⚠️</div>
-          <h1 className="text-2xl font-bold text-[#0F172A] mb-2">Algo salió mal</h1>
-          <p className="text-[#4A6070] text-sm mb-8 leading-relaxed">
+    <html lang="es">
+      <body style={{ margin: 0, background: '#F4F6FB', fontFamily: 'Inter, system-ui, sans-serif', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', padding: '16px' }}>
+        <div style={{ textAlign: 'center', maxWidth: '360px' }}>
+          <div style={{ fontSize: '64px', marginBottom: '24px' }}>⚠️</div>
+          <h1 style={{ fontSize: '24px', fontWeight: 700, color: '#0C1A2E', marginBottom: '8px' }}>
+            Algo salió mal
+          </h1>
+          <p style={{ color: '#374E6B', fontSize: '14px', marginBottom: '32px', lineHeight: '1.6' }}>
             Hubo un error inesperado. Puedes intentarlo de nuevo o volver al inicio.
           </p>
-          <div className="flex items-center justify-center gap-3">
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}>
             <button
               onClick={reset}
-              className="px-5 py-2.5 rounded-xl bg-[#1F6FE5] text-white text-sm font-semibold hover:bg-[#1557C8] transition-colors"
+              style={{
+                padding: '10px 20px', borderRadius: '12px', background: '#6366F1',
+                color: 'white', fontSize: '14px', fontWeight: 600,
+                border: 'none', cursor: 'pointer',
+              }}
             >
               Intentar de nuevo
             </button>
-            <Link
+            <a
               href="/"
-              className="px-5 py-2.5 rounded-xl border border-[#BDD8F0] text-[#4A6070] text-sm font-medium hover:border-[#1F6FE5] hover:text-[#1F6FE5] transition-colors"
+              style={{
+                padding: '10px 20px', borderRadius: '12px', border: '1px solid #C7D2FE',
+                color: '#374E6B', fontSize: '14px', fontWeight: 500, textDecoration: 'none',
+              }}
             >
               Ir al inicio
-            </Link>
+            </a>
           </div>
         </div>
       </body>
