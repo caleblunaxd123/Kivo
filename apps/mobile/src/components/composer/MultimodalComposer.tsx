@@ -23,8 +23,8 @@ import {
 } from 'expo-audio';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system/legacy';
-import type { ParsedEntry, GroupMember } from '@kivo/shared';
-import { parseQuickText, COLORS } from '@kivo/shared';
+import type { ParsedEntry, GroupMember } from '@vozpe/shared';
+import { parseQuickText, COLORS } from '@vozpe/shared';
 import { T } from '../../theme/tokens';
 
 type ComposerMode = 'idle' | 'voice_recording' | 'voice_preview' | 'photo_preview' | 'text_input';

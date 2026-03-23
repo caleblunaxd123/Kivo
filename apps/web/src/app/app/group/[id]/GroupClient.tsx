@@ -54,7 +54,8 @@ function getInitials(name: string): string {
   return name.split(' ').filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join('');
 }
 
-const AVATAR_COLORS = ['#6366F1', '#8B5CF6', '#EC4899', '#F59E0B', '#10B981', '#3B82F6', '#EF4444', '#14B8A6'];
+// Paleta de avatares — espeja T.generateMemberColor del móvil
+const AVATAR_COLORS = ['#1F6FE5', '#2DBE60', '#7C3AED', '#E5761F', '#DB2777', '#0891B2', '#D97706', '#059669'];
 
 function getAvatarColor(name: string): string {
   let h = 0;

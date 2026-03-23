@@ -20,7 +20,7 @@ config.resolver.nodeModulesPaths = [
 
 // 3. Map workspace packages so Metro los resuelve directamente desde su carpeta
 config.resolver.extraNodeModules = {
-  '@kivo/shared': path.resolve(monorepoRoot, 'packages/shared'),
+  '@vozpe/shared': path.resolve(monorepoRoot, 'packages/shared'),
 };
 
 module.exports = config;

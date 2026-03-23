@@ -10,9 +10,9 @@ import * as FileSystem from 'expo-file-system';
 // expo-sharing requiere build nativo — import lazy para no crashear en Expo Go
 let Sharing: typeof import('expo-sharing') | null = null;
 try { Sharing = require('expo-sharing'); } catch {}
-import { formatCurrency, COLORS } from '@kivo/shared';
+import { formatCurrency, COLORS } from '@vozpe/shared';
 import { T } from '../../../theme/tokens';
-import type { ParsedEntry } from '@kivo/shared';
+import type { ParsedEntry } from '@vozpe/shared';
 import { useGroupStore } from '../../../stores/group.store';
 import { useAuthStore } from '../../../stores/auth.store';
 import { MultimodalComposer } from '../../../components/composer/MultimodalComposer';

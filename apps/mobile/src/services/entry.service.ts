@@ -3,8 +3,8 @@
  */
 
 import { supabase } from '../lib/supabase';
-import { parseQuickText } from '@kivo/shared';
-import type { Entry, ParsedEntry, GroupMember } from '@kivo/shared';
+import { parseQuickText } from '@vozpe/shared';
+import type { Entry, ParsedEntry, GroupMember } from '@vozpe/shared';
 
 const VALID_CURRENCY_RE = /^[A-Z]{3}$/;
 function sanitizeCurrencyCode(c: string | null | undefined): string {

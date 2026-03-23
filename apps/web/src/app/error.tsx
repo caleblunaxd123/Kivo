@@ -29,7 +29,7 @@ export default function GlobalError({
             <button
               onClick={reset}
               style={{
-                padding: '10px 20px', borderRadius: '12px', background: '#6366F1',
+                padding: '10px 20px', borderRadius: '12px', background: '#1F6FE5',
                 color: 'white', fontSize: '14px', fontWeight: 600,
                 border: 'none', cursor: 'pointer',
               }}
@@ -39,8 +39,8 @@ export default function GlobalError({
             <a
               href="/"
               style={{
-                padding: '10px 20px', borderRadius: '12px', border: '1px solid #C7D2FE',
-                color: '#374E6B', fontSize: '14px', fontWeight: 500, textDecoration: 'none',
+                padding: '10px 20px', borderRadius: '12px', border: '1px solid #BDD8F0',
+                color: '#4A6070', fontSize: '14px', fontWeight: 500, textDecoration: 'none',
               }}
             >
               Ir al inicio

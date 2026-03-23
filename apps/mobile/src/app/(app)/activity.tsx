@@ -5,8 +5,8 @@ import {
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Activity, ChevronRight } from 'lucide-react-native';
-import { formatRelativeTime, CATEGORY_CONFIG, formatCurrency } from '@kivo/shared';
-import type { Entry } from '@kivo/shared';
+import { formatRelativeTime, CATEGORY_CONFIG, formatCurrency } from '@vozpe/shared';
+import type { Entry } from '@vozpe/shared';
 import { useGroupStore } from '../../stores/group.store';
 import { supabase } from '../../lib/supabase';
 import { EmptyState } from '../../components/common/EmptyState';

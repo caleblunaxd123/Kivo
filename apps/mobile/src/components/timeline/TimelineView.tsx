@@ -3,8 +3,8 @@ import {
   View, Text, FlatList, StyleSheet, TouchableOpacity,
 } from 'react-native';
 import { Mic, Camera, PenLine, Sparkles, CheckCircle2, AlertCircle } from 'lucide-react-native';
-import { CATEGORY_CONFIG, formatCurrency, formatRelativeTime } from '@kivo/shared';
-import type { Entry, GroupMember } from '@kivo/shared';
+import { CATEGORY_CONFIG, formatCurrency, formatRelativeTime } from '@vozpe/shared';
+import type { Entry, GroupMember } from '@vozpe/shared';
 import { Avatar } from '../common/Avatar';
 import { EmptyState } from '../common/EmptyState';
 import { T } from '../../theme/tokens';

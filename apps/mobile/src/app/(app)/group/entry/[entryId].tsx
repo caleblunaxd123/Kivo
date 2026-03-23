@@ -12,8 +12,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   ChevronLeft, Trash2, Check, AlertTriangle, Pencil, CheckCircle2,
 } from 'lucide-react-native';
-import { CATEGORY_CONFIG, formatCurrency, formatDate } from '@kivo/shared';
-import type { EntryCategory, EntryStatus } from '@kivo/shared';
+import { CATEGORY_CONFIG, formatCurrency, formatDate } from '@vozpe/shared';
+import type { EntryCategory, EntryStatus } from '@vozpe/shared';
 import { useGroupStore } from '../../../../stores/group.store';
 import { useAuthStore } from '../../../../stores/auth.store';
 import { T } from '../../../../theme/tokens';
