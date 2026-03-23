@@ -125,13 +125,19 @@ export default function LoginPage() {
   const isEmailPass = mode === 'login' || mode === 'signup';
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-bg-base">
-      <div className="max-w-sm w-full space-y-5">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-bg-base relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-vozpe-500/8 blur-3xl" />
+        <div className="absolute bottom-[-20%] left-[-10%] w-[400px] h-[400px] rounded-full bg-violet-500/6 blur-3xl" />
+      </div>
+
+      <div className="relative max-w-sm w-full space-y-5">
 
         {/* Logo + tagline */}
         <div className="text-center space-y-2 mb-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-vozpe.png" alt="Vozpe" className="h-20 mx-auto" />
+          <img src="/logo-vozpe.png" alt="Vozpe" className="h-16 mx-auto" />
           <p className="text-text-secondary text-sm">Anota ahora, ordena después.</p>
         </div>
 
@@ -272,9 +278,9 @@ export default function LoginPage() {
 
         <p className="text-center text-text-tertiary text-xs">
           Al continuar aceptas nuestros{' '}
-          <a href="https://vozpe.com/terminos"   className="text-vozpe-500 hover:underline">Términos</a>
+          <Link href="/terminos" className="text-vozpe-500 hover:underline">Términos</Link>
           {' '}y{' '}
-          <a href="https://vozpe.com/privacidad" className="text-vozpe-500 hover:underline">Privacidad</a>.
+          <Link href="/privacidad" className="text-vozpe-500 hover:underline">Privacidad</Link>.
         </p>
 
         <p className="text-center text-text-tertiary text-xs">

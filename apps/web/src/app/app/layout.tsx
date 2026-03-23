@@ -68,8 +68,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         plan={plan}
       />
 
-      {/* Main content */}
-      <main className="flex-1 overflow-auto">
+      {/* Main content — add left padding on mobile for hamburger button */}
+      <main className="flex-1 overflow-auto md:ml-0">
         {children}
       </main>
     </div>
