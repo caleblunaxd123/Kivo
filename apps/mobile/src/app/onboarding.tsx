@@ -122,6 +122,8 @@ export default function OnboardingScreen() {
   // ── Android OAuth fix: Linking listener captura el redirect aunque
   //    openAuthSessionAsync devuelva 'cancel' (comportamiento normal en Android
   //    con Chrome Custom Tabs — la URL llega por el sistema de deep links) ──
+  const isAuthenticating = useRef(false);
+
   useEffect(() => {
     const sub = Linking.addEventListener('url', async ({ url }) => {
       console.log('[OAuth] Linking event URL:', url);
@@ -144,8 +146,6 @@ export default function OnboardingScreen() {
 
   // ── Guard de auth — DESPUÉS de todos los hooks ──────────────────────────
   if (isAuthenticated) return <Redirect href="/(app)" />;
-
-  const isAuthenticating = useRef(false);
 
   const handleOAuth = async (provider: 'google' | 'apple') => {
     if (isAuthenticating.current) return;
